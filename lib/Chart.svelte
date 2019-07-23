@@ -1,0 +1,99 @@
+<script>
+    import { onMount } from 'svelte';
+    import Footer from './Footer.svelte';
+
+    import get from '@datawrapper/shared/get';
+    import render from './render.js';
+
+    export let data = {};
+    export let theme = {};
+
+    const caption = 'chart';
+    const chart = data.chartJSON;
+
+    const source = {
+        name: chart.metadata.describe['source-name'],
+        url: chart.metadata.describe['source-url']
+    };
+
+    const { footer } = theme.data.options;
+
+    onMount(() => {
+        dw.theme.register(theme.id, theme.data);
+
+        render(data);
+    });
+</script>
+
+<div id="header" class="dw-chart-header">
+    {#if chart.title}
+        <h1>
+            <span>{chart.title}</span>
+        </h1>
+    {/if}
+    {#if chart.metadata.describe.intro}
+        <p>
+            {@html chart.metadata.describe.intro}
+        </p>
+    {/if}
+</div>
+
+<div id="chart" class="dw-chart-body" />
+<!-- hook chart_before_body -->
+
+{#if chart.metadata.annotate.notes}
+    <div class="dw-chart-notes">
+        {@html chart.metadata.annotate.notes}
+    </div>
+{/if}
+
+{#if source.name && theme.data.options.footer.sourcePosition === 'above-footer'}
+    <span class="footer-block source-block">
+        {footer.sourceCaption}:
+        {#if source.url}
+            <a class="source" target="_blank" rel="noopener noreferrer" href={source.url}>
+                {source.name}
+            </a>
+        {:else}{source.name}{/if}
+    </span>
+{/if}
+
+{#if get(theme, 'data.template.afterChart')}
+    {@html theme.data.template.afterChart}
+{/if}
+
+<div id="footer" class="dw-chart-footer">
+    <div class="footer-left">
+        {#if footer.logo.enabled && footer.logo.position === 'left' && footer.logo.url}
+            <img height={footer.logo.height} src={footer.logo.url} alt={theme.title} />
+        {/if}
+
+        {#if footer.sourcePosition === 'left' || footer.sourcePosition === 'above-footer'}
+            <Footer
+                chartId={chart.id}
+                data={footer}
+                embedCode={get(chart, 'metadata.publish.embed-codes.embed-method-iframe')}
+                {caption}
+                {source} />
+        {/if}
+    </div>
+    <div class="footer-right">
+        {#if footer.sourcePosition && footer.sourcePosition === 'right'}
+            <Footer
+                chartId={chart.id}
+                data={footer}
+                embedCode={get(chart, 'metadata.publish.embed-codes.embed-method-iframe')}
+                {caption}
+                {source} />
+        {/if}
+
+        {#if footer.logo.enabled && footer.logo.position === 'right'}
+            {#if footer.logo.url}
+                <img height={footer.logo.height} src={footer.logo.url} alt={theme.title} />
+            {/if}
+            {#if footer.logo.text}
+                <span class="logo-text">{footer.logo.text}</span>
+            {/if}
+        {/if}
+    </div>
+</div>

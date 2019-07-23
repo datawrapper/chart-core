@@ -1,0 +1,588 @@
+.chart {
+    font-family: @typography_chart_typeface;
+    color: @typography_chart_color; /* if else */
+    letter-spacing: @typography_chart_letterSpacing;
+    font-size: @typography_chart_fontSize;
+    background: @colors_general_background;
+    padding: @style_body_padding; /* if else */
+    margin: @style_body_margin; /* if else */
+    height: 100%;
+
+    &.vis-height-fit {
+        overflow: hidden;
+    }
+
+    a {
+        color: @typography_links_color;
+        text-decoration: underline; /* if typography_links_underlined else */
+    }
+
+    .dw-chart-header {
+        min-height: 1px;
+        position: relative;
+        overflow: auto;
+
+        .header-right {
+            position: absolute;
+            right: 10px;
+            z-index: 20;
+        }
+
+        padding: @style_header_padding;
+        margin: @style_header_margin;
+        background: @style_header_background;
+        border-top: @style_header_border_top;
+        border-bottom: @style_header_border_bottom;
+        border-left: @style_header_border_left;
+        border-right: @style_header_border_right;
+        text-align: @style_header_textAlign;
+
+        h1 {
+            font-family: @typography_headline_typeface;
+            font-weight: @typography_headline_fontWeight;
+            font-size: @typography_headline_fontSize;
+            line-height: @typography_headline_lineHeight;
+            letter-spacing: @typography_headline_letterSpacing;
+            font-style: normal; /* if typography_headline_cursive else */
+            text-decoration: none; /* if typography_headline_underlined else  */
+            color: @typography_headline_color;
+            text-align: @style_header_title_textAlign;
+            margin: @style_header_title_margin; /* if else */
+            padding: @style_header_title_padding;
+            border-top: @style_header_title_border_top;
+            border-bottom: @style_header_title_border_bottom;
+            border-left: @style_header_title_border_left;
+            border-right: @style_header_title_border_right;
+        }
+
+        p {
+            font-family: @typography_description_typeface;
+            font-weight: @typography_description_fontWeight;
+            font-size: @typography_description_fontSize;
+            line-height: @typography_description_lineHeight;
+            letter-spacing: @typography_description_letterSpacing;
+            font-style: normal; /* if typography_description_cursive else */
+            text-decoration: none; /* if typography_description_underlined else */
+            color: @typography_description_color;
+            margin: @style_header_description_margin; /* if else */
+            padding: @style_header_description_padding;
+            text-align: @style_header_description_textAlign;
+            border-bottom: @style_header_description_border_top;
+            border-left: @style_header_description_border_top;
+            border-right: @style_header_description_border_top;
+        }
+    }
+
+    .dw-chart-body {
+        font-weight: @typography_chart_fontWeight;
+        padding: @style_chart_padding;
+        margin: @style_chart_margin;
+        border-top: @style_chart_border_top;
+        border-bottom: @style_chart_border_bottom;
+        border-left: @style_chart_border_top;
+        border-right: @style_chart_border_top;
+
+        &.dark-bg .label span {
+            color: @typography_chart_color; /* if typography_chart_color else */
+            fill: @typography_chart_color; /* if typography_chart_color else */
+        }
+
+        path.y-gridline,
+        line.gridline,
+        .major-grid-line line,
+        line.y-gridline,
+        line.y-tick {
+            stroke: @style_chart_axes_gridlines_color;
+        }
+
+        .bc-grid-line {
+            border-left-color: @style_chart_axes_gridlines_color;
+        }
+
+        .y-gridline {
+            border-top-color: @style_chart_axes_gridlines_color;
+        }
+
+        path.grid.x-axis,
+        line.x-axis,
+        .vis-frame line.axis,
+        line.x-tick,
+        line.theme-tick.y-tick,
+        line.y-axis {
+            stroke: @style_chart_axes_gridlines_baselineColor;
+        }
+        .bc-grid-baseline {
+            border-left-color: @style_chart_axes_gridlines_baselineColor;
+        }
+
+        path.y-gridline,
+        line.gridline,
+        .major-grid-line line,
+        line.y-gridline {
+            stroke-dasharray: @style_chart_axes_gridlines_style_strokeDasharray;
+            stroke-linecap: @style_chart_axes_gridlines_style_strokeLinecap;
+        }
+
+        .bc-grid-line {
+            border-left-style: @style_chart_axes_gridlines_style_style; /* if style_chart_axes_gridlines_style_style else  */
+        }
+
+        path.y-gridline,
+        line.gridline,
+        .major-grid-line line,
+        line.y-gridline,
+        line.y-tick,
+        path.grid.x-axis,
+        line.x-axis,
+        .vis-frame line.axis {
+            stroke-width: @style_chart_axes_gridlines_width;
+        }
+
+        .y-gridline {
+            border-top-width: @style_chart_axes_gridlines_width;
+        }
+
+        path.grid.x-axis,
+        line.x-axis,
+        line.axis.y-axis {
+            stroke-width: @style_chart_axes_gridlines_baselineWidth;
+        }
+
+        &.content-below-chart {
+            padding: 0px 0px 20px 0px;
+        }
+    }
+
+    .labels text {
+        font-size: @typography_chart_fontSize;
+    }
+
+    .label {
+        font-size: @typography_chart_fontSize;
+
+        span,
+        tspan {
+            color: @typography_chart_color; /* if else */
+            fill: @typography_chart_color; /* if else */
+        }
+
+        &.value,
+        &.value span {
+            font-feature-settings: 'tnum';
+            font-family: @style_chart_labels_values_typeface;
+            font-size: @style_chart_labels_values_fontSize;
+            letter-spacing: @style_chart_labels_values_letterSpacing;
+            color: @style_chart_labels_values_color;
+        }
+
+        span {
+            text-shadow: ~'0 0 2px @{colors_background}';
+        }
+
+        &.inverted span {
+            text-shadow: 0 0px 2px #000000;
+            color: @style_chart_labels_inside_inverted; /* if else */
+        }
+
+        &.inside:not(.inverted) span {
+            text-shadow: 0 0px 2px #ffffff;
+            color: @style_chart_labels_inside_normal; /* if else */
+        }
+
+        &.outline span {
+            text-shadow: ~'0 1px 0 @{colors_background}, 1px 0 0 @{colors_background}, 0 -1px 0 @{colors_background}, -1px 0 0 @{colors_background},1px 1px 0 @{colors_background}, 1px -1px 0 @{colors_background}, -1px -1px 0 @{colors_background}, -1px 1px 0 @{colors_background},0 2px 1px @{colors_background}, 2px 0 1px @{colors_background}, 0 -2px 1px @{colors_background}, -2px 0 1px @{colors_background},-1px 2px 0px @{colors_background}, 2px -1px 0px @{colors_background}, -1px -2px 0px @{colors_background}, -2px -1px 0px @{colors_background},1px 2px 0px @{colors_background}, 2px 1px 0px @{colors_background}, 1px -2px 0px @{colors_background}, -2px 1px 0px @{colors_background}';
+        }
+
+        &.axis-label span {
+            text-shadow: ~'-1px -1px 2px @{colors_background}, -1px 0px 2px @{colors_background}, -1px 1px 2px @{colors_background}, 0px -1px 2px @{colors_background}, 0px 1px 2px @{colors_background}, 1px -1px 2px @{colors_background}, 1px 0px 2px @{colors_background}, 1px 1px 2px @{colors_background}';
+        }
+
+        sup {
+            text-shadow: none;
+        }
+
+        &.highlighted {
+            font-weight: bold;
+        }
+
+        &.highlighted,
+        .label.axis {
+            font-size: @typography_chart_fontSize;
+            z-index: 100;
+        }
+
+        &.hover {
+            font-weight: bold;
+        }
+
+        &.smaller span {
+            font-size: 80%;
+        }
+
+        &.legend-text span,
+        &.legend-text {
+            font-feature-settings: 'tnum';
+            font-size: @style_chart_labels_legend_fontSize;
+            color: @typography_chart_legend_color;
+            font-family: @style_chart_labels_legend_typeface;
+        }
+    }
+
+    .dw-chart-notes {
+        font-family: @typography_notes_typeface;
+        font-weight: @typography_notes_fontWeight;
+        font-size: @typography_notes_fontSize;
+        line-height: @typography_notes_lineHeight;
+        font-style: normal; /* if typography_notes_cursive else */
+        text-decoration: none; /* if typography_notes_underlined else */
+        color: @typography_notes_color;
+        text-align: @style_notes_textAlign;
+        padding: @style_notes_padding;
+        position: relative;
+    }
+
+    #footer,
+    .dw-chart-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: @style_footer_padding;
+        margin: @style_footer_margin;
+        font-family: @typography_footer_typeface;
+        font-weight: @typography_footer_fontWeight;
+        font-size: @typography_footer_fontSize;
+        line-height: @typography_footer_lineHeight;
+        font-style: normal; /* if typography_footer_cursive else */
+        text-decoration: none; /* if typography_footer_underlined else */
+        color: @typography_footer_color;
+        border-top: @style_footer_border_top;
+        border-bottom: @style_footer_border_bottom;
+        border-left: @style_footer_border_left;
+        border-right: @style_footer_border_right;
+
+        & > div > .footer-block {
+            display: inline-block;
+
+            &.hidden {
+                display: none;
+            }
+
+            a[href=''] {
+                color: @typography_footer_color;
+                pointer-events: none;
+                text-decoration: none;
+                padding: 0;
+                border-bottom: 0;
+            }
+
+            .separator {
+                display: inline-block;
+                font-style: initial;
+
+                &:before {
+                    content: '•';
+                    display: inline-block;
+                }
+            }
+        }
+
+        & > div {
+            .footer-block.hidden:first-child + .footer-block:not(.hidden) .separator,
+            .footer-block.hidden:first-child
+                + .footer-block.hidden
+                + .footer-block:not(.hidden)
+                .separator,
+            .footer-block.hidden:first-child
+                + .footer-block.hidden
+                + .footer-block.hidden
+                + .footer-block:not(.hidden)
+                .separator,
+            .footer-block.hidden:first-child
+                + .footer-block.hidden
+                + .footer-block.hidden
+                + .footer-block.hidden
+                + .footer-block:not(.hidden)
+                .separator,
+            .footer-block.hidden:first-child
+                + .footer-block.hidden
+                + .footer-block.hidden
+                + .footer-block.hidden
+                + .footer-block.hidden
+                + .footer-block:not(.hidden)
+                .separator,
+            .footer-block.hidden:first-child
+                + .footer-block.hidden
+                + .footer-block.hidden
+                + .footer-block.hidden
+                + .footer-block.hidden
+                + .footer-block.hidden
+                + .footer-block:not(.hidden)
+                .separator {
+                display: none;
+            }
+        }
+
+        & > div > a:first-child::before,
+        & > div > .source-block:first-child::before,
+        & > div > .footer-block:first-child::before {
+            content: '';
+            display: none;
+        }
+    }
+
+    .dw-chart-notes a,
+    .dw-chart-footer a {
+        padding: @style_footer_links_padding;
+        border-bottom: @style_footer_links_border_bottom;
+        font-family: @typography_links_typeface;
+        font-weight: @typography_links_fontWeight;
+        line-height: @typography_links_lineHeight;
+        font-style: normal; /* if typography_links_cursive else */
+        text-decoration: none; /* if typography_links_underlined else */
+        color: @typography_links_color;
+    }
+
+    a img {
+        border: 0px;
+    }
+
+    .embed-code {
+        position: absolute;
+        bottom: 20px;
+        left: 0;
+        padding: 15px;
+        background: #eee;
+        color: #000;
+        border-radius: 6px;
+        text-transform: none;
+        font-size: 1em;
+        box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.4);
+        z-index: 10;
+    }
+
+    .embed-code textarea {
+        width: 90%;
+        margin-top: 2%;
+        height: 7em;
+    }
+
+    .hide {
+        display: none;
+    }
+
+    .embed-code .close {
+        cursor: pointer;
+        position: absolute;
+        right: 2%;
+        top: 2%;
+        font-size: 1.125em;
+        opacity: 0.7;
+    }
+
+    .embed-code .close:hover {
+        opacity: 1;
+    }
+
+    .secondary.tick {
+        font-feature-settings: 'tnum';
+
+        font-family: @style_chart_labels_ticks_secondary_typeface;
+
+        &.text,
+        span,
+        text {
+            color: @style_chart_labels_ticks_secondary_color; /* if style_chart_labels_ticks_secondary_color else style_chart_labels_ticks_color */
+            fill: @style_chart_labels_ticks_secondary_color; /* if style_chart_labels_ticks_secondary_color else style_chart_labels_ticks_color */
+        }
+    }
+
+    .primary.tick {
+        font-family: @style_chart_labels_ticks_primary_typeface;
+        font-feature-settings: 'tnum';
+
+        span,
+        text,
+        tspan {
+            color: @style_chart_labels_ticks_primary_color; /* if style_chart_labels_ticks_primary_color else style_chart_labels_ticks_color */
+            fill: @style_chart_labels_ticks_primary_color; /* if style_chart_labels_ticks_primary_color else style_chart_labels_ticks_color */
+        }
+    }
+
+    .dw-tooltip {
+        color: @style_chart_tooltip_text_color;
+    }
+
+    .tooltip {
+        z-index: 200;
+        padding-bottom: 0px;
+
+        .content {
+            background-color: #fff;
+            border: 1px solid #888;
+            box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
+            padding: 5px 8px;
+        }
+
+        label {
+            font-weight: 700;
+        }
+
+        label:after {
+            content: ': ';
+        }
+    }
+
+    .logo {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        .big {
+            display: none;
+        }
+    }
+
+    svg .axis,
+    svg .tick,
+    svg .grid,
+    svg rect {
+        shape-rendering: crispEdges;
+    }
+
+    .filter-links {
+        height: 30px;
+        overflow-x: hidden;
+        overflow-y: hidden;
+        border-bottom: 1px solid #ccc;
+        font-size: @typography_chart_fontSize;
+
+        a {
+            color: #666;
+            height: 28px;
+            line-height: 28px;
+            padding: 10px;
+            text-decoration: none;
+
+            &:hover {
+                color: #222;
+            }
+
+            &.active {
+                font-weight: bold;
+                color: #000;
+                box-shadow: none;
+                cursor: default;
+                text-decoration: none;
+
+                border-bottom: 3px solid #555;
+                padding: 10px 10px 6px 10px;
+            }
+        }
+    }
+
+    .filter-select {
+        background-color: #ffffff;
+        border: 1px solid #cccccc;
+        border-radius: 4px 4px 4px 4px;
+        padding: 4px 6px;
+        vertical-align: middle;
+        font-size: @typography_chart_fontSize;
+    }
+
+    &.plain #footer {
+        height: 10px;
+    }
+
+    &.js .noscript {
+        display: none;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .label.annotation span {
+        background: transparent;
+    }
+
+    .legend-item.hover .label {
+        font-weight: bold;
+    }
+
+    .watermark {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        transform-origin: top left;
+        opacity: 0.4;
+        font-weight: bold;
+        font-size: 6px;
+        white-space: nowrap;
+    }
+}
+
+.clearfix:after {
+    content: '.';
+    display: block;
+    clear: both;
+    visibility: hidden;
+    line-height: 0;
+    height: 0;
+}
+
+.clearfix {
+    display: inline-block;
+}
+
+html[xmlns] .clearfix {
+    display: block;
+}
+
+* html .clearfix {
+    height: 1%;
+}
+
+.point {
+    border: 1px solid #ccc;
+    display: inline-block;
+    position: absolute;
+    background: #fff;
+    z-index: 100;
+    cursor: pointer;
+
+    height: 20px;
+    width: 20px;
+    border-radius: 20px;
+    top: 20px;
+
+    &:hover {
+        background: #ebebeb;
+    }
+
+    &.active {
+        background: #ccc;
+        height: 20px;
+        width: 20px;
+        border-radius: 20px;
+        top: 20px;
+        border-color: #888;
+    }
+}
+
+.point-label {
+    position: absolute;
+}
+
+.line {
+    height: 1px;
+    background: #ccc;
+    position: absolute;
+    left: 0px;
+    top: 30px;
+    z-index: 1;
+}
+
+.vis-pie-chart path,
+.vis-donut-chart path,
+.vis-election-donut-chart path {
+    stroke-width: 0.5;
+}
