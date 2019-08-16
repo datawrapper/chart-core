@@ -10,7 +10,7 @@
     "scripts": {
         "format": "prettier 'lib/**/*.{js,html,svelte}' --write",
         "build": "rollup -c rollup.config.js",
-        "cp:vendor": "cp -r vendor dist/vendor",
+        "cp:vendor": "cp -r vendor/ dist/vendor/",
         "lint": "prettier --check 'lib/**/*.{js,html,svelte}' && eslint 'lib/**/*.{js,svelte}'",
         "prepublishOnly": "npm run build && npm run cp:vendor"
     },
