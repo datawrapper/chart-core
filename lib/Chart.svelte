@@ -18,6 +18,8 @@
 
     const { footer } = theme.data.options;
 
+    if (data.basemapAttribution) footer.basemapAttribution = data.basemapAttribution;
+
     onMount(() => {
         dw.theme.register(theme.id, theme.data);
 

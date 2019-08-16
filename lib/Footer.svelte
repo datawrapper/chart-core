@@ -21,6 +21,12 @@
     }
 </script>
 
+<style>
+    .footer-block:first-child .separator {
+        display: none !important;
+    }
+</style>
+
 {#if chartBasedOn.byline}
     <span class="footer-block byline-block" style="text-transform: capitalize;">
         {data.forkCaption}
@@ -48,6 +54,14 @@
 {/if}
 
 <!-- hook chart_footer_after_source -->
+
+{#if data.basemapAttribution}
+    <span class="footer-block map-attribution-block">
+        <span class="separator" />
+        {data.basemapAttribution.text}:
+        {@html data.basemapAttribution.caption}
+    </span>
+{/if}
 
 {#if data.getTheData.enabled}
     <span class="footer-block chart-action-data">
