@@ -21,12 +21,6 @@
     }
 </script>
 
-<style>
-    .footer-block:first-child .separator {
-        display: none !important;
-    }
-</style>
-
 {#if chartBasedOn.byline}
     <span class="footer-block byline-block" style="text-transform: capitalize;">
         {data.forkCaption}
