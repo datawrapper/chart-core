@@ -19,6 +19,17 @@
         e.target.focus();
         e.target.select();
     }
+
+    // show separator in all blocks except for the first one
+    let isFirstBlock = true;
+
+    function separator() {
+        if (isFirstBlock) {
+            isFirstBlock = false;
+            return '';
+        }
+        return '<span class="separator"></span>';
+    }
 </script>
 
 {#if chartBasedOn.byline}
@@ -39,7 +50,7 @@
 
 {#if source.name && data.sourcePosition !== 'above-footer'}
     <span class="footer-block source-block">
-        <span class="separator" />
+        {@html separator()}
         {data.sourceCaption}:
         {#if source.url}
             <a class="source" target="_blank" rel="noopener noreferrer" href={source.url}>
@@ -53,7 +64,7 @@
 
 {#if data.basemapAttribution}
     <span class="footer-block map-attribution-block">
-        <span class="separator" />
+        {@html separator()}
         {data.basemapAttribution.text}:
         {@html data.basemapAttribution.caption}
     </span>
@@ -62,7 +73,7 @@
 {#if data.getTheData.enabled}
     <span class="footer-block chart-action-data">
         {#if data.getTheData.caption}
-            <span class="separator" />
+            {@html separator()}
         {/if}
         <a href="data">{data.getTheData.caption}</a>
     </span>
@@ -71,7 +82,7 @@
 {#if data.embed.enabled}
     <span class="footer-block embed">
         {#if data.embed.caption}
-            <span class="separator" />
+            {@html separator()}
         {/if}
         <a href="#embed" class="chart-action-embed" on:click={handleClick}>{data.embed.caption}</a>
         <div class="embed-code {modalIsHidden ? 'hide' : ''}">
@@ -87,7 +98,7 @@
 {#if data.staticImage.enabled}
     <span class="footer-block static-image">
         {#if data.staticImage.caption}
-            <span class="separator" />
+            {@html separator()}
         {/if}
         <a href={`//img.datawrapper.de/${chartId}/full.png`} class="chart-action-image">
             {data.staticImage.caption}
@@ -97,7 +108,7 @@
 
 {#if data.createdWithDatawrapper}
     <span class="footer-block attribution">
-        <span class="separator" />
+        {@html separator()}
         <a href="#placeholder" target="_blank" rel="noopener noreferrer">
             {data.createdWithCaption} Datawrapper
         </a>
