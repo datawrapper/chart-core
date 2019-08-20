@@ -38,13 +38,15 @@
 {/if}
 
 {#if source.name && data.sourcePosition !== 'above-footer'}
-    <span class="separator" />
-    {data.sourceCaption}:
-    {#if source.url}
-        <a class="source" target="_blank" rel="noopener noreferrer" href={source.url}>
-            {source.name}
-        </a>
-    {:else}{source.name}{/if}
+    <span class="footer-block source-block">
+        <span class="separator" />
+        {data.sourceCaption}:
+        {#if source.url}
+            <a class="source" target="_blank" rel="noopener noreferrer" href={source.url}>
+                {source.name}
+            </a>
+        {:else}{source.name}{/if}
+    </span>
 {/if}
 
 <!-- hook chart_footer_after_source -->
