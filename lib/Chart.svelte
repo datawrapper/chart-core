@@ -30,7 +30,9 @@
 <div id="header" class="dw-chart-header">
     {#if chart.title}
         <h1>
-            <span>{chart.title}</span>
+            <span>
+                {@html chart.title}
+            </span>
         </h1>
     {/if}
     {#if chart.metadata.describe.intro}
