@@ -46,3 +46,12 @@ Everytime `npm install` is called after that, the link is removed. Usually it is
 ## Publishing
 
 To publish this package run `npm version {major|minor|patch}`  and `npm publish`. To publish you have to be part of the Datawrapper organization on npm.
+
+## Translations
+
+Chart translations are stored in `dist/locale/` as JSON files. They are downloaded from a [Google Sheet](https://docs.google.com/spreadsheets/d/1Duu-1CJ_pZFMZUm90uSHA5rgsxLTGhtZvXAxI9p65UI/edit#gid=60302674) and should get committed to the repository.
+To update translations run `npm run update:locales`. This script runs automatically before publishing a new version of `@datawrapper/chart-core`.
+
+On the first run `npm run update:locales` will ask you to to open a link and grant access. This generates a `token.json` file for future script runs. **Do not commit that file.**
+
+Information about the Google Sheets v4 API can be found at [developers.google.com](https://developers.google.com/sheets/api/quickstart/nodejs?refresh=1).

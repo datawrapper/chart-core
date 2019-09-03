@@ -7,9 +7,25 @@
 
     export let data = {};
     export let theme = {};
+    export let translations = {};
 
     const caption = 'chart';
     const chart = data.chartJSON;
+
+    function __(key, ...args) {
+        key.trim();
+
+        let translation = translations[key] || `MISSING: ${key}`;
+
+        if (args.length) {
+            translation = translation.replace(/\$(\d)/g, (m, i) => {
+                i = +i;
+                return args[i] || m;
+            });
+        }
+
+        return translation;
+    }
 
     const source = {
         name: chart.metadata.describe['source-name'],
@@ -53,7 +69,7 @@
 
 {#if source.name && theme.data.options.footer.sourcePosition === 'above-footer'}
     <span class="footer-block source-block">
-        {footer.sourceCaption}:
+        {__(footer.sourceCaption)}:
         {#if source.url}
             <a class="source" target="_blank" rel="noopener noreferrer" href={source.url}>
                 {source.name}
@@ -78,7 +94,8 @@
                 data={footer}
                 embedCode={get(chart, 'metadata.publish.embed-codes.embed-method-iframe')}
                 {caption}
-                {source} />
+                {source}
+                {__} />
         {/if}
     </div>
     <div class="footer-right">

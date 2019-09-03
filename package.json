@@ -12,7 +12,8 @@
         "build": "rollup -c rollup.config.js",
         "cp:vendor": "cp -r vendor/ dist/vendor/",
         "lint": "prettier --check 'lib/**/*.{js,html,svelte}' && eslint 'lib/**/*.{js,svelte}'",
-        "prepublishOnly": "npm run build && npm run cp:vendor"
+        "prepublishOnly": "npm run build && npm run cp:vendor && npm run update:locales",
+        "update:locales": "node scripts/update-translations.js"
     },
     "repository": {
         "type": "git",
@@ -36,8 +37,10 @@
         "@babel/runtime": "^7.5.5",
         "babel-eslint": "~10.0.3",
         "core-js": "3.2.1",
+        "country-emoji": "^1.4.4",
         "eslint": "~6.2.2",
         "eslint-plugin-svelte3": "~2.7.3",
+        "googleapis": "^42.0.0",
         "husky": "~3.0.4",
         "lint-staged": "~9.2.4",
         "prettier": "~1.18.2",

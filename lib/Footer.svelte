@@ -7,6 +7,7 @@
     export let byline = '';
     export let chartByline = '';
     export let chartBasedOn = {};
+    export let __;
 
     let modalIsHidden = true;
 
@@ -34,15 +35,15 @@
 
 {#if chartBasedOn.byline}
     <span class="footer-block byline-block" style="text-transform: capitalize;">
-        {data.forkCaption}
+        {__(data.forkCaption)}
         <span class="chart-based-on">
             {@html chartBasedOn.byline}
         </span>
     </span>
 {:else if byline}
-    {#if caption == 'chart'}{data.chartCaption}{/if}
-    {#if caption == 'map'}{data.mapCaption}{/if}
-    {#if caption == 'table'}{data.tableCaption}{/if}
+    {#if caption == 'chart'}{__(data.chartCaption)}{/if}
+    {#if caption == 'map'}{__(data.mapCaption)}{/if}
+    {#if caption == 'table'}{__(data.tableCaption)}{/if}
     <span class="chart-byline">
         {@html chartByline}
     </span>
@@ -51,7 +52,7 @@
 {#if source.name && data.sourcePosition !== 'above-footer'}
     <span class="footer-block source-block">
         {@html separator()}
-        {data.sourceCaption}:
+        {__(data.sourceCaption)}:
         {#if source.url}
             <a class="source" target="_blank" rel="noopener noreferrer" href={source.url}>
                 {source.name}
@@ -75,7 +76,7 @@
         {#if data.getTheData.caption}
             {@html separator()}
         {/if}
-        <a href="data">{data.getTheData.caption}</a>
+        <a href="data">{__(data.getTheData.caption)}</a>
     </span>
 {/if}
 
@@ -84,7 +85,9 @@
         {#if data.embed.caption}
             {@html separator()}
         {/if}
-        <a href="#embed" class="chart-action-embed" on:click={handleClick}>{data.embed.caption}</a>
+        <a href="#embed" class="chart-action-embed" on:click={handleClick}>
+            {__(data.embed.caption)}
+        </a>
         <div class="embed-code {modalIsHidden ? 'hide' : ''}">
             <div class="close" on:click={handleClick}>×</div>
             <div>
@@ -101,7 +104,7 @@
             {@html separator()}
         {/if}
         <a href={`//img.datawrapper.de/${chartId}/full.png`} class="chart-action-image">
-            {data.staticImage.caption}
+            {__(data.staticImage.caption)}
         </a>
     </span>
 {/if}
@@ -110,7 +113,7 @@
     <span class="footer-block attribution">
         {@html separator()}
         <a href="#placeholder" target="_blank" rel="noopener noreferrer">
-            {data.createdWithCaption} Datawrapper
+            {__(data.createdWithCaption)} Datawrapper
         </a>
     </span>
 {/if}
