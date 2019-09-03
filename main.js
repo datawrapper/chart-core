@@ -3,7 +3,11 @@ import Chart from './lib/Chart.svelte';
 
 const chart = new Chart({
     target: document.body,
-    props: { data: window.__DW_DATA__, theme: window.__DW_THEME__ }
+    props: {
+        data: window.__DW_DATA__,
+        theme: window.__DW_THEME__,
+        translations: window.__DW_TRANSLATIONS__
+    }
 });
 
 export default chart;
