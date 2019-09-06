@@ -26,9 +26,9 @@
     },
     "homepage": "https://github.com/datawrapper/chart-core#readme",
     "dependencies": {
-        "@datawrapper/shared": "0.13.2",
+        "@datawrapper/shared": "0.15.0",
         "fontfaceobserver": "2.1.0",
-        "svelte": "3.9.1"
+        "svelte": "3.9.2"
     },
     "devDependencies": {
         "@babel/core": "~7.5.5",
@@ -38,16 +38,16 @@
         "babel-eslint": "~10.0.3",
         "core-js": "3.2.1",
         "country-emoji": "^1.4.4",
-        "eslint": "~6.2.2",
+        "eslint": "~6.3.0",
         "eslint-plugin-svelte3": "~2.7.3",
         "googleapis": "^42.0.0",
-        "husky": "~3.0.4",
-        "lint-staged": "~9.2.4",
+        "husky": "~3.0.5",
+        "lint-staged": "~9.2.5",
         "prettier": "~1.18.2",
         "prettier-plugin-svelte": "~0.7.0",
-        "rollup": "~1.20.2",
+        "rollup": "~1.20.3",
         "rollup-plugin-babel": "~4.3.3",
-        "rollup-plugin-commonjs": "~10.0.2",
+        "rollup-plugin-commonjs": "~10.1.0",
         "rollup-plugin-node-resolve": "~5.2.0",
         "rollup-plugin-svelte": "~5.1.0",
         "rollup-plugin-terser": "~5.1.1"
