@@ -13,6 +13,14 @@
     const chart = data.chartJSON;
 
     function __(key, ...args) {
+        if (typeof key !== 'string') {
+            key = '';
+            console.error(
+                new TypeError(`function __ called without required 'key' parameter!
+Please make sure you called __(key) with a key of type "string".
+`)
+            );
+        }
         key.trim();
 
         let translation = translations[key] || `MISSING: ${key}`;
