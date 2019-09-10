@@ -113,7 +113,7 @@
     <span class="footer-block attribution">
         {@html separator()}
         <a href="#placeholder" target="_blank" rel="noopener noreferrer">
-            {__(data.createdWithCaption)} Datawrapper
+            {#if data.createdWithCaption}{__(data.createdWithCaption)} Datawrapper{/if}
         </a>
     </span>
 {/if}
