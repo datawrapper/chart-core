@@ -15,7 +15,7 @@ const TOKEN_PATH = 'token.json';
 fs.readFile(path.join(__dirname, '../credentials.json'), (err, content) => {
     if (err) return process.stdout.write('Error loading client secret file:', err);
     // Authorize a client with credentials, then call the Google Sheets API.
-    authorize(JSON.parse(content), listMajors);
+    authorize(JSON.parse(content), downloadLocales);
 });
 
 /**
@@ -47,7 +47,8 @@ function getNewToken(oAuth2Client, callback) {
         access_type: 'offline',
         scope: SCOPES
     });
-    process.stdout.write('Authorize this app by visiting this url:', authUrl);
+    // eslint-disable-next-line
+    console.log('Authorize this app by visiting this url:', authUrl);
     const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout
@@ -60,7 +61,8 @@ function getNewToken(oAuth2Client, callback) {
             // Store the token to disk for later program executions
             fs.writeFile(TOKEN_PATH, JSON.stringify(token), err => {
                 if (err) return console.error(err);
-                process.stdout.write('Token stored to', TOKEN_PATH);
+                // eslint-disable-next-line
+                console.log('Token stored to', TOKEN_PATH);
             });
             callback(oAuth2Client);
         });
@@ -72,7 +74,8 @@ function getNewToken(oAuth2Client, callback) {
  * @see https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
  * @param {google.auth.OAuth2} auth The authenticated Google OAuth client.
  */
-function listMajors(auth) {
+function downloadLocales(auth) {
+    const localeDir = path.join(__dirname, '../dist/locale');
     const sheets = google.sheets({ version: 'v4', auth });
 
     sheets.spreadsheets.values.get(
@@ -87,13 +90,17 @@ function listMajors(auth) {
 
             keys.splice(0, 1);
 
+            if (!fs.existsSync(localeDir)) {
+                fs.mkdirSync(localeDir);
+            }
+
             columns.forEach(([lang, ...col]) => {
                 const map = keys.reduce((acc, key, i) => {
                     acc[key] = col[i];
                     return acc;
                 }, {});
                 fs.writeFileSync(
-                    path.join(__dirname, '../dist/locale', `${lang}.json`),
+                    path.join(localeDir, `${lang}.json`),
                     JSON.stringify(map, null, 4),
                     { encoding: 'utf-8' }
                 );
