@@ -56,7 +56,7 @@
             font-family: @typography_headline_typeface;
             font-weight: @typography_headline_fontWeight;
             font-size: @typography_headline_fontSize;
-            line-height: @typography_headline_lineHeight;
+            line-height: @typography_headline_lineHeight * 1px;
             text-transform: @typography_headline_textTransform;
             letter-spacing: @typography_headline_letterSpacing;
             font-style: if(@typography_headline_cursive = 0, normal, italic);
@@ -79,7 +79,7 @@
             font-weight: @typography_description_fontWeight;
             font-size: @typography_description_fontSize;
             text-transform: @typography_description_textTransform;
-            line-height: @typography_description_lineHeight;
+            line-height: @typography_description_lineHeight * 1px;
             letter-spacing: @typography_description_letterSpacing;
             font-style: if(@typography_description_cursive = 0, normal, italic);
             text-decoration: if(@typography_description_underlined = 0, none, underline);
@@ -280,7 +280,7 @@
         font-weight: @typography_notes_fontWeight;
         text-transform: @typography_notes_textTransform;
         font-size: @typography_notes_fontSize;
-        line-height: @typography_notes_lineHeight;
+        line-height: @typography_notes_lineHeight * 1px;
         font-style: if(@typography_notes_cursive = 1, italic, normal);
         text-decoration: if(@typography_notes_underlined = 1, underline, none);
         color: @typography_notes_color;
@@ -375,7 +375,7 @@
         font-weight: @typography_footer_fontWeight;
         font-size: @typography_footer_fontSize;
         text-transform: @typography_footer_textTransform;
-        line-height: @typography_footer_lineHeight;
+        line-height: @typography_footer_lineHeight * 1px;
         font-style: if(@typography_footer_cursive = 1, italic, normal);
         text-decoration: if(@typography_footer_underlined = 1, underline, none);
         color: @typography_footer_color;
@@ -391,7 +391,7 @@
         border-bottom: @style_footer_links_border_bottom;
         font-family: @typography_links_typeface;
         font-weight: @typography_links_fontWeight;
-        line-height: @typography_links_lineHeight;
+        line-height: @typography_links_lineHeight * 1px;
         font-style: if(@typography_links_cursive = 1, italic, normal);
         text-decoration: if(@typography_links_underlined = 1, underline, nonee);
         color: @typography_links_color;
