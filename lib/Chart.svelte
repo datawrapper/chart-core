@@ -54,20 +54,19 @@ Please make sure you called __(key) with a key of type "string".
 <div id="header" class="dw-chart-header">
     {#if chart.title}
         <h1>
-            <span>
+            <span class="chart-title">
                 {@html chart.title}
             </span>
         </h1>
     {/if}
     {#if chart.metadata.describe.intro}
-        <p>
+        <p class="chart-intro">
             {@html chart.metadata.describe.intro}
         </p>
     {/if}
 </div>
 
 <div id="chart" class="dw-chart-body" />
-<!-- hook chart_before_body -->
 
 {#if chart.metadata.annotate.notes}
     <div class="dw-chart-notes">
@@ -77,7 +76,7 @@ Please make sure you called __(key) with a key of type "string".
 
 {#if source.name && theme.data.options.footer.sourcePosition === 'above-footer'}
     <span class="footer-block source-block">
-        {__(footer.sourceCaption)}:
+        <span class="source-caption">{__(footer.sourceCaption)}:</span>
         {#if source.url}
             <a class="source" target="_blank" rel="noopener noreferrer" href={source.url}>
                 {source.name}

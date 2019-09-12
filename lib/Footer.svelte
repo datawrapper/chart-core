@@ -33,21 +33,21 @@
     }
 </script>
 
-{#if chartBasedOn.byline}
-    <span class="footer-block byline-block" style="text-transform: capitalize;">
-        {__(data.forkCaption)}
+<span class="footer-block byline-block">
+    {#if chartBasedOn.byline}
+        <span class="fork-caption">{__(data.forkCaption)}</span>
         <span class="chart-based-on">
             {@html chartBasedOn.byline}
         </span>
-    </span>
-{:else if byline}
-    {#if caption == 'chart'}{__(data.chartCaption)}{/if}
-    {#if caption == 'map'}{__(data.mapCaption)}{/if}
-    {#if caption == 'table'}{__(data.tableCaption)}{/if}
-    <span class="chart-byline">
-        {@html chartByline}
-    </span>
-{/if}
+    {:else if byline}
+        {#if caption == 'chart'}{__(data.chartCaption)}{/if}
+        {#if caption == 'map'}{__(data.mapCaption)}{/if}
+        {#if caption == 'table'}{__(data.tableCaption)}{/if}
+        <span class="chart-byline">
+            {@html chartByline}
+        </span>
+    {/if}
+</span>
 
 {#if source.name && data.sourcePosition !== 'above-footer'}
     <span class="footer-block source-block">
