@@ -10,7 +10,7 @@ const plugins = p => [svelte(), resolve({ browser: true }), commonjs(), ...p, te
 const output = {
     sourcemap: true,
     name: 'chart',
-    dir: path.resolve(__dirname, 'dist/vendor'),
+    dir: path.resolve(__dirname, 'dist/core'),
     compact: true
 };
 

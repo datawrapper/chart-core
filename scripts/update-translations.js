@@ -75,7 +75,7 @@ function getNewToken(oAuth2Client, callback) {
  * @param {google.auth.OAuth2} auth The authenticated Google OAuth client.
  */
 function downloadLocales(auth) {
-    const localeDir = path.join(__dirname, '../dist/locale');
+    const localeDir = path.join(__dirname, '../dist/core/locale');
     const sheets = google.sheets({ version: 'v4', auth });
 
     sheets.spreadsheets.values.get(
