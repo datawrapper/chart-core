@@ -76,7 +76,7 @@
         {#if data.getTheData.caption}
             {@html separator()}
         {/if}
-        <a href="data">{__(data.getTheData.caption)}</a>
+        <a class="dw-data-link" href="data">{__(data.getTheData.caption)}</a>
     </span>
 {/if}
 
