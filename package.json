@@ -20,7 +20,6 @@
         "url": "git+https://github.com/datawrapper/chart-core.git"
     },
     "author": "",
-    "license": "MIT",
     "bugs": {
         "url": "https://github.com/datawrapper/chart-core/issues"
     },
