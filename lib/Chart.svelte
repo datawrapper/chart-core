@@ -100,6 +100,7 @@ Please make sure you called __(key) with a key of type "string".
                 chartId={chart.id}
                 data={footer}
                 embedCode={get(chart, 'metadata.publish.embed-codes.embed-method-iframe')}
+                byline={chart.metadata.describe['byline']}
                 {caption}
                 {source}
                 {__} />
@@ -111,8 +112,10 @@ Please make sure you called __(key) with a key of type "string".
                 chartId={chart.id}
                 data={footer}
                 embedCode={get(chart, 'metadata.publish.embed-codes.embed-method-iframe')}
+                byline={chart.metadata.describe['byline']}
                 {caption}
-                {source} />
+                {source}
+                {__} />
         {/if}
 
         {#if footer.logo.enabled && footer.logo.position === 'right'}
