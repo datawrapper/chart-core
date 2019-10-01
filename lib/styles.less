@@ -174,7 +174,7 @@
         padding: @style_chart_padding;
         margin: @style_chart_margin;
 
-        & when not (@style_chart_margin = __UNDEFINED__) {
+        & when (@style_chart_margin = __UNDEFINED__) {
             &.content-below-chart {
                 margin: 0px 0px 20px 0px;
             }
