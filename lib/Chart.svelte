@@ -9,7 +9,14 @@
     export let theme = {};
     export let translations = {};
 
-    const caption = 'chart';
+    function getCaption(id) {
+        if (id === 'd3-maps-choropleth' || id === 'd3-maps-symbols' || id === 'locator-map')
+            return 'map';
+        else if (id === 'tables') return 'table';
+        return 'chart';
+    }
+
+    const caption = getCaption(data.visJSON.id);
     const chart = data.chartJSON;
 
     function __(key, ...args) {
