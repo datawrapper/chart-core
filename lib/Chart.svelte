@@ -30,7 +30,11 @@ Please make sure you called __(key) with a key of type "string".
         }
         key.trim();
 
-        let translation = translations[key] || `MISSING: ${key}`;
+        let translation = translations[key] || key;
+
+        if (!translations[key]) {
+            console.warn(`No translation available for key "${key}"`);
+        }
 
         if (args.length) {
             translation = translation.replace(/\$(\d)/g, (m, i) => {
