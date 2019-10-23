@@ -9,6 +9,10 @@
     export let theme = {};
     export let translations = {};
 
+    export let isStylePlain = false;
+    export let isStyleNoPointer = false;
+    export let isStyleFullscreen = false;
+
     function getCaption(id) {
         if (id === 'd3-maps-choropleth' || id === 'd3-maps-symbols' || id === 'locator-map')
             return 'map';
@@ -56,30 +60,39 @@ Please make sure you called __(key) with a key of type "string".
     if (data.basemapAttribution) footer.basemapAttribution = data.basemapAttribution;
 
     onMount(() => {
+        document.body.classList.toggle('fullscreen', isStyleFullscreen);
+        document.body.classList.toggle('plain', isStylePlain);
+
+        if (isStyleNoPointer) {
+            document.body.style['pointer-events'] = 'none';
+        }
+
         dw.theme.register(theme.id, theme.data);
 
         render(data);
     });
 </script>
 
-<div id="header" class="dw-chart-header">
-    {#if chart.title && !chart.metadata.describe['hide-title']}
-        <h1>
-            <span class="chart-title">
-                {@html chart.title}
-            </span>
-        </h1>
-    {/if}
-    {#if chart.metadata.describe.intro}
-        <p class="chart-intro">
-            {@html chart.metadata.describe.intro}
-        </p>
-    {/if}
-</div>
+{#if !isStylePlain}
+    <div id="header" class="dw-chart-header">
+        {#if chart.title && !chart.metadata.describe['hide-title']}
+            <h1>
+                <span class="chart-title">
+                    {@html chart.title}
+                </span>
+            </h1>
+        {/if}
+        {#if chart.metadata.describe.intro}
+            <p class="chart-intro">
+                {@html chart.metadata.describe.intro}
+            </p>
+        {/if}
+    </div>
+{/if}
 
 <div id="chart" class="dw-chart-body" />
 
-{#if chart.metadata.annotate.notes}
+{#if !isStylePlain && chart.metadata.annotate.notes}
     <div class="dw-chart-notes">
         {@html chart.metadata.annotate.notes}
     </div>
@@ -100,42 +113,44 @@ Please make sure you called __(key) with a key of type "string".
     {@html theme.data.template.afterChart}
 {/if}
 
-<div id="footer" class="dw-chart-footer">
-    <div class="footer-left">
-        {#if footer.logo.enabled && footer.logo.position === 'left' && footer.logo.url}
-            <img height={footer.logo.height} src={footer.logo.url} alt={theme.title} />
-        {/if}
-
-        {#if footer.sourcePosition === 'left' || footer.sourcePosition === 'above-footer'}
-            <Footer
-                chartId={chart.id}
-                data={footer}
-                embedCode={get(chart, 'metadata.publish.embed-codes.embed-method-iframe')}
-                byline={chart.metadata.describe['byline']}
-                {caption}
-                {source}
-                {__} />
-        {/if}
-    </div>
-    <div class="footer-right">
-        {#if footer.sourcePosition && footer.sourcePosition === 'right'}
-            <Footer
-                chartId={chart.id}
-                data={footer}
-                embedCode={get(chart, 'metadata.publish.embed-codes.embed-method-iframe')}
-                byline={chart.metadata.describe['byline']}
-                {caption}
-                {source}
-                {__} />
-        {/if}
-
-        {#if footer.logo.enabled && footer.logo.position === 'right'}
-            {#if footer.logo.url}
+{#if !isStylePlain}
+    <div id="footer" class="dw-chart-footer">
+        <div class="footer-left">
+            {#if footer.logo.enabled && footer.logo.position === 'left' && footer.logo.url}
                 <img height={footer.logo.height} src={footer.logo.url} alt={theme.title} />
             {/if}
-            {#if footer.logo.text}
-                <span class="logo-text">{footer.logo.text}</span>
+
+            {#if footer.sourcePosition === 'left' || footer.sourcePosition === 'above-footer'}
+                <Footer
+                    chartId={chart.id}
+                    data={footer}
+                    embedCode={get(chart, 'metadata.publish.embed-codes.embed-method-iframe')}
+                    byline={chart.metadata.describe['byline']}
+                    {caption}
+                    {source}
+                    {__} />
             {/if}
-        {/if}
+        </div>
+        <div class="footer-right">
+            {#if footer.sourcePosition && footer.sourcePosition === 'right'}
+                <Footer
+                    chartId={chart.id}
+                    data={footer}
+                    embedCode={get(chart, 'metadata.publish.embed-codes.embed-method-iframe')}
+                    byline={chart.metadata.describe['byline']}
+                    {caption}
+                    {source}
+                    {__} />
+            {/if}
+
+            {#if footer.logo.enabled && footer.logo.position === 'right'}
+                {#if footer.logo.url}
+                    <img height={footer.logo.height} src={footer.logo.url} alt={theme.title} />
+                {/if}
+                {#if footer.logo.text}
+                    <span class="logo-text">{footer.logo.text}</span>
+                {/if}
+            {/if}
+        </div>
     </div>
-</div>
+{/if}
