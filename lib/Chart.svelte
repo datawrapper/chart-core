@@ -116,7 +116,7 @@ Please make sure you called __(key) with a key of type "string".
 
 {#if afterBodyComponents.length}
     {#each afterBodyComponents as comp}
-        <svelte:component this={comp} />
+        <svelte:component this={comp} {chart} />
     {/each}
 {/if}
 
