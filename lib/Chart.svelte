@@ -8,6 +8,7 @@
     export let data = {};
     export let theme = {};
     export let translations = {};
+    export let afterBodyComponents = [];
 
     export let isStylePlain = false;
     export let isStyleNoPointer = false;
@@ -111,6 +112,12 @@ Please make sure you called __(key) with a key of type "string".
 
 {#if get(theme, 'data.template.afterChart')}
     {@html theme.data.template.afterChart}
+{/if}
+
+{#if afterBodyComponents.length}
+    {#each afterBodyComponents as comp}
+        <svelte:component this={comp} />
+    {/each}
 {/if}
 
 {#if !isStylePlain}
