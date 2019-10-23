@@ -63,7 +63,7 @@ Please make sure you called __(key) with a key of type "string".
 </script>
 
 <div id="header" class="dw-chart-header">
-    {#if chart.title}
+    {#if chart.title && !chart.metadata.describe['hide-title']}
         <h1>
             <span class="chart-title">
                 {@html chart.title}
