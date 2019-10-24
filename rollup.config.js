@@ -14,7 +14,7 @@ console.log(
     process.env,
     'moduleDirectory:',
     path.resolve(process.env.INIT_CWD, 'node_modules'),
-    path.resolve(__dirname, 'node_modules')
+    path.resolve(process.env.INIT_CWD.replace(process.env.npm_package_name), 'node_modules')
 );
 
 const plugins = p => [
