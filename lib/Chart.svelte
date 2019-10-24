@@ -60,6 +60,16 @@ Please make sure you called __(key) with a key of type "string".
 
     if (data.basemapAttribution) footer.basemapAttribution = data.basemapAttribution;
 
+    let forkCaption = get(theme, 'data.options.footer.forkCaption');
+    if (!forkCaption) forkCaption = 'footer / based-on';
+
+    const chartBasedOn = data.basedOnByline
+        ? {
+              caption: forkCaption,
+              byline: data.basedOnByline
+          }
+        : null;
+
     onMount(() => {
         document.body.classList.toggle('fullscreen', isStyleFullscreen);
         document.body.classList.toggle('plain', isStylePlain);
@@ -133,6 +143,7 @@ Please make sure you called __(key) with a key of type "string".
                     data={footer}
                     embedCode={get(chart, 'metadata.publish.embed-codes.embed-method-iframe')}
                     byline={chart.metadata.describe['byline']}
+                    {chartBasedOn}
                     {caption}
                     {source}
                     {__} />
@@ -145,6 +156,7 @@ Please make sure you called __(key) with a key of type "string".
                     data={footer}
                     embedCode={get(chart, 'metadata.publish.embed-codes.embed-method-iframe')}
                     byline={chart.metadata.describe['byline']}
+                    {chartBasedOn}
                     {caption}
                     {source}
                     {__} />

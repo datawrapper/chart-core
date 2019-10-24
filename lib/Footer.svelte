@@ -5,8 +5,7 @@
     export let source = '';
     export let embedCode = '';
     export let byline = '';
-    export let chartByline = '';
-    export let chartBasedOn = {};
+    export let chartBasedOn;
     export let __;
 
     let modalIsHidden = true;
@@ -31,26 +30,37 @@
         }
         return '<span class="separator"></span>';
     }
+
+    function capitalize(str) {
+        if (typeof str !== 'string') return '';
+        return `${str.charAt(0).toUpperCase()}${str.slice(1)}`;
+    }
 </script>
 
-{#if chartBasedOn.byline || byline}
+{#if byline || chartBasedOn}
     <span class="footer-block byline-block">
         {@html separator()}
-        {#if chartBasedOn.byline}
-            <span class="fork-caption">{__(data.forkCaption)}</span>
-            <span class="chart-based-on">
-                {@html chartBasedOn.byline}
-            </span>
-        {:else if byline}
-            {#if caption == 'chart'}{__(data.chartCaption)}{/if}
-            {#if caption == 'map'}{__(data.mapCaption)}{/if}
-            {#if caption == 'table'}{__(data.tableCaption)}{/if}
+        {#if byline}
+            {#if caption === 'chart'}{__(data.chartCaption)}{/if}
+            {#if caption === 'map'}{__(data.mapCaption)}{/if}
+            {#if caption === 'table'}{__(data.tableCaption)}{/if}
             <span class="chart-byline">
                 {@html byline}
             </span>
         {/if}
+        {#if chartBasedOn}
+            <span class="fork-caption">
+                {#if byline && chartBasedOn}({/if}
+                {capitalize(__(chartBasedOn.caption))}
+            </span>
+            <span class="chart-based-on">
+                {@html chartBasedOn.byline}
+                {#if byline && chartBasedOn}){/if}
+            </span>
+        {/if}
     </span>
 {/if}
+
 {#if source.name && data.sourcePosition !== 'above-footer'}
     <span class="footer-block source-block">
         {@html separator()}
