@@ -12,8 +12,10 @@
         "build": "rollup -c rollup.config.js",
         "cp:vendor": "cp -r vendor/ dist/core/",
         "lint": "prettier --check 'lib/**/*.{js,html,svelte}' && eslint 'lib/**/*.{js,svelte}'",
-        "prepublishOnly": "rm -r dist && npm run build && npm run cp:vendor && npm run update:locales",
-        "update:locales": "node scripts/update-translations.js"
+        "prepublishOnly": "rm -r dist && mkdir dist && npm run cp:vendor && npm run update:locales",
+        "update:locales": "node scripts/update-translations.js",
+        "generate-plugins": "node scripts/generate-svelte-plugins.js",
+        "postinstall": "npm run generate-plugins && npm run build"
     },
     "repository": {
         "type": "git",
@@ -25,7 +27,7 @@
     },
     "homepage": "https://github.com/datawrapper/chart-core#readme",
     "dependencies": {
-        "@datawrapper/shared": "0.15.0",
+        "@datawrapper/shared": "0.17.0",
         "fontfaceobserver": "2.1.0",
         "svelte": "3.12.1"
     },

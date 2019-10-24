@@ -1,4 +1,5 @@
 import outputManifest from 'rollup-plugin-output-manifest';
+import { requireConfig } from '@datawrapper/shared/node/findConfig.js';
 
 const path = require('path');
 const svelte = require('rollup-plugin-svelte');
