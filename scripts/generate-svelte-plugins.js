@@ -27,6 +27,8 @@ Do not edit it directly! You have been warned!
 */
 
 ${afterBodyComponents}
-export default [${sveltePlugins.map(([, cfg]) => cfg.afterBody.replace('.svelte', '')).join(',')}]`;
+export default [${sveltePlugins
+    .map(([, cfg]) => `[${[cfg.afterBody.replace('.svelte', ''), `'${cfg.key}'`].join(',')}]`)
+    .join(',')}]`;
 
 fs.writeFileSync(path.join(__dirname, '../lib/AfterBodyComponents.js'), afterBodyModule);
