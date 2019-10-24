@@ -10,13 +10,6 @@ const { terser } = require('rollup-plugin-terser');
 
 const { general } = requireConfig();
 
-console.log(
-    process.env,
-    'moduleDirectory:',
-    path.resolve(process.env.INIT_CWD, 'node_modules'),
-    path.resolve(process.env.INIT_CWD.replace(process.env.npm_package_name, ''))
-);
-
 const plugins = p => [
     svelte(),
     resolve({
@@ -24,7 +17,7 @@ const plugins = p => [
             paths: [general.localPluginRoot],
             moduleDirectory: [
                 path.resolve(process.env.INIT_CWD, 'node_modules'),
-                path.resolve(__dirname, 'node_modules')
+                path.resolve(process.env.INIT_CWD.replace(process.env.npm_package_name, ''))
             ]
         }
     }),
