@@ -6,7 +6,8 @@
     "files": [
         "dist",
         "lib",
-        "scripts"
+        "scripts",
+        "rollup.config.js"
     ],
     "scripts": {
         "format": "prettier 'lib/**/*.{js,html,svelte}' --write",
@@ -28,25 +29,15 @@
     },
     "homepage": "https://github.com/datawrapper/chart-core#readme",
     "dependencies": {
-        "@datawrapper/shared": "0.17.0",
-        "fontfaceobserver": "2.1.0",
-        "svelte": "3.12.1"
-    },
-    "devDependencies": {
         "@babel/core": "~7.6.0",
         "@babel/plugin-transform-runtime": "~7.6.0",
         "@babel/preset-env": "~7.6.0",
         "@babel/runtime": "^7.6.0",
         "babel-eslint": "~10.0.3",
         "core-js": "3.2.1",
-        "country-emoji": "^1.4.4",
-        "eslint": "~6.3.0",
-        "eslint-plugin-svelte3": "~2.7.3",
-        "googleapis": "~43.0.0",
-        "husky": "~3.0.5",
-        "lint-staged": "~9.2.5",
-        "prettier": "~1.18.2",
-        "prettier-plugin-svelte": "~0.7.0",
+        "@datawrapper/shared": "0.17.0",
+        "fontfaceobserver": "2.1.0",
+        "svelte": "3.12.1",
         "rollup": "~1.21.2",
         "rollup-plugin-babel": "~4.3.3",
         "rollup-plugin-commonjs": "~10.1.0",
@@ -54,6 +45,16 @@
         "rollup-plugin-output-manifest": "^1.0.0",
         "rollup-plugin-svelte": "~5.1.0",
         "rollup-plugin-terser": "~5.1.1"
+    },
+    "devDependencies": {
+        "country-emoji": "^1.4.4",
+        "eslint": "~6.3.0",
+        "eslint-plugin-svelte3": "~2.7.3",
+        "googleapis": "~43.0.0",
+        "husky": "~3.0.5",
+        "lint-staged": "~9.2.5",
+        "prettier": "~1.18.2",
+        "prettier-plugin-svelte": "~0.7.0"
     },
     "husky": {
         "hooks": {
