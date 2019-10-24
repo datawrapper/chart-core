@@ -15,7 +15,7 @@ const plugins = p => [
     resolve({
         customResolveOptions: {
             paths: [general.localPluginRoot],
-            moduleDirectory: [path.join(__dirname, 'node_modules')]
+            moduleDirectory: [path.resolve(process.env.INIT_CWD, 'node_modules')]
         }
     }),
     commonjs(),
