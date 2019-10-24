@@ -11,6 +11,7 @@ const { terser } = require('rollup-plugin-terser');
 const { general } = requireConfig();
 
 console.log(
+    process.env,
     'moduleDirectory:',
     path.resolve(process.env.INIT_CWD, 'node_modules'),
     path.resolve(__dirname, 'node_modules')
