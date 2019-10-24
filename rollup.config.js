@@ -1,3 +1,5 @@
+import outputManifest from 'rollup-plugin-output-manifest';
+
 const path = require('path');
 const svelte = require('rollup-plugin-svelte');
 const babel = require('rollup-plugin-babel');
@@ -5,7 +7,20 @@ const resolve = require('rollup-plugin-node-resolve');
 const commonjs = require('rollup-plugin-commonjs');
 const { terser } = require('rollup-plugin-terser');
 
-const plugins = p => [svelte(), resolve({ browser: true }), commonjs(), ...p, terser()];
+const { general } = requireConfig();
+
+const plugins = p => [
+    svelte(),
+    resolve({
+        customResolveOptions: {
+            paths: [general.localPluginRoot],
+            moduleDirectory: [path.join(__dirname, 'node_modules')]
+        }
+    }),
+    commonjs(),
+    ...p,
+    terser()
+];
 
 const output = {
     sourcemap: true,
@@ -26,11 +41,12 @@ module.exports = [
             babel({
                 ...babelConfig,
                 presets: [['@babel/env', { targets: '> 2%', corejs: 3, useBuiltIns: 'entry' }]]
-            })
+            }),
+            outputManifest({ fileName: 'manifest.json' })
         ]),
         output: {
             format: 'esm',
-            entryFileNames: '[name].js',
+            entryFileNames: '[name].[hash].js',
             ...output
         }
     },
@@ -51,11 +67,12 @@ module.exports = [
                     ]
                 ],
                 plugins: ['@babel/plugin-transform-runtime']
-            })
+            }),
+            outputManifest({ fileName: 'manifest.legacy.json' })
         ]),
         output: {
             format: 'iife',
-            entryFileNames: '[name].legacy.js',
+            entryFileNames: '[name].legacy.[hash].js',
             ...output
         }
     }
