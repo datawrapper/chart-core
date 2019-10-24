@@ -5,7 +5,8 @@
     "main": "main.js",
     "files": [
         "dist",
-        "lib"
+        "lib",
+        "scripts"
     ],
     "scripts": {
         "format": "prettier 'lib/**/*.{js,html,svelte}' --write",
