@@ -10,6 +10,12 @@ const { terser } = require('rollup-plugin-terser');
 
 const { general } = requireConfig();
 
+console.log(
+    'moduleDirectory:',
+    path.resolve(process.env.INIT_CWD, 'node_modules'),
+    path.resolve(__dirname, 'node_modules')
+);
+
 const plugins = p => [
     svelte(),
     resolve({
