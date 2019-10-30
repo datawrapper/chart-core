@@ -63,10 +63,10 @@ Please make sure you called __(key) with a key of type "string".
     let forkCaption = get(theme, 'data.options.footer.forkCaption');
     if (!forkCaption) forkCaption = 'footer / based-on';
 
-    const chartBasedOn = data.basedOnByline
+    const chartBasedOn = chart.basedOnByline
         ? {
               caption: forkCaption,
-              byline: data.basedOnByline
+              byline: chart.basedOnByline
           }
         : null;
 
