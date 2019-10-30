@@ -35,29 +35,38 @@
         if (typeof str !== 'string') return '';
         return `${str.charAt(0).toUpperCase()}${str.slice(1)}`;
     }
+
+    function getByline(byline, chartBasedOn) {
+        if (!byline && !chartBasedOn) return;
+
+        let markup = '<span class="chart-byline">';
+
+        if (byline) {
+            markup += byline;
+        }
+        if (chartBasedOn) {
+            const needBracket = chartBasedOn && byline;
+            markup += `${byline ? ' ' : ''}${needBracket ? '(' : ''}${capitalize(
+                __(chartBasedOn.caption)
+            )} ${chartBasedOn.byline}${needBracket ? ')' : ''}`;
+        }
+
+        markup += '</span>';
+        return markup;
+    }
 </script>
 
 {#if byline || chartBasedOn}
     <span class="footer-block byline-block">
         {@html separator()}
         {#if byline}
-            {#if caption === 'chart'}{__(data.chartCaption)}{/if}
-            {#if caption === 'map'}{__(data.mapCaption)}{/if}
-            {#if caption === 'table'}{__(data.tableCaption)}{/if}
-            <span class="chart-byline">
-                {@html byline}
+            <span class="byline-caption">
+                {#if caption === 'chart'}{__(data.chartCaption)}{/if}
+                {#if caption === 'map'}{__(data.mapCaption)}{/if}
+                {#if caption === 'table'}{__(data.tableCaption)}{/if}
             </span>
         {/if}
-        {#if chartBasedOn}
-            <span class="fork-caption">
-                {#if byline && chartBasedOn}({/if}
-                {capitalize(__(chartBasedOn.caption))}
-            </span>
-            <span class="chart-based-on">
-                {@html chartBasedOn.byline}
-                {#if byline && chartBasedOn}){/if}
-            </span>
-        {/if}
+        {@html getByline(byline, chartBasedOn)}
     </span>
 {/if}
 
