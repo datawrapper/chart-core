@@ -87,8 +87,8 @@
 {#if data.basemapAttribution}
     <span class="footer-block map-attribution-block">
         {@html separator()}
+        <span class="map-attribution-caption">{@html data.basemapAttribution.caption}</span>
         {__(data.basemapAttribution.text)}:
-        {@html data.basemapAttribution.caption}
     </span>
 {/if}
 
