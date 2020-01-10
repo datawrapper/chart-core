@@ -1,4 +1,3 @@
-import 'core-js/stable';
 import Chart from './lib/Chart.svelte';
 import get from '@datawrapper/shared/get';
 import components from './lib/AfterBodyComponents.js';

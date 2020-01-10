@@ -50,12 +50,12 @@ module.exports = [
         ]),
         output: {
             format: 'esm',
-            entryFileNames: '[name].[hash].js',
+            entryFileNames: 'main.[hash].js',
             ...output
         }
     },
     {
-        input: path.resolve(__dirname, 'main.js'),
+        input: path.resolve(__dirname, 'main.legacy.js'),
         plugins: plugins([
             babel({
                 ...babelConfig,
@@ -76,7 +76,7 @@ module.exports = [
         ]),
         output: {
             format: 'iife',
-            entryFileNames: '[name].legacy.[hash].js',
+            entryFileNames: 'main.legacy.[hash].js',
             ...output
         }
     }
