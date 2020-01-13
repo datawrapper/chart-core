@@ -4,6 +4,8 @@
     "description": "Svelte component to render charts. Used by Sapper App and Node API.",
     "main": "main.js",
     "files": [
+        "main.js",
+        "main.legacy.js",
         "dist",
         "lib",
         "scripts",
