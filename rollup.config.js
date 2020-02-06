@@ -10,21 +10,7 @@ const { terser } = require('rollup-plugin-terser');
 
 const { general } = requireConfig();
 
-const plugins = p => [
-    svelte(),
-    resolve({
-        customResolveOptions: {
-            paths: [general.localPluginRoot],
-            moduleDirectory: [
-                path.resolve(process.env.INIT_CWD, 'node_modules'),
-                path.resolve(process.env.INIT_CWD.replace(process.env.npm_package_name, ''))
-            ]
-        }
-    }),
-    commonjs(),
-    ...p,
-    terser()
-];
+const plugins = p => [svelte(), resolve(), commonjs(), ...p, terser()];
 
 const output = {
     sourcemap: true,
