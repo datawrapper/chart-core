@@ -1,5 +1,4 @@
 import Chart from './lib/Chart.svelte';
-import get from '@datawrapper/shared/get';
 
 const data = window.__DW_DATA__;
 
@@ -9,7 +8,8 @@ const chart = new Chart({
         data,
         theme: window.__DW_THEME__,
         translations: window.__DW_TRANSLATIONS__
-    }
+    },
+    hydrate: true
 });
 
-export default chart;
+export default Chart;
