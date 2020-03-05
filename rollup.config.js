@@ -1,12 +1,11 @@
+import path from 'path';
+import resolve from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
+import svelte from 'rollup-plugin-svelte';
+import babel from 'rollup-plugin-babel';
 import outputManifest from 'rollup-plugin-output-manifest';
+import { terser } from 'rollup-plugin-terser';
 import { requireConfig } from '@datawrapper/shared/node/findConfig.js';
-
-const path = require('path');
-const svelte = require('rollup-plugin-svelte');
-const babel = require('rollup-plugin-babel');
-const resolve = require('rollup-plugin-node-resolve');
-const commonjs = require('rollup-plugin-commonjs');
-const { terser } = require('rollup-plugin-terser');
 
 const { general } = requireConfig();
 
