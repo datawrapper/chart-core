@@ -33,7 +33,7 @@ module.exports = [
                 ...babelConfig,
                 presets: [['@babel/env', { targets: '> 2%', corejs: 3, useBuiltIns: 'entry' }]]
             }),
-            outputManifest({ fileName: 'manifest.json' }),
+            outputManifest({ fileName: 'manifest.json', isMerge: true }),
             terser()
         ],
         output: {
@@ -46,7 +46,7 @@ module.exports = [
         /* Server side rendered Svelte Chart Component */
         input: path.resolve(__dirname, 'lib/Chart.svelte'),
         plugins: [
-            svelte({ generate: 'ssr', hydratable: true }),
+            svelte({ generate: 'ssr' }),
             resolve(),
             commonjs(),
             babel({
@@ -82,7 +82,7 @@ module.exports = [
                 ],
                 plugins: ['@babel/plugin-transform-runtime']
             }),
-            outputManifest({ fileName: 'manifest.legacy.json' }),
+            outputManifest({ fileName: 'manifest.json', isMerge: true }),
             terser()
         ],
         output: {
