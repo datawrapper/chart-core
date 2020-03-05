@@ -1,3 +1,4 @@
+/* Reference: datawrapper/templates/chart-styles.less.twig */
 .chart {
     font-family: @typography_chart_typeface;
 
@@ -12,7 +13,7 @@
     padding: @style_body_padding;
     padding: @colors_general_padding;
 
-    margin: 0 0px;
+    margin: 0 0;
     margin: @style_body_margin;
 
     height: 100%;
@@ -28,7 +29,7 @@
 
     & when not (@typography_links_hoverColor = __UNDEFINED__) {
         a:hover {
-            color: @typography_links_hoverCcolor;
+            color: @typography_links_hoverColor;
         }
     }
 
@@ -182,8 +183,8 @@
 
         border-top: @style_chart_border_top;
         border-bottom: @style_chart_border_bottom;
-        border-left: @style_chart_border_top;
-        border-right: @style_chart_border_top;
+        border-left: @style_chart_border_left;
+        border-right: @style_chart_border_right;
     }
 
     .labels text {
