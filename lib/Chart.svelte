@@ -79,6 +79,21 @@ Please make sure you called __(key) with a key of type "string".
 
         dw.theme.register(theme.id, theme.data);
 
+        const { basemap, minimap, highlight } = chart.data;
+        window.__dwParams = {};
+        if (basemap) {
+            window.__dwParams.d3maps_basemap = {
+                [basemap.__id]: basemap
+            };
+        }
+
+        if (minimap || highlight) {
+            window.__dwParams.locatorMap = {
+                minimapGeom: minimap,
+                highlightGeom: highlight
+            };
+        }
+
         render(data);
     });
 </script>
