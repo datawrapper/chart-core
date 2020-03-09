@@ -45,7 +45,7 @@ module.exports = [
         /* Server side rendered Svelte Chart Component */
         input: path.resolve(__dirname, 'lib/Chart.svelte'),
         plugins: [
-            svelte({ generate: 'ssr' }),
+            svelte({ generate: 'ssr', hydratable: true }),
             resolve(),
             commonjs(),
             babel({

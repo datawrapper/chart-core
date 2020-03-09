@@ -98,6 +98,11 @@ Please make sure you called __(key) with a key of type "string".
     });
 </script>
 
+<svelte:head>
+    <title>{chart.title}</title>
+    <meta name="description" content={get(chart, 'metadata.describe.intro')} />
+</svelte:head>
+
 {#if !isStylePlain}
     <div id="header" class="dw-chart-header">
         {#if chart.title && !chart.metadata.describe['hide-title']}
