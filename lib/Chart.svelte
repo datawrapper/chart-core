@@ -32,7 +32,7 @@ Please make sure you called __(key) with a key of type "string".
 `)
             );
         }
-        key.trim();
+        key = key.trim();
 
         let translation = translations[key] || key;
 
