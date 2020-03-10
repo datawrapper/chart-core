@@ -1,11 +1,11 @@
 <script>
     import { onMount } from 'svelte';
-    import Footer from './Footer.svelte';
     import Source from './blocks/Source.svelte';
     import Byline from './blocks/Byline.svelte';
     import Notes from './blocks/Notes.svelte';
     import GetTheData from './blocks/GetTheData.svelte';
     import Embed from './blocks/Embed.svelte';
+    import Logo from './blocks/Logo.svelte';
 
     import get from '@datawrapper/shared/get';
     import render from './render.js';
@@ -52,6 +52,13 @@
             test: ({ theme }) => get(theme, 'data.options.footer.embed.enabled'),
             priority: 40,
             component: Embed
+        },
+        {
+            id: 'logo',
+            region: 'footerRight',
+            test: ({ theme }) => get(theme, 'data.options.footer.logo.enabled'),
+            priority: 10,
+            component: Logo
         }
     ];
 
@@ -196,10 +203,6 @@ Please make sure you called __(key) with a key of type "string".
 
 <div id="chart" class="dw-chart-body" />
 
-<!-- {#if !isStylePlain && chart.metadata.annotate.notes}
-
-{/if} -->
-
 {#if get(theme, 'data.template.afterChart')}
     {@html theme.data.template.afterChart}
 {/if}
@@ -227,7 +230,15 @@ Please make sure you called __(key) with a key of type "string".
                 {#if i}
                     <span class="separator" />
                 {/if}
-                <svelte:component this={block.component} {__} {theme} {caption} {chart} {data} />
+                <span class="footer-block {block.id}-block">
+                    <svelte:component
+                        this={block.component}
+                        {__}
+                        {theme}
+                        {caption}
+                        {chart}
+                        {data} />
+                </span>
             {/each}
         </div>
         <div class="footer-right">
@@ -235,52 +246,18 @@ Please make sure you called __(key) with a key of type "string".
                 {#if i}
                     <span class="separator" />
                 {/if}
-                <svelte:component this={block.component} {__} {theme} {caption} {chart} {data} />
+                <span class="footer-block {block.id}-block">
+                    <svelte:component
+                        this={block.component}
+                        {__}
+                        {theme}
+                        {caption}
+                        {chart}
+                        {data} />
+                </span>
             {/each}
         </div>
     </div>
-
-    <!-- <div id="footer" class="dw-chart-footer">
-        <div class="footer-left">
-            {#if footer.logo.enabled && footer.logo.position === 'left' && footer.logo.url}
-                <img height={footer.logo.height} src={footer.logo.url} alt={theme.title} />
-            {/if}
-
-            {#if footer.sourcePosition === 'left' || footer.sourcePosition === 'above-footer'}
-                <Footer
-                    chartId={chart.id}
-                    data={footer}
-                    embedCode={}
-                    byline={chart.metadata.describe['byline']}
-                    {chartBasedOn}
-                    {caption}
-                    {source}
-                    {__} />
-            {/if}
-        </div>
-        <div class="footer-right">
-            {#if footer.sourcePosition && footer.sourcePosition === 'right'}
-                <Footer
-                    chartId={chart.id}
-                    data={footer}
-                    embedCode={get(chart, 'metadata.publish.embed-codes.embed-method-iframe')}
-                    byline={chart.metadata.describe['byline']}
-                    {chartBasedOn}
-                    {caption}
-                    {source}
-                    {__} />
-            {/if}
-
-            {#if footer.logo.enabled && footer.logo.position === 'right'}
-                {#if footer.logo.url}
-                    <img height={footer.logo.height} src={footer.logo.url} alt={theme.title} />
-                {/if}
-                {#if footer.logo.text}
-                    <span class="logo-text">{footer.logo.text}</span>
-                {/if}
-            {/if}
-        </div>
-    </div> -->
 {/if}
 
 {#if get(chart, 'data.chartAfterBodyHTML')}
