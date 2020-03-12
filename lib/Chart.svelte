@@ -8,6 +8,8 @@
     import Logo from './blocks/Logo.svelte';
 
     import get from '@datawrapper/shared/get';
+    import purifyHtml from '@datawrapper/shared/purifyHtml';
+    import { loadScript, loadStylesheet } from '@datawrapper/shared/fetch';
     import render from './render.js';
 
     export let data = {};
@@ -16,7 +18,9 @@
 
     $: chart = data.chartJSON;
 
-    const defaultBlocks = [
+    const clean = s => purifyHtml(s, '<a><span><b>');
+
+    const coreBlocks = [
         {
             id: 'notes',
             region: 'aboveFooter',
@@ -62,7 +66,9 @@
         }
     ];
 
-    $: allBlocks = defaultBlocks; // todo: concat with plugin blocks
+    let pluginBlocks = [];
+
+    $: allBlocks = applyThemeBlockConfig([...coreBlocks, ...pluginBlocks], theme);
 
     $: blockProps = {
         __,
@@ -73,7 +79,10 @@
     };
 
     function byPriority(a, b) {
-        return (a.priority || 99) - (b.priority || 99);
+        return (
+            (a.priority !== undefined ? a.priority : 999) -
+            (b.priority !== undefined ? b.priority : 999)
+        );
     }
 
     function getBlocks(allBlocks, region, props) {
@@ -83,10 +92,22 @@
             .sort(byPriority);
     }
 
+    function applyThemeBlockConfig(blocks, theme) {
+        return blocks.map(block => {
+            const options = get(theme, 'data.options.blocks', {})[block.id];
+            if (!options) return block;
+            return {
+                ...block,
+                ...options
+            };
+        });
+    }
+
     let regions;
     $: {
         // build all the region
         regions = {
+            aboveChart: getBlocks(allBlocks, 'aboveChart', { chart, data, theme }),
             aboveFooter: getBlocks(allBlocks, 'aboveFooter', { chart, data, theme }),
             footerLeft: getBlocks(allBlocks, 'footerLeft', { chart, data, theme }),
             footerCenter: getBlocks(allBlocks, 'footerCenter', { chart, data, theme }),
@@ -164,6 +185,35 @@ Please make sure you called __(key) with a key of type "string".
         }
 
         render(data);
+
+        // load & execute plugins
+        window.__dwBlocks = {};
+        if (chart.data.blocks.length) {
+            Promise.all(
+                chart.data.blocks.map(d => {
+                    const p = [loadScript(d.source.js)];
+                    if (d.source.css) p.push(loadStylesheet(d.source.css));
+                    return Promise.all(p);
+                })
+            ).then(res => {
+                // all plugins are loaded
+                chart.data.blocks.forEach(d => {
+                    d.blocks.forEach(block => {
+                        if (!window.__dwBlocks[block.component]) {
+                            return console.warn(
+                                `component ${block.component} for chart block ${block.id} not found`
+                            );
+                        }
+                        pluginBlocks.push({
+                            ...block,
+                            component: window.__dwBlocks[block.component]
+                        });
+                    });
+                });
+                // trigger svelte update after modifying array
+                pluginBlocks = pluginBlocks;
+            });
+        }
     });
 </script>
 
@@ -199,6 +249,23 @@ Please make sure you called __(key) with a key of type "string".
             </p>
         {/if}
     </div>
+    <div class="dw-chart-above-chart">
+        {#each regions.aboveChart as block}
+            <div class="block">
+                {#if block.prepend}
+                    <span class="prepend">
+                        {@html clean(block.prepend)}
+                    </span>
+                {/if}
+                <svelte:component this={block.component} {...blockProps} />
+                {#if block.append}
+                    <span class="append">
+                        {@html clean(block.append)}
+                    </span>
+                {/if}
+            </div>
+        {/each}
+    </div>
 {/if}
 
 <div id="chart" class="dw-chart-body" />
@@ -210,53 +277,45 @@ Please make sure you called __(key) with a key of type "string".
 {#if !isStylePlain}
     <div class="dw-chart-above-footer">
         {#each regions.aboveFooter as block}
-            <svelte:component this={block.component} {...blockProps} />
+            <div class="block">
+                {#if block.prepend}
+                    <span class="prepend">
+                        {@html clean(block.prepend)}
+                    </span>
+                {/if}
+                <svelte:component this={block.component} {...blockProps} />
+                {#if block.append}
+                    <span class="append">
+                        {@html clean(block.append)}
+                    </span>
+                {/if}
+            </div>
         {/each}
     </div>
 
     <div id="footer" class="dw-chart-footer">
-        <div class="footer-left">
-            {#each regions.footerLeft as block, i}
-                {#if i}
-                    <span class="separator" />
-                {/if}
-                <span class="footer-block {block.id}-block">
-                    <svelte:component this={block.component} {...blockProps} />
-                </span>
-            {/each}
-        </div>
-        <div class="footer-center">
-            {#each regions.footerCenter as block, i}
-                {#if i}
-                    <span class="separator" />
-                {/if}
-                <span class="footer-block {block.id}-block">
-                    <svelte:component
-                        this={block.component}
-                        {__}
-                        {theme}
-                        {caption}
-                        {chart}
-                        {data} />
-                </span>
-            {/each}
-        </div>
-        <div class="footer-right">
-            {#each regions.footerRight as block, i}
-                {#if i}
-                    <span class="separator" />
-                {/if}
-                <span class="footer-block {block.id}-block">
-                    <svelte:component
-                        this={block.component}
-                        {__}
-                        {theme}
-                        {caption}
-                        {chart}
-                        {data} />
-                </span>
-            {/each}
-        </div>
+        {#each ['Left', 'Center', 'Right'] as orientation}
+            <div class="footer-{orientation.toLowerCase()}">
+                {#each regions['footer' + orientation] as block, i}
+                    {#if i}
+                        <span class="separator" />
+                    {/if}
+                    <span class="footer-block {block.id}-block">
+                        {#if block.prepend}
+                            <span class="prepend">
+                                {@html clean(block.prepend)}
+                            </span>
+                        {/if}
+                        <svelte:component this={block.component} {...blockProps} />
+                        {#if block.append}
+                            <span class="append">
+                                {@html clean(block.append)}
+                            </span>
+                        {/if}
+                    </span>
+                {/each}
+            </div>
+        {/each}
     </div>
 {/if}
 
