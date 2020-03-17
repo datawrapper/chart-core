@@ -68,7 +68,7 @@
 
     let pluginBlocks = [];
 
-    $: allBlocks = applyThemeBlockConfig([...coreBlocks, ...pluginBlocks], theme);
+    $: allBlocks = applyThemeBlockConfig([...coreBlocks, ...pluginBlocks], theme, blockProps);
 
     $: blockProps = {
         __,
@@ -92,8 +92,12 @@
             .sort(byPriority);
     }
 
-    function applyThemeBlockConfig(blocks, theme) {
+    function applyThemeBlockConfig(blocks, theme, blockProps) {
         return blocks.map(block => {
+            block.data = {
+                ...blockProps,
+                ...(block.data || {})
+            };
             const options = get(theme, 'data.options.blocks', {})[block.id];
             if (!options) return block;
             return {
@@ -257,7 +261,7 @@ Please make sure you called __(key) with a key of type "string".
                         {@html clean(block.prepend)}
                     </span>
                 {/if}
-                <svelte:component this={block.component} {...blockProps} />
+                <svelte:component this={block.component} {...block.data} />
                 {#if block.append}
                     <span class="append">
                         {@html clean(block.append)}
@@ -283,7 +287,7 @@ Please make sure you called __(key) with a key of type "string".
                         {@html clean(block.prepend)}
                     </span>
                 {/if}
-                <svelte:component this={block.component} {...blockProps} />
+                <svelte:component this={block.component} {...block.data} />
                 {#if block.append}
                     <span class="append">
                         {@html clean(block.append)}
@@ -306,7 +310,7 @@ Please make sure you called __(key) with a key of type "string".
                                 {@html clean(block.prepend)}
                             </span>
                         {/if}
-                        <svelte:component this={block.component} {...blockProps} />
+                        <svelte:component this={block.component} {...block.data} />
                         {#if block.append}
                             <span class="append">
                                 {@html clean(block.append)}
