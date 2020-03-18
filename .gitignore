@@ -62,4 +62,5 @@ typings/
 
 dist/core/main.js
 dist/core/Chart_SSR.js
+dist/core/locale
 token.json
