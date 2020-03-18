@@ -89,6 +89,7 @@
         return allBlocks
             .filter(d => d.region === region)
             .filter(d => !d.test || d.test(props))
+            .filter(d => (d.visible !== undefined ? d.visible : true))
             .sort(byPriority);
     }
 
@@ -310,7 +311,10 @@ Please make sure you called __(key) with a key of type "string".
                                 {@html clean(block.prepend)}
                             </span>
                         {/if}
-                        <svelte:component this={block.component} {...block.data} />
+                        <svelte:component
+                            this={block.component}
+                            bind:visible={block.visible}
+                            {...block.data} />
                         {#if block.append}
                             <span class="append">
                                 {@html clean(block.append)}
