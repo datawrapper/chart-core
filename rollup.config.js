@@ -3,7 +3,6 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import svelte from 'rollup-plugin-svelte';
 import babel from 'rollup-plugin-babel';
-import outputManifest from 'rollup-plugin-output-manifest';
 import { terser } from 'rollup-plugin-terser';
 
 const output = {
@@ -29,12 +28,11 @@ module.exports = [
                 ...babelConfig,
                 presets: [['@babel/env', { targets: '> 2%', corejs: 3, useBuiltIns: 'entry' }]]
             }),
-            outputManifest({ fileName: 'manifest.json', isMerge: true }),
             terser()
         ],
         output: {
-            format: 'esm',
-            entryFileNames: 'main.[hash].js',
+            format: 'iife',
+            entryFileNames: 'main.js',
             ...output
         }
     },
@@ -53,37 +51,6 @@ module.exports = [
         output: {
             format: 'umd',
             entryFileNames: 'Chart_SSR.js',
-            ...output
-        }
-    },
-    {
-        /* Client side Svelte Chart Component for older browsers */
-        input: path.resolve(__dirname, 'main.legacy.js'),
-        plugins: [
-            svelte({ hydratable: true }),
-            resolve(),
-            commonjs(),
-            babel({
-                ...babelConfig,
-                runtimeHelpers: true,
-                presets: [
-                    [
-                        '@babel/env',
-                        {
-                            targets: 'last 2 versions, not IE 10, not dead',
-                            corejs: 3,
-                            useBuiltIns: 'entry'
-                        }
-                    ]
-                ],
-                plugins: ['@babel/plugin-transform-runtime']
-            }),
-            outputManifest({ fileName: 'manifest.json', isMerge: true }),
-            terser()
-        ],
-        output: {
-            format: 'iife',
-            entryFileNames: 'main.legacy.[hash].js',
             ...output
         }
     }

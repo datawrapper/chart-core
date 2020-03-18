@@ -10,6 +10,5 @@ module.exports = {
         locale: path.join(__dirname, '/dist/core/locale')
     },
     svelte: require(path.join(__dirname, '/dist/core', 'Chart_SSR.js')),
-    script: require(path.join(__dirname, '/dist/core', 'manifest.json')),
     less: path.join(__dirname, '/lib/styles.less')
 };
