@@ -5,9 +5,6 @@ import svelte from 'rollup-plugin-svelte';
 import babel from 'rollup-plugin-babel';
 import outputManifest from 'rollup-plugin-output-manifest';
 import { terser } from 'rollup-plugin-terser';
-import { requireConfig } from '@datawrapper/shared/node/findConfig.js';
-
-const { general } = requireConfig();
 
 const output = {
     name: 'chart',
