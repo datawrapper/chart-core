@@ -116,7 +116,8 @@
             aboveFooter: getBlocks(allBlocks, 'aboveFooter', { chart, data, theme }),
             footerLeft: getBlocks(allBlocks, 'footerLeft', { chart, data, theme }),
             footerCenter: getBlocks(allBlocks, 'footerCenter', { chart, data, theme }),
-            footerRight: getBlocks(allBlocks, 'footerRight', { chart, data, theme })
+            footerRight: getBlocks(allBlocks, 'footerRight', { chart, data, theme }),
+            afterBody: getBlocks(allBlocks, 'afterBody', { chart, data, theme })
         };
     }
 
@@ -324,8 +325,13 @@ Please make sure you called __(key) with a key of type "string".
                 {/each}
             </div>
         {/each}
+
     </div>
 {/if}
+
+{#each regions.afterBody as block}
+    <svelte:component this={block.component} {...block.data} />
+{/each}
 
 {#if get(chart, 'data.chartAfterBodyHTML')}
     {@html chart.data.chartAfterBodyHTML}
