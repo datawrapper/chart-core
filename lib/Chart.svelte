@@ -99,6 +99,9 @@
                 ...blockProps,
                 ...(block.data || {})
             };
+            if (block.component.test) {
+                block.test = block.component.test;
+            }
             const options = get(theme, 'data.options.blocks', {})[block.id];
             if (!options) return block;
             return {
@@ -312,10 +315,7 @@ Please make sure you called __(key) with a key of type "string".
                                 {@html clean(block.prepend)}
                             </span>
                         {/if}
-                        <svelte:component
-                            this={block.component}
-                            bind:visible={block.visible}
-                            {...block.data} />
+                        <svelte:component this={block.component} {...block.data} />
                         {#if block.append}
                             <span class="append">
                                 {@html clean(block.append)}
