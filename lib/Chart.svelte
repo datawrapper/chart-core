@@ -1,5 +1,5 @@
 <script>
-    import { onMount } from 'svelte';
+    import { onMount, tick } from 'svelte';
     import Headline from './blocks/Headline.svelte';
     import Description from './blocks/Description.svelte';
     import Source from './blocks/Source.svelte';
@@ -185,7 +185,7 @@ Please make sure you called __(key) with a key of type "string".
 
     if (data.basemapAttribution) footer.basemapAttribution = data.basemapAttribution;
 
-    onMount(() => {
+    onMount(async () => {
         document.body.classList.toggle('fullscreen', isStyleFullscreen);
         document.body.classList.toggle('plain', isStylePlain);
 
@@ -215,30 +215,33 @@ Please make sure you called __(key) with a key of type "string".
         // load & execute plugins
         window.__dwBlocks = {};
         if (chart.data.blocks.length) {
-            Promise.all(
+            await Promise.all(
                 chart.data.blocks.map(d => {
                     const p = [loadScript(d.source.js)];
                     if (d.source.css) p.push(loadStylesheet(d.source.css));
                     return Promise.all(p);
                 })
-            ).then(res => {
-                // all plugins are loaded
-                chart.data.blocks.forEach(d => {
-                    d.blocks.forEach(block => {
-                        if (!window.__dwBlocks[block.component]) {
-                            return console.warn(
-                                `component ${block.component} for chart block ${block.id} not found`
-                            );
-                        }
-                        pluginBlocks.push({
-                            ...block,
-                            component: window.__dwBlocks[block.component]
-                        });
+            );
+            // all plugins are loaded
+            chart.data.blocks.forEach(d => {
+                d.blocks.forEach(block => {
+                    if (!window.__dwBlocks[block.component]) {
+                        return console.warn(
+                            `component ${block.component} for chart block ${block.id} not found`
+                        );
+                    }
+                    pluginBlocks.push({
+                        ...block,
+                        component: window.__dwBlocks[block.component]
                     });
                 });
-                // trigger svelte update after modifying array
-                pluginBlocks = pluginBlocks;
             });
+            // trigger svelte update after modifying array
+            pluginBlocks = pluginBlocks;
+
+            // re-render chart after loading blocks
+            await tick();
+            render(data);
         }
     });
 </script>
