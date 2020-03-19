@@ -8,6 +8,7 @@
     import GetTheData from './blocks/GetTheData.svelte';
     import Embed from './blocks/Embed.svelte';
     import Logo from './blocks/Logo.svelte';
+    import Rectangle from './blocks/Rectangle.svelte';
 
     import get from '@datawrapper/shared/get';
     import purifyHtml from '@datawrapper/shared/purifyHtml';
@@ -79,6 +80,13 @@
             test: ({ theme }) => get(theme, 'data.options.footer.logo.enabled'),
             priority: 10,
             component: Logo
+        },
+        {
+            id: 'rectangle',
+            region: 'header',
+            test: ({ theme }) => true, //!!get(theme, 'data.options.blocks.rectangle'),
+            priority: 1,
+            component: Rectangle
         }
     ];
 
