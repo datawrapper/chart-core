@@ -27,12 +27,11 @@
 
 {#if byline}
     <span class="byline-caption">{__(bylineCaption)}</span>
-    {@html byline}
+    {byline}
 {/if}
 
 {#if chart.basedOnByline}
     {#if needBrackets}({/if}
-    {__(forkCaption)}
-    {@html chart.basedOnByline}
+    {__(forkCaption)} {chart.basedOnByline}
     {#if needBrackets}){/if}
 {/if}

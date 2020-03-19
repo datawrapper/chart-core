@@ -1,4 +1,7 @@
 <script>
+    import get from '@datawrapper/shared/get';
+
+    export let purifyHtml;
     export let chart;
     export let data;
     export let theme;
@@ -7,5 +10,5 @@
 </script>
 
 <div class="dw-chart-notes">
-    {@html chart.metadata.annotate.notes}
+    {@html purifyHtml(get(chart, 'metadata.annotate.notes'))}
 </div>

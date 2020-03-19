@@ -1,6 +1,7 @@
 <script>
     import get from '@datawrapper/shared/get';
 
+    export let purifyHtml;
     export let chart;
     export let theme;
     export let data;
@@ -9,7 +10,7 @@
 
     $: footer = theme.data.options.footer;
 
-    $: sourceName = get(chart, 'metadata.describe.source-name');
+    $: sourceName = purifyHtml(get(chart, 'metadata.describe.source-name'));
     $: sourceUrl = get(chart, 'metadata.describe.source-url');
 </script>
 

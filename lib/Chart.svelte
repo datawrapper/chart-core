@@ -1,5 +1,7 @@
 <script>
     import { onMount } from 'svelte';
+    import Headline from './blocks/Headline.svelte';
+    import Description from './blocks/Description.svelte';
     import Source from './blocks/Source.svelte';
     import Byline from './blocks/Byline.svelte';
     import Notes from './blocks/Notes.svelte';
@@ -21,6 +23,20 @@
     const clean = s => purifyHtml(s, '<a><span><b>');
 
     const coreBlocks = [
+        {
+            id: 'headline',
+            region: 'header',
+            priority: 10,
+            test: ({ chart }) => chart.title && !get(chart, 'metadata.describe.hide-title'),
+            component: Headline
+        },
+        {
+            id: 'description',
+            region: 'header',
+            priority: 20,
+            test: ({ chart }) => get(chart, 'metadata.annotate.notes'),
+            component: Description
+        },
         {
             id: 'notes',
             region: 'aboveFooter',
@@ -72,6 +88,7 @@
 
     $: blockProps = {
         __,
+        purifyHtml,
         theme,
         data,
         chart,
@@ -95,9 +112,9 @@
 
     function applyThemeBlockConfig(blocks, theme, blockProps) {
         return blocks.map(block => {
-            block.data = {
-                ...blockProps,
-                ...(block.data || {})
+            block.props = {
+                ...(block.data || {}),
+                ...blockProps
             };
             if (block.component.test) {
                 block.test = block.component.test;
@@ -115,7 +132,7 @@
     $: {
         // build all the region
         regions = {
-            aboveChart: getBlocks(allBlocks, 'aboveChart', { chart, data, theme }),
+            header: getBlocks(allBlocks, 'header', { chart, data, theme }),
             aboveFooter: getBlocks(allBlocks, 'aboveFooter', { chart, data, theme }),
             footerLeft: getBlocks(allBlocks, 'footerLeft', { chart, data, theme }),
             footerCenter: getBlocks(allBlocks, 'footerCenter', { chart, data, theme }),
@@ -245,28 +262,14 @@ Please make sure you called __(key) with a key of type "string".
 
 {#if !isStylePlain}
     <div id="header" class="dw-chart-header">
-        {#if chart.title && !chart.metadata.describe['hide-title']}
-            <h1>
-                <span class="chart-title">
-                    {@html chart.title}
-                </span>
-            </h1>
-        {/if}
-        {#if chart.metadata.describe.intro}
-            <p class="chart-intro">
-                {@html chart.metadata.describe.intro}
-            </p>
-        {/if}
-    </div>
-    <div class="dw-chart-above-chart">
-        {#each regions.aboveChart as block}
-            <div class="block">
+        {#each regions.header as block}
+            <div class="block block-{block.id}">
                 {#if block.prepend}
                     <span class="prepend">
                         {@html clean(block.prepend)}
                     </span>
                 {/if}
-                <svelte:component this={block.component} {...block.data} />
+                <svelte:component this={block.component} {...block.props} />
                 {#if block.append}
                     <span class="append">
                         {@html clean(block.append)}
@@ -292,7 +295,7 @@ Please make sure you called __(key) with a key of type "string".
                         {@html clean(block.prepend)}
                     </span>
                 {/if}
-                <svelte:component this={block.component} {...block.data} />
+                <svelte:component this={block.component} {...block.props} />
                 {#if block.append}
                     <span class="append">
                         {@html clean(block.append)}
@@ -315,7 +318,7 @@ Please make sure you called __(key) with a key of type "string".
                                 {@html clean(block.prepend)}
                             </span>
                         {/if}
-                        <svelte:component this={block.component} {...block.data} />
+                        <svelte:component this={block.component} {...block.props} />
                         {#if block.append}
                             <span class="append">
                                 {@html clean(block.append)}
@@ -330,7 +333,7 @@ Please make sure you called __(key) with a key of type "string".
 {/if}
 
 {#each regions.afterBody as block}
-    <svelte:component this={block.component} {...block.data} />
+    <svelte:component this={block.component} {...block.props} />
 {/each}
 
 {#if get(chart, 'data.chartAfterBodyHTML')}
