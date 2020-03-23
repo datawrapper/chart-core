@@ -1,8 +1,10 @@
 <script>
-    import get from '@datawrapper/shared/get';
-    export let purifyHtml;
-    export let chart;
+    // external props
+    export let props;
+    const { get, purifyHtml } = props;
+    $: chart = props.chart;
 
+    // internal props
     $: description = purifyHtml(get(chart, 'metadata.describe.intro'));
 </script>
 

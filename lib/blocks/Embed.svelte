@@ -1,12 +1,11 @@
 <script>
-    import get from '@datawrapper/shared/get';
+    // external props
+    export let props;
+    const { get, __ } = props;
+    $: chart = props.chart;
+    $: theme = props.theme;
 
-    export let chart;
-    export let theme;
-    export let data;
-    export let caption;
-    export let __;
-
+    // internal props
     $: embed = get(theme, 'data.options.footer.embed', { enabled: false });
     $: embedCode = get(
         chart,
@@ -33,7 +32,7 @@
         <div class="embed-code">
             <div class="close" on:click={handleClick}>×</div>
             <div>{embed.text || 'Please use the following HTML code to embed this chart:'}</div>
-            <textarea on:click={handleTextareaClick}>{embedCode}</textarea>
+            <textarea readonly on:click={handleTextareaClick}>{embedCode}</textarea>
         </div>
     {/if}
 {/if}

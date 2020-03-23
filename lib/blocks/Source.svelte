@@ -1,15 +1,12 @@
 <script>
-    import get from '@datawrapper/shared/get';
+    // external props
+    export let props;
+    const { __, get, purifyHtml } = props;
+    $: chart = props.chart;
+    $: theme = props.theme;
 
-    export let purifyHtml;
-    export let chart;
-    export let theme;
-    export let data;
-    export let caption;
-    export let __;
-
-    $: footer = theme.data.options.footer;
-
+    // internal props
+    $: footer = get(theme, 'data.options.footer');
     $: sourceName = purifyHtml(get(chart, 'metadata.describe.source-name'));
     $: sourceUrl = get(chart, 'metadata.describe.source-url');
 </script>

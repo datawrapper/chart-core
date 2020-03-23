@@ -1,12 +1,8 @@
 <script>
-    import get from '@datawrapper/shared/get';
-
-    export let purifyHtml;
-    export let chart;
-    export let data;
-    export let theme;
-    export let caption;
-    export let __;
+    // external props
+    export let props;
+    const { get, purifyHtml } = props;
+    $: chart = props.chart;
 </script>
 
 <div class="dw-chart-notes">

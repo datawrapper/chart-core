@@ -1,8 +1,10 @@
 <script>
-    import get from '@datawrapper/shared/get';
+    // external props
+    export let props;
+    const { get, purifyHtml } = props;
+    $: theme = props.theme;
 
-    export let theme;
-
+    // internal props
     function px(val) {
         return typeof val === 'string' ? val : val + 'px';
     }

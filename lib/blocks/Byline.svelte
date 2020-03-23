@@ -1,11 +1,12 @@
 <script>
-    export let chart;
-    export let theme;
-    export let data;
-    export let caption;
-    export let __;
-    import get from '@datawrapper/shared/get';
+    // external props
+    export let props;
+    const { get, __ } = props;
+    $: chart = props.chart;
+    $: theme = props.theme;
+    $: caption = props.caption;
 
+    // internal props
     $: bylineCaption =
         caption === 'map'
             ? get(theme, 'data.options.footer.mapCaption', 'Map:')

@@ -97,6 +97,7 @@
     $: blockProps = {
         __,
         purifyHtml,
+        get,
         theme,
         data,
         chart,
@@ -280,7 +281,7 @@ Please make sure you called __(key) with a key of type "string".
                         {@html clean(block.prepend)}
                     </span>
                 {/if}
-                <svelte:component this={block.component} {...block.props} />
+                <svelte:component this={block.component} props={block.props} />
                 {#if block.append}
                     <span class="append">
                         {@html clean(block.append)}
@@ -306,7 +307,7 @@ Please make sure you called __(key) with a key of type "string".
                         {@html clean(block.prepend)}
                     </span>
                 {/if}
-                <svelte:component this={block.component} {...block.props} />
+                <svelte:component this={block.component} props={block.props} />
                 {#if block.append}
                     <span class="append">
                         {@html clean(block.append)}
@@ -329,7 +330,7 @@ Please make sure you called __(key) with a key of type "string".
                                 {@html clean(block.prepend)}
                             </span>
                         {/if}
-                        <svelte:component this={block.component} {...block.props} />
+                        <svelte:component this={block.component} props={block.props} />
                         {#if block.append}
                             <span class="append">
                                 {@html clean(block.append)}
@@ -344,7 +345,7 @@ Please make sure you called __(key) with a key of type "string".
 {/if}
 
 {#each regions.afterBody as block}
-    <svelte:component this={block.component} {...block.props} />
+    <svelte:component this={block.component} props={block.props} />
 {/each}
 
 {#if get(chart, 'data.chartAfterBodyHTML')}

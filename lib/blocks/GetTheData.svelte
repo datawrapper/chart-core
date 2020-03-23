@@ -1,12 +1,10 @@
 <script>
-    import get from '@datawrapper/shared/get';
+    // external props
+    export let props;
+    const { get, __ } = props;
+    $: theme = props.theme;
 
-    export let chart;
-    export let theme;
-    export let data;
-    export let caption;
-    export let __;
-
+    // internal props
     $: getTheData = get(theme, 'data.options.footer.getTheData', { enabled: false });
 </script>
 
