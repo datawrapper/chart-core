@@ -301,7 +301,7 @@ Please make sure you called __(key) with a key of type "string".
 {#if !isStylePlain}
     <div class="dw-chart-above-footer">
         {#each regions.aboveFooter as block}
-            <div class="block">
+            <div class="block block-{block.id}">
                 {#if block.prepend}
                     <span class="prepend">
                         {@html clean(block.prepend)}
