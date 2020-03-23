@@ -1,4 +1,4 @@
-import './vendor/document-register-element.js';
+import './dist/core/document-register-element.js';
 import Chart from './lib/Chart.svelte';
 
 const chart = new Chart({
