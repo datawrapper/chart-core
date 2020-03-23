@@ -9,9 +9,9 @@
     ],
     "scripts": {
         "format": "prettier 'lib/**/*.{js,html,svelte}' --write",
-        "build": "rollup -c rollup.config.js",
-        "dev": "rollup -cw rollup.config.js",
-        "cp:vendor": "cp -r vendor/ dist/core/",
+        "build": "DW_CONFIG_PATH=../../config.js rollup -c rollup.config.js",
+        "dev": "DW_CONFIG_PATH=../../config.js rollup -c rollup.config.js",
+        "cp:vendor": "cp -r vendor/* dist/core/",
         "lint": "prettier --check 'lib/**/*.{js,html,svelte}' && eslint 'lib/**/*.{js,svelte}'",
         "prepublishOnly": "rm -r dist && mkdir dist && npm run build && npm run cp:vendor && npm run update:locales",
         "update:locales": "node scripts/update-translations.js"
