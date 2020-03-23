@@ -59,6 +59,7 @@ typings/
 
 # next.js build output
 .next
-dist
+
+dist/core/main.js
+dist/core/Chart_SSR.js
 token.json
-AfterBodyComponents.js
