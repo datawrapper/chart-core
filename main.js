@@ -1,5 +1,4 @@
 import { getBrowser, availablePolyfills } from '@datawrapper/polyfills';
-import './dist/core/document-register-element.js';
 /* need promise polyfill for svelte internals */
 import 'core-js/es/promise';
 import Chart from './lib/Chart.svelte';
