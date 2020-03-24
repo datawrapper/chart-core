@@ -2,9 +2,7 @@
     // external props
     export let props;
     const { get, __ } = props;
-    $: chart = props.chart;
-    $: theme = props.theme;
-    $: caption = props.caption;
+    $: ({ chart, theme, caption } = props);
 
     // internal props
     $: bylineCaption =

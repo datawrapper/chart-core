@@ -2,8 +2,7 @@
     // external props
     export let props;
     const { get, __ } = props;
-    $: chart = props.chart;
-    $: theme = props.theme;
+    $: ({ chart, theme } = props);
 
     // internal props
     $: embed = get(theme, 'data.options.footer.embed', { enabled: false });
