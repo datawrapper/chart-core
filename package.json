@@ -13,8 +13,7 @@
         "dev": "DW_CONFIG_PATH=../../config.js rollup -c rollup.config.js",
         "cp:vendor": "cp -r vendor/* dist/core/",
         "lint": "prettier --check 'lib/**/*.{js,html,svelte}' && eslint 'lib/**/*.{js,svelte}'",
-        "prepublishOnly": "rm -r dist && mkdir dist && npm run build && npm run cp:vendor && npm run update:locales",
-        "update:locales": "node scripts/update-translations.js"
+        "prepublishOnly": "rm -r dist && mkdir dist && npm run build && npm run cp:vendor"
     },
     "repository": {
         "type": "git",
