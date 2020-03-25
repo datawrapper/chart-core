@@ -20,6 +20,7 @@
     export let translations = {};
 
     $: chart = data.chartJSON;
+    $: publishData = data.publishData;
 
     const clean = s => purifyHtml(s, '<a><span><b>');
 
@@ -190,10 +191,6 @@ Please make sure you called __(key) with a key of type "string".
         return translation;
     }
 
-    const { footer } = theme.data.options;
-
-    if (data.basemapAttribution) footer.basemapAttribution = data.basemapAttribution;
-
     onMount(async () => {
         document.body.classList.toggle('fullscreen', isStyleFullscreen);
         document.body.classList.toggle('plain', isStylePlain);
@@ -204,7 +201,7 @@ Please make sure you called __(key) with a key of type "string".
 
         dw.theme.register(theme.id, theme.data);
 
-        const { basemap, minimap, highlight } = chart.data;
+        const { basemap, minimap, highlight } = publishData;
         window.__dwParams = {};
         if (basemap) {
             window.__dwParams.d3maps_basemap = {
@@ -223,16 +220,16 @@ Please make sure you called __(key) with a key of type "string".
 
         // load & execute plugins
         window.__dwBlocks = {};
-        if (chart.data.blocks.length) {
+        if (publishData.blocks.length) {
             await Promise.all(
-                chart.data.blocks.map(d => {
+                publishData.blocks.map(d => {
                     const p = [loadScript(d.source.js)];
                     if (d.source.css) p.push(loadStylesheet(d.source.css));
                     return Promise.all(p);
                 })
             );
             // all plugins are loaded
-            chart.data.blocks.forEach(d => {
+            publishData.blocks.forEach(d => {
                 d.blocks.forEach(block => {
                     if (!window.__dwBlocks[block.component]) {
                         return console.warn(
@@ -348,6 +345,6 @@ Please make sure you called __(key) with a key of type "string".
     <svelte:component this={block.component} props={block.props} />
 {/each}
 
-{#if get(chart, 'data.chartAfterBodyHTML')}
-    {@html chart.data.chartAfterBodyHTML}
+{#if publishData.chartAfterBodyHTML}
+    {@html publishData.chartAfterBodyHTML}
 {/if}
