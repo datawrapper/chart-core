@@ -17,10 +17,10 @@
 
     export let data = {};
     export let theme = {};
-    export let translations = {};
 
     $: chart = data.chartJSON;
     $: publishData = data.publishData;
+    $: locale = data.visJSON.locale;
 
     const clean = s => purifyHtml(s, '<a><span><b>');
 
@@ -175,9 +175,9 @@ Please make sure you called __(key) with a key of type "string".
         }
         key = key.trim();
 
-        let translation = translations[key] || key;
+        let translation = locale[key] || key;
 
-        if (!translations[key]) {
+        if (!locale[key]) {
             console.warn(`No translation available for key "${key}"`);
         }
 
