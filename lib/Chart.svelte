@@ -216,6 +216,15 @@ Please make sure you called __(key) with a key of type "string".
             };
         }
 
+        // inject custom-css
+        let customCSS;
+        if ((customCSS = get(chart, 'metadata.publish.custom-css'))) {
+            const style = document.createElement('style');
+            document.head.appendChild(style);
+            style.type = 'text/css';
+            style.appendChild(document.createTextNode(customCSS));
+        }
+
         render(data);
 
         // load & execute plugins
