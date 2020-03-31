@@ -26,7 +26,8 @@ module.exports = [
             commonjs(),
             babel({
                 ...babelConfig,
-                presets: [['@babel/env', { targets: '> 2%', corejs: 3, useBuiltIns: 'entry' }]]
+                presets: [['@babel/env', { targets: '> 1%', corejs: 3, useBuiltIns: 'entry' }]],
+                plugins: ['babel-plugin-transform-async-to-promises']
             }),
             terser()
         ],

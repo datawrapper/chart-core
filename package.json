@@ -1,6 +1,6 @@
 {
     "name": "@datawrapper/chart-core",
-    "version": "7.1.0",
+    "version": "8.1.0",
     "description": "Svelte component to render charts. Used by Sapper App and Node API.",
     "main": "index.js",
     "files": [
@@ -9,11 +9,12 @@
     ],
     "scripts": {
         "format": "prettier 'lib/**/*.{js,html,svelte}' --write",
-        "build": "DW_CONFIG_PATH=../../config.js rollup -c rollup.config.js",
-        "dev": "DW_CONFIG_PATH=../../config.js rollup -c rollup.config.js",
-        "cp:vendor": "cp -r vendor/* dist/core/",
+        "build": "rollup -c rollup.config.js",
+        "dev": "rollup -cw rollup.config.js",
         "lint": "prettier --check 'lib/**/*.{js,html,svelte}' && eslint 'lib/**/*.{js,svelte}'",
-        "prepublishOnly": "rm -r dist && mkdir dist && npm run build && npm run cp:vendor"
+        "prepublishOnly": "npm run build && npm run update:locales",
+        "update:locales": "node scripts/update-translations.js",
+        "prepare": "npm run build"
     },
     "repository": {
         "type": "git",
@@ -25,23 +26,25 @@
     },
     "homepage": "https://github.com/datawrapper/chart-core#readme",
     "dependencies": {
-        "@babel/core": "7.8.7",
-        "@babel/plugin-transform-runtime": "7.8.3",
-        "@babel/preset-env": "7.8.7",
-        "@babel/runtime": "7.8.7",
-        "babel-eslint": "10.1.0",
-        "core-js": "3.6.4",
-        "@datawrapper/shared": "0.23.0",
-        "fontfaceobserver": "2.1.0",
-        "svelte": "3.20.1",
-        "rollup": "2.1.0",
-        "rollup-plugin-babel": "4.4.0",
+        "@babel/core": "7.9.0",
+        "@babel/plugin-transform-runtime": "7.9.0",
+        "@babel/preset-env": "7.9.0",
+        "@babel/runtime": "7.9.2",
+        "@datawrapper/polyfills": "2.0.0-0",
+        "@datawrapper/shared": "0.23.1",
         "@rollup/plugin-commonjs": "11.0.2",
         "@rollup/plugin-node-resolve": "7.1.1",
+        "babel-eslint": "10.1.0",
+        "core-js": "3.6.4",
+        "fontfaceobserver": "2.1.0",
+        "rollup": "2.1.0",
+        "rollup-plugin-babel": "4.4.0",
         "rollup-plugin-svelte": "5.1.1",
-        "rollup-plugin-terser": "5.3.0"
+        "rollup-plugin-terser": "5.3.0",
+        "svelte": "3.20.1"
     },
     "devDependencies": {
+        "babel-plugin-transform-async-to-promises": "0.8.15",
         "country-emoji": "~1.5.0",
         "eslint": "~6.8.0",
         "eslint-plugin-svelte3": "~2.7.3",
