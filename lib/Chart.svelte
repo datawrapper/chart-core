@@ -36,7 +36,7 @@
             id: 'description',
             region: 'header',
             priority: 20,
-            test: ({ chart }) => get(chart, 'metadata.annotate.notes'),
+            test: ({ chart }) => get(chart, 'metadata.describe.intro'),
             component: Description
         },
         {
