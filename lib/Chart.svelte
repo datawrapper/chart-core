@@ -22,7 +22,7 @@
     $: publishData = data.publishData;
     $: locale = data.visJSON.locale;
 
-    $: customCSS = get(chart, 'metadata.publish.custom-css', '');
+    $: customCSS = purifyHtml(get(chart, 'metadata.publish.custom-css', ''), '');
 
     const clean = s => purifyHtml(s, '<a><span><b>');
 
