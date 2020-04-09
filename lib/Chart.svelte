@@ -22,6 +22,8 @@
     $: publishData = data.publishData;
     $: locale = data.visJSON.locale;
 
+    $: customCSS = purifyHtml(get(chart, 'metadata.publish.custom-css', ''), '');
+
     const clean = s => purifyHtml(s, '<a><span><b>');
 
     const coreBlocks = [
@@ -267,6 +269,7 @@ Please make sure you called __(key) with a key of type "string".
 <svelte:head>
     <title>{chart.title}</title>
     <meta name="description" content={get(chart, 'metadata.describe.intro')} />
+    {@html `<${'style'}>${customCSS}</style>`}
 </svelte:head>
 
 {#if !isStylePlain}
