@@ -117,7 +117,7 @@
     function getBlocks(allBlocks, region, props) {
         return allBlocks
             .filter(d => d.region === region)
-            .filter(d => !d.test || d.test(props))
+            .filter(d => !d.test || d.test({ ...d.props, ...props }))
             .filter(d => (d.visible !== undefined ? d.visible : true))
             .sort(byPriority);
     }
