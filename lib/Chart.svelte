@@ -66,14 +66,16 @@
         {
             id: 'get-the-data',
             region: 'footerLeft',
-            test: ({ theme }) => get(theme, 'data.options.footer.getTheData.enabled'),
+            test: ({ theme, isStyleStatic }) =>
+                get(theme, 'data.options.footer.getTheData.enabled') && !isStyleStatic,
             priority: 30,
             component: GetTheData
         },
         {
             id: 'embed',
             region: 'footerLeft',
-            test: ({ theme }) => get(theme, 'data.options.footer.embed.enabled'),
+            test: ({ theme, isStyleStatic }) =>
+                get(theme, 'data.options.footer.embed.enabled') && !isStyleStatic,
             priority: 40,
             component: Embed
         },
@@ -144,17 +146,27 @@
     $: {
         // build all the region
         regions = {
-            header: getBlocks(allBlocks, 'header', { chart, data, theme }),
-            aboveFooter: getBlocks(allBlocks, 'aboveFooter', { chart, data, theme }),
-            footerLeft: getBlocks(allBlocks, 'footerLeft', { chart, data, theme }),
-            footerCenter: getBlocks(allBlocks, 'footerCenter', { chart, data, theme }),
-            footerRight: getBlocks(allBlocks, 'footerRight', { chart, data, theme }),
-            afterBody: getBlocks(allBlocks, 'afterBody', { chart, data, theme })
+            header: getBlocks(allBlocks, 'header', { chart, data, theme, isStyleStatic }),
+            aboveFooter: getBlocks(allBlocks, 'aboveFooter', { chart, data, theme, isStyleStatic }),
+            footerLeft: getBlocks(allBlocks, 'footerLeft', { chart, data, theme, isStyleStatic }),
+            footerCenter: getBlocks(allBlocks, 'footerCenter', {
+                chart,
+                data,
+                theme,
+                isStyleStatic
+            }),
+            footerRight: getBlocks(allBlocks, 'footerRight', { chart, data, theme, isStyleStatic }),
+            afterBody: getBlocks(allBlocks, 'afterBody', { chart, data, theme, isStyleStatic })
         };
     }
 
+    // plain style means no header and footer
     export let isStylePlain = false;
+    // static style means user can't interact (e.g. in a png version)
+    export let isStyleStatic = false;
+    // no-pointer is essentially the same as "static", but kept for compatibility
     export let isStyleNoPointer = false;
+    // not sure if we really need this?
     export let isStyleFullscreen = false;
 
     function getCaption(id) {
@@ -196,8 +208,11 @@ Please make sure you called __(key) with a key of type "string".
     onMount(async () => {
         document.body.classList.toggle('fullscreen', isStyleFullscreen);
         document.body.classList.toggle('plain', isStylePlain);
+        document.body.classList.toggle('static', isStyleStatic);
+        // the body class "png-export" kept for backwards compatibility
+        document.body.classList.toggle('png-export', isStyleStatic);
 
-        if (isStyleNoPointer) {
+        if (isStyleNoPointer || isStyleStatic) {
             document.body.style['pointer-events'] = 'none';
         }
 
