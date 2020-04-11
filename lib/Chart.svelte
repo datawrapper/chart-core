@@ -22,6 +22,8 @@
     $: publishData = data.publishData;
     $: locale = data.visJSON.locale;
 
+    $: customCSS = purifyHtml(get(chart, 'metadata.publish.custom-css', ''), '');
+
     const clean = s => purifyHtml(s, '<a><span><b>');
 
     const coreBlocks = [
@@ -36,7 +38,7 @@
             id: 'description',
             region: 'header',
             priority: 20,
-            test: ({ chart }) => get(chart, 'metadata.annotate.notes'),
+            test: ({ chart }) => get(chart, 'metadata.describe.intro'),
             component: Description
         },
         {
@@ -115,7 +117,7 @@
     function getBlocks(allBlocks, region, props) {
         return allBlocks
             .filter(d => d.region === region)
-            .filter(d => !d.test || d.test(props))
+            .filter(d => !d.test || d.test({ ...d.props, ...props }))
             .filter(d => (d.visible !== undefined ? d.visible : true))
             .sort(byPriority);
     }
@@ -267,6 +269,7 @@ Please make sure you called __(key) with a key of type "string".
 <svelte:head>
     <title>{chart.title}</title>
     <meta name="description" content={get(chart, 'metadata.describe.intro')} />
+    {@html `<${'style'}>${customCSS}</style>`}
 </svelte:head>
 
 {#if !isStylePlain}
