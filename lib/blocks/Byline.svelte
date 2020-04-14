@@ -1,7 +1,7 @@
 <script>
     // external props
     export let props;
-    const { get, __ } = props;
+    const { get, purifyHtml, __ } = props;
     $: chart = props.chart;
     $: theme = props.theme;
     $: caption = props.caption;
@@ -33,6 +33,7 @@
 
 {#if chart.basedOnByline}
     {#if needBrackets}({/if}
-    {__(forkCaption)} {chart.basedOnByline}
+    {__(forkCaption)}
+    {@html purifyHtml(chart.basedOnByline)}
     {#if needBrackets}){/if}
 {/if}
