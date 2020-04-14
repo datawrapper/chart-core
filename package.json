@@ -12,8 +12,7 @@
         "build": "rollup -c rollup.config.js",
         "dev": "rollup -cw rollup.config.js",
         "lint": "prettier --check 'lib/**/*.{js,html,svelte}' && eslint 'lib/**/*.{js,svelte}'",
-        "prepublishOnly": "npm run build && npm run update:locales",
-        "update:locales": "node scripts/update-translations.js",
+        "prepublishOnly": "npm run build",
         "prepare": "npm run build"
     },
     "repository": {
