@@ -164,10 +164,6 @@
     export let isStylePlain = false;
     // static style means user can't interact (e.g. in a png version)
     export let isStyleStatic = false;
-    // no-pointer is essentially the same as "static", but kept for compatibility
-    export let isStyleNoPointer = false;
-    // not sure if we really need this?
-    export let isStyleFullscreen = false;
 
     function getCaption(id) {
         if (id === 'd3-maps-choropleth' || id === 'd3-maps-symbols' || id === 'locator-map')
@@ -206,13 +202,12 @@ Please make sure you called __(key) with a key of type "string".
     }
 
     onMount(async () => {
-        document.body.classList.toggle('fullscreen', isStyleFullscreen);
         document.body.classList.toggle('plain', isStylePlain);
         document.body.classList.toggle('static', isStyleStatic);
         // the body class "png-export" kept for backwards compatibility
         document.body.classList.toggle('png-export', isStyleStatic);
 
-        if (isStyleNoPointer || isStyleStatic) {
+        if (isStyleStatic) {
             document.body.style['pointer-events'] = 'none';
         }
 
