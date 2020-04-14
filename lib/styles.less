@@ -402,6 +402,13 @@
         color: @typography_links_color;
     }
 
+    .dw-chart-notes a {
+        font-style: if(@typography_notes_cursive = 1, italic, if(@typography_links_cursive = 1, italic, normal));
+    }
+    .dw-chart-footer a {
+        font-style: if(@typography_footer_cursive = 1, italic, if(@typography_links_cursive = 1, italic, normal));
+    }
+
     a img {
         border: 0px;
     }
