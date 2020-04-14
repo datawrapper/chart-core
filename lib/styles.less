@@ -672,3 +672,29 @@ html[xmlns] .clearfix {
 .vis-election-donut-chart path {
     stroke-width: 0.5;
 }
+
+// static style (make links look like normal text)
+.static {
+    .chart {
+        a {
+            color: @colors_text;
+            color: @typography_chart_color;
+        }
+        .dw-chart-header {
+            h1 a {
+                color: @typography_headline_color;
+            }
+            p a {
+                color: @typography_description_color;
+            }
+        }
+        .dw-chart-footer a {
+            color: @colors_text;
+            color: @typography_footer_color;
+        }
+        .dw-chart-notes a {
+            color: @colors_text;
+            color: @typography_notes_color;
+        }
+    }
+}
