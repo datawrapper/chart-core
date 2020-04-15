@@ -264,18 +264,6 @@ Please make sure you called __(key) with a key of type "string".
     });
 </script>
 
-<style>
-    .separator {
-        display: inline-block;
-        font-style: initial;
-    }
-    .separator:before {
-        content: '•';
-        padding-left: 0.5ex;
-        display: inline-block;
-    }
-</style>
-
 <svelte:head>
     <title>{chart.title}</title>
     <meta name="description" content={get(chart, 'metadata.describe.intro')} />
@@ -332,7 +320,7 @@ Please make sure you called __(key) with a key of type "string".
             <div class="footer-{orientation.toLowerCase()}">
                 {#each regions['footer' + orientation] as block, i}
                     {#if i}
-                        <span class="separator" />
+                        <span class="separator separator-before-{block.id}" />
                     {/if}
                     <span class="footer-block {block.id}-block">
                         {#if block.prepend}
