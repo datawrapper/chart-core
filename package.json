@@ -1,6 +1,6 @@
 {
     "name": "@datawrapper/chart-core",
-    "version": "8.2.2",
+    "version": "8.3.1",
     "description": "Svelte component to render charts. Used by Sapper App and Node API.",
     "main": "index.js",
     "files": [
@@ -12,8 +12,7 @@
         "build": "rollup -c rollup.config.js",
         "dev": "rollup -cw rollup.config.js",
         "lint": "prettier --check 'lib/**/*.{js,html,svelte}' && eslint 'lib/**/*.{js,svelte}'",
-        "prepublishOnly": "npm run build && npm run update:locales",
-        "update:locales": "node scripts/update-translations.js",
+        "prepublishOnly": "npm run build",
         "prepare": "npm run build"
     },
     "repository": {

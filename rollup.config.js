@@ -54,5 +54,23 @@ module.exports = [
             entryFileNames: 'Chart_SSR.js',
             ...output
         }
+    },
+    {
+        input: path.resolve(__dirname, 'lib/embed.js'),
+        plugins: [
+            resolve(),
+            commonjs(),
+            babel({
+                ...babelConfig,
+                presets: [['@babel/env', { targets: '> 1%', corejs: 3, useBuiltIns: 'entry' }]],
+                plugins: ['babel-plugin-transform-async-to-promises']
+            }),
+            terser()
+        ],
+        output: {
+            name: 'embed',
+            file: path.resolve(__dirname, 'dist/core/embed.js'),
+            format: 'iife'
+        }
     }
 ];

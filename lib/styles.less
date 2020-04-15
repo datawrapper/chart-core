@@ -1,4 +1,9 @@
 /* Reference: datawrapper/templates/chart-styles.less.twig */
+body {
+    margin: 0;
+    padding: 0;
+}
+
 .chart {
     font-family: @typography_chart_typeface;
 
@@ -13,7 +18,7 @@
     padding: @colors_general_padding;
     padding: @style_body_padding;
 
-    margin: 0 0;
+    margin: 0;
     margin: @style_body_margin;
 
     height: 100%;
@@ -442,6 +447,13 @@
         color: @typography_links_color;
     }
 
+    .dw-chart-notes a {
+        font-style: if(@typography_notes_cursive = 1, italic, if(@typography_links_cursive = 1, italic, normal));
+    }
+    .dw-chart-footer a {
+        font-style: if(@typography_footer_cursive = 1, italic, if(@typography_links_cursive = 1, italic, normal));
+    }
+
     a img {
         border: 0px;
     }
@@ -704,4 +716,30 @@ html[xmlns] .clearfix {
 .vis-donut-chart path,
 .vis-election-donut-chart path {
     stroke-width: 0.5;
+}
+
+// static style (make links look like normal text)
+.static {
+    .chart {
+        a {
+            color: @colors_text;
+            color: @typography_chart_color;
+        }
+        .dw-chart-header {
+            h1 a {
+                color: @typography_headline_color;
+            }
+            p a {
+                color: @typography_description_color;
+            }
+        }
+        .dw-chart-footer a {
+            color: @colors_text;
+            color: @typography_footer_color;
+        }
+        .dw-chart-notes a {
+            color: @colors_text;
+            color: @typography_notes_color;
+        }
+    }
 }
