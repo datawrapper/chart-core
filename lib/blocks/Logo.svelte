@@ -9,12 +9,21 @@
 </script>
 
 {#if logo.enabled && logo.position === 'right'}
-    <a href={logo.link || ''} target="_blank">
-    {#if logo.url}
-        <img height={logo.height} src={logo.url} alt={theme.title} />
+    {#if logo.link}
+        <a href={logo.link} target="_blank" rel="noopener noreferrer">
+            {#if logo.url}
+                <img height={logo.height} src={logo.url} alt={theme.title} />
+            {/if}
+            {#if logo.text}
+                <span class="logo-text">{logo.text}</span>
+            {/if}
+        </a>
+    {:else}
+        {#if logo.url}
+            <img height={logo.height} src={logo.url} alt={theme.title} />
+        {/if}
+        {#if logo.text}
+            <span class="logo-text">{logo.text}</span>
+        {/if}
     {/if}
-    {#if logo.text}
-        <span class="logo-text">{logo.text}</span>
-    {/if}
-    </a>
 {/if}
