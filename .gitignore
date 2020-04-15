@@ -61,6 +61,7 @@ typings/
 .next
 
 dist/core/main.js
+dist/core/embed.js
 dist/core/Chart_SSR.js
 dist/core/locale
 token.json
