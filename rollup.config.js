@@ -72,5 +72,28 @@ module.exports = [
             file: path.resolve(__dirname, 'dist/embed.js'),
             format: 'iife'
         }
+    },
+    {
+        input: path.resolve(__dirname, 'lib/dw/index.js'),
+        plugins: [
+            resolve(),
+            commonjs(),
+            babel({
+                ...babelConfig,
+                presets: [['@babel/env', { targets: '> 1%', corejs: 3, useBuiltIns: 'entry' }]],
+                plugins: ['babel-plugin-transform-async-to-promises']
+            }),
+            terser()
+        ],
+        external: ['underscore', 'jquery'],
+        output: {
+            // name: 'dw',
+            file: path.resolve(__dirname, 'dist/dw-2.0.min.js'),
+            format: 'iife',
+            globals: {
+                jquery: '$',
+                underscore: '_'
+            }
+        }
     }
 ];
