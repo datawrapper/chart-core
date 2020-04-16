@@ -1,6 +1,7 @@
 import path from 'path';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
+import replace from '@rollup/plugin-replace';
 import svelte from 'rollup-plugin-svelte';
 import babel from 'rollup-plugin-babel';
 import { terser } from 'rollup-plugin-terser';
@@ -78,6 +79,9 @@ module.exports = [
         plugins: [
             resolve(),
             commonjs(),
+            replace({
+                __chartCoreVersion__: require('./package.json').version
+            }),
             babel({
                 ...babelConfig,
                 presets: [['@babel/env', { targets: '> 1%', corejs: 3, useBuiltIns: 'entry' }]],
