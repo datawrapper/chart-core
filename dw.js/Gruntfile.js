@@ -22,7 +22,7 @@ module.exports = function(grunt) {
             },
             build: {
                 src: 'dw-2.0.js',
-                dest: '../dist/core/dw-2.0.min.js'
+                dest: '../dist/dw-2.0.min.js'
             }
         }
     });
