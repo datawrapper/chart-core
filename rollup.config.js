@@ -92,6 +92,7 @@ module.exports = [
         external: ['underscore', 'jquery'],
         output: {
             // name: 'dw',
+            sourcemap: true,
             file: path.resolve(__dirname, 'dist/dw-2.0.min.js'),
             format: 'iife',
             globals: {
