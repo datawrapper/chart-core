@@ -9,6 +9,7 @@
     import Embed from './blocks/Embed.svelte';
     import Logo from './blocks/Logo.svelte';
     import Rectangle from './blocks/Rectangle.svelte';
+    import Watermark from './blocks/Watermark.svelte';
 
     import get from '@datawrapper/shared/get';
     import purifyHtml from '@datawrapper/shared/purifyHtml';
@@ -340,6 +341,11 @@ Please make sure you called __(key) with a key of type "string".
         {/each}
 
     </div>
+{/if}
+{#if get(theme, 'data.options.watermark')}
+    <Watermark
+        text={get(theme, 'data.options.watermark.text', 'CONFIDENTIAL')}
+        monospace={get(theme, 'data.options.watermark.monospace', false)} />
 {/if}
 
 {#each regions.afterBody as block}
