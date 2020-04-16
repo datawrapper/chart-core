@@ -10,10 +10,11 @@
     "scripts": {
         "format": "prettier 'lib/**/*.{js,html,svelte}' --write",
         "build": "rollup -c rollup.config.js",
+        "build:dw.js": "cd dw.js && npm run build",
         "dev": "rollup -cw rollup.config.js",
         "lint": "prettier --check 'lib/**/*.{js,html,svelte}' && eslint 'lib/**/*.{js,svelte}'",
-        "prepublishOnly": "npm run build",
-        "prepare": "npm run build"
+        "prepublishOnly": "npm run build && npm run build:dw.js",
+        "prepare": "npm run build && cd dw.js && npm install && cd .. && npm run build:dw.js"
     },
     "repository": {
         "type": "git",
@@ -72,7 +73,8 @@
     },
     "eslintIgnore": [
         "vendor",
-        "dist"
+        "dist",
+        "dw.js"
     ],
     "eslintConfig": {
         "parser": "babel-eslint",
