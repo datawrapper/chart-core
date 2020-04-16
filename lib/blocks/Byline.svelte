@@ -28,7 +28,7 @@
 
 {#if byline}
     <span class="byline-caption">{__(bylineCaption)}</span>
-    {byline}
+    <span>{byline}</span>
 {/if}
 
 {#if chart.basedOnByline}

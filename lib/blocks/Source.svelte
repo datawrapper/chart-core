@@ -17,6 +17,6 @@
             {@html sourceName}
         </a>
     {:else}
-        {@html sourceName}
+        <span>{@html sourceName}</span>
     {/if}
 {/if}
