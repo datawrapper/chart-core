@@ -14,6 +14,8 @@
     $: diagonal = Math.sqrt(width * width + height * height);
 
     // estimateTextWidth works reasonable well for normal fonts
+    // set theme.data.options.watermark.monospace to true if you
+    // have a monospace font
     $: estWidth = monospace ? text.length * 20 : estimateTextWidth(text, 20);
     $: fontSize = `${Math.round(20 * ((diagonal * 0.75) / estWidth))}px`;
 </script>
