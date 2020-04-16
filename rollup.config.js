@@ -7,7 +7,7 @@ import { terser } from 'rollup-plugin-terser';
 
 const output = {
     name: 'chart',
-    dir: path.resolve(__dirname, 'dist/core'),
+    dir: path.resolve(__dirname, 'dist'),
     compact: true
 };
 
@@ -69,7 +69,7 @@ module.exports = [
         ],
         output: {
             name: 'embed',
-            file: path.resolve(__dirname, 'dist/core/embed.js'),
+            file: path.resolve(__dirname, 'dist/embed.js'),
             format: 'iife'
         }
     }
