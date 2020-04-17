@@ -10,7 +10,6 @@ const output = {
     name: 'chart',
     dir: path.resolve(__dirname, 'dist'),
     globals: {
-        jquery: '$',
         underscore: '_'
     },
     compact: true
@@ -36,7 +35,7 @@ module.exports = [
             }),
             terser()
         ],
-        external: ['underscore', 'jquery'],
+        external: ['underscore'],
         output: {
             format: 'iife',
             entryFileNames: 'main.js',
@@ -55,7 +54,7 @@ module.exports = [
                 presets: [['@babel/env', { targets: { node: true } }]]
             })
         ],
-        external: ['underscore', 'jquery'],
+        external: ['underscore'],
         output: {
             format: 'umd',
             entryFileNames: 'Chart_SSR.js',
@@ -95,14 +94,13 @@ module.exports = [
             }),
             terser()
         ],
-        external: ['underscore', 'jquery'],
+        external: ['underscore'],
         output: {
             // name: 'dw',
             sourcemap: true,
             file: path.resolve(__dirname, 'dist/dw-2.0.min.js'),
             format: 'iife',
             globals: {
-                jquery: '$',
                 underscore: '_'
             }
         }
