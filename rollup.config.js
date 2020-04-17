@@ -9,6 +9,10 @@ import { terser } from 'rollup-plugin-terser';
 const output = {
     name: 'chart',
     dir: path.resolve(__dirname, 'dist'),
+    globals: {
+        jquery: '$',
+        underscore: '_'
+    },
     compact: true
 };
 
@@ -32,6 +36,7 @@ module.exports = [
             }),
             terser()
         ],
+        external: ['underscore', 'jquery'],
         output: {
             format: 'iife',
             entryFileNames: 'main.js',
@@ -50,6 +55,7 @@ module.exports = [
                 presets: [['@babel/env', { targets: { node: true } }]]
             })
         ],
+        external: ['underscore', 'jquery'],
         output: {
             format: 'umd',
             entryFileNames: 'Chart_SSR.js',
