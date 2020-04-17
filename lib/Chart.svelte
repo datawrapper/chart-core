@@ -23,6 +23,13 @@
     $: publishData = data.publishData;
     $: locale = data.visJSON.locale;
 
+    $: watermarkCustomField = get(theme, 'data.options.watermark.custom-field');
+    $: watermark = get(theme, 'data.options.watermark')
+        ? watermarkCustomField
+            ? get(chart, `metadata.custom.${watermarkCustomField}`, '')
+            : get(theme, 'data.options.watermark.text', 'CONFIDENTIAL')
+        : false;
+
     $: customCSS = purifyHtml(get(chart, 'metadata.publish.custom-css', ''), '');
 
     const clean = s => purifyHtml(s, '<a><span><b>');
@@ -342,10 +349,8 @@ Please make sure you called __(key) with a key of type "string".
 
     </div>
 {/if}
-{#if get(theme, 'data.options.watermark')}
-    <Watermark
-        text={get(theme, 'data.options.watermark.text', 'CONFIDENTIAL')}
-        monospace={get(theme, 'data.options.watermark.monospace', false)} />
+{#if watermark}
+    <Watermark text={watermark} monospace={get(theme, 'data.options.watermark.monospace', false)} />
 {/if}
 
 {#each regions.afterBody as block}
