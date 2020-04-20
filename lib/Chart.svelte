@@ -32,7 +32,8 @@
 
     $: customCSS = purifyHtml(get(chart, 'metadata.publish.custom-css', ''), '');
 
-    const clean = s => purifyHtml(s, '<a><span><b>');
+    const clean = s =>
+        purifyHtml(s, '<a><span><b><br><br/><i><strong><sup><sub><strike><u><em><tt>');
 
     const coreBlocks = [
         {
@@ -109,7 +110,7 @@
 
     $: blockProps = {
         __,
-        purifyHtml,
+        purifyHtml: clean,
         get,
         theme,
         data,
