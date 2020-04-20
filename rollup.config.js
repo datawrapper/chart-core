@@ -20,6 +20,12 @@ const babelConfig = {
     extensions: ['.js', '.mjs', '.svelte']
 };
 
+function onwarn(warning, warn) {
+    if (warning.code === 'EVAL') return;
+    if (warning.code === 'MISSING_NAME_OPTION_FOR_IIFE_EXPORT') return;
+    warn(warning);
+}
+
 module.exports = [
     {
         /* Client side Svelte Chart Component */
@@ -36,6 +42,7 @@ module.exports = [
             terser()
         ],
         external: ['underscore'],
+        onwarn,
         output: {
             format: 'iife',
             entryFileNames: 'main.js',
@@ -55,6 +62,7 @@ module.exports = [
             })
         ],
         external: ['underscore'],
+        onwarn,
         output: {
             format: 'umd',
             entryFileNames: 'Chart_SSR.js',
@@ -95,8 +103,8 @@ module.exports = [
             terser()
         ],
         external: ['underscore'],
+        onwarn,
         output: {
-            // name: 'dw',
             sourcemap: true,
             file: path.resolve(__dirname, 'dist/dw-2.0.min.js'),
             format: 'iife',
