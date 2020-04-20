@@ -290,7 +290,9 @@ Please make sure you called __(key) with a key of type "string".
                         {@html clean(block.prepend)}
                     </span>
                 {/if}
-                <svelte:component this={block.component} props={block.props} />
+                <span class="block-inner">
+                    <svelte:component this={block.component} props={block.props} />
+                </span>
                 {#if block.append}
                     <span class="append">
                         {@html clean(block.append)}
@@ -316,7 +318,9 @@ Please make sure you called __(key) with a key of type "string".
                         {@html clean(block.prepend)}
                     </span>
                 {/if}
-                <svelte:component this={block.component} props={block.props} />
+                <span class="block-inner">
+                    <svelte:component this={block.component} props={block.props} />
+                </span>
                 {#if block.append}
                     <span class="append">
                         {@html clean(block.append)}
@@ -333,13 +337,15 @@ Please make sure you called __(key) with a key of type "string".
                     {#if i}
                         <span class="separator separator-before-{block.id}" />
                     {/if}
-                    <span class="footer-block {block.id}-block">
+                    <span class="footer-block {block.id}-block block-{block.id}">
                         {#if block.prepend}
                             <span class="prepend">
                                 {@html clean(block.prepend)}
                             </span>
                         {/if}
-                        <svelte:component this={block.component} props={block.props} />
+                        <span class="block-inner">
+                            <svelte:component this={block.component} props={block.props} />
+                        </span>
                         {#if block.append}
                             <span class="append">
                                 {@html clean(block.append)}
