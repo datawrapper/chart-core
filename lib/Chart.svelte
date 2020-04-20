@@ -9,6 +9,7 @@
     import Embed from './blocks/Embed.svelte';
     import Logo from './blocks/Logo.svelte';
     import Rectangle from './blocks/Rectangle.svelte';
+    import Watermark from './blocks/Watermark.svelte';
 
     import get from '@datawrapper/shared/get';
     import purifyHtml from '@datawrapper/shared/purifyHtml';
@@ -21,6 +22,13 @@
     $: chart = data.chartJSON;
     $: publishData = data.publishData;
     $: locale = data.visJSON.locale;
+
+    $: watermarkCustomField = get(theme, 'data.options.watermark.custom-field');
+    $: watermark = get(theme, 'data.options.watermark')
+        ? watermarkCustomField
+            ? get(chart, `metadata.custom.${watermarkCustomField}`, '')
+            : get(theme, 'data.options.watermark.text', 'CONFIDENTIAL')
+        : false;
 
     $: customCSS = purifyHtml(get(chart, 'metadata.publish.custom-css', ''), '');
 
@@ -265,17 +273,6 @@ Please make sure you called __(key) with a key of type "string".
     });
 </script>
 
-<style>
-    .separator {
-        display: inline-block;
-        font-style: initial;
-    }
-    .separator:before {
-        content: '\00a0•';
-        display: inline-block;
-    }
-</style>
-
 <svelte:head>
     <title>{chart.title}</title>
     <meta name="description" content={get(chart, 'metadata.describe.intro')} />
@@ -333,7 +330,7 @@ Please make sure you called __(key) with a key of type "string".
             <div class="footer-{orientation.toLowerCase()}">
                 {#each regions['footer' + orientation] as block, i}
                     {#if i}
-                        <span class="separator" />
+                        <span class="separator separator-before-{block.id}" />
                     {/if}
                     <span class="footer-block {block.id}-block">
                         {#if block.prepend}
@@ -372,6 +369,9 @@ Please make sure you called __(key) with a key of type "string".
             {/each}
         </div>
     {/if}
+{/if}
+{#if watermark}
+    <Watermark text={watermark} monospace={get(theme, 'data.options.watermark.monospace', false)} />
 {/if}
 
 {#each regions.afterBody as block}
