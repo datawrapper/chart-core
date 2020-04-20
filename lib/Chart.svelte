@@ -141,6 +141,9 @@
             if (block.component.test) {
                 block.test = block.component.test;
             }
+            if (block.component.exportText) {
+                block.exportText = block.component.exportText;
+            }
             const options = get(theme, 'data.options.blocks', {})[block.id];
             if (!options) return block;
             return {
@@ -281,7 +284,7 @@ Please make sure you called __(key) with a key of type "string".
 {#if !isStylePlain}
     <div id="header" class="dw-chart-header">
         {#each regions.header as block}
-            <div class="block block-{block.id}">
+            <div class="block block-{block.id}" class:export-text={block.exportText}>
                 {#if block.prepend}
                     <span class="prepend">
                         {@html clean(block.prepend)}
@@ -307,7 +310,7 @@ Please make sure you called __(key) with a key of type "string".
 {#if !isStylePlain}
     <div class="dw-chart-above-footer">
         {#each regions.aboveFooter as block}
-            <div class="block block-{block.id}">
+            <div class="block block-{block.id}" class:export-text={block.exportText}>
                 {#if block.prepend}
                     <span class="prepend">
                         {@html clean(block.prepend)}
