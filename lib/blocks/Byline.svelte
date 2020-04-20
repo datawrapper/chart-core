@@ -26,11 +26,8 @@
     }
 </script>
 
-{#if byline}
-    <span class="byline-caption">{__(bylineCaption)}</span>
-    <span>{byline}</span>
-{/if}
-
+<span class="byline-caption">{__(bylineCaption)}</span>
+{byline}
 {#if chart.basedOnByline}
     {#if needBrackets}({/if}
     {__(forkCaption)}
