@@ -9,6 +9,7 @@
     import Embed from './blocks/Embed.svelte';
     import Logo from './blocks/Logo.svelte';
     import Rectangle from './blocks/Rectangle.svelte';
+    import Watermark from './blocks/Watermark.svelte';
 
     import get from '@datawrapper/shared/get';
     import purifyHtml from '@datawrapper/shared/purifyHtml';
@@ -21,6 +22,13 @@
     $: chart = data.chartJSON;
     $: publishData = data.publishData;
     $: locale = data.visJSON.locale;
+
+    $: watermarkCustomField = get(theme, 'data.options.watermark.custom-field');
+    $: watermark = get(theme, 'data.options.watermark')
+        ? watermarkCustomField
+            ? get(chart, `metadata.custom.${watermarkCustomField}`, '')
+            : get(theme, 'data.options.watermark.text', 'CONFIDENTIAL')
+        : false;
 
     $: customCSS = purifyHtml(get(chart, 'metadata.publish.custom-css', ''), '');
 
@@ -132,6 +140,9 @@
             };
             if (block.component.test) {
                 block.test = block.component.test;
+            }
+            if (block.component.exportText) {
+                block.exportText = block.component.exportText;
             }
             const options = get(theme, 'data.options.blocks', {})[block.id];
             if (!options) return block;
@@ -273,7 +284,7 @@ Please make sure you called __(key) with a key of type "string".
 {#if !isStylePlain}
     <div id="header" class="dw-chart-header">
         {#each regions.header as block}
-            <div class="block block-{block.id}">
+            <div class="block block-{block.id}" class:export-text={block.exportText}>
                 {#if block.prepend}
                     <span class="prepend">
                         {@html clean(block.prepend)}
@@ -299,7 +310,7 @@ Please make sure you called __(key) with a key of type "string".
 {#if !isStylePlain}
     <div class="dw-chart-above-footer">
         {#each regions.aboveFooter as block}
-            <div class="block block-{block.id}">
+            <div class="block block-{block.id}" class:export-text={block.exportText}>
                 {#if block.prepend}
                     <span class="prepend">
                         {@html clean(block.prepend)}
@@ -340,6 +351,9 @@ Please make sure you called __(key) with a key of type "string".
         {/each}
 
     </div>
+{/if}
+{#if watermark}
+    <Watermark text={watermark} monospace={get(theme, 'data.options.watermark.monospace', false)} />
 {/if}
 
 {#each regions.afterBody as block}

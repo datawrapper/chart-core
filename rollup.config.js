@@ -1,6 +1,7 @@
 import path from 'path';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
+import replace from '@rollup/plugin-replace';
 import svelte from 'rollup-plugin-svelte';
 import babel from 'rollup-plugin-babel';
 import { terser } from 'rollup-plugin-terser';
@@ -8,6 +9,9 @@ import { terser } from 'rollup-plugin-terser';
 const output = {
     name: 'chart',
     dir: path.resolve(__dirname, 'dist'),
+    globals: {
+        underscore: '_'
+    },
     compact: true
 };
 
@@ -31,6 +35,7 @@ module.exports = [
             }),
             terser()
         ],
+        external: ['underscore'],
         output: {
             format: 'iife',
             entryFileNames: 'main.js',
@@ -49,6 +54,7 @@ module.exports = [
                 presets: [['@babel/env', { targets: { node: true } }]]
             })
         ],
+        external: ['underscore'],
         output: {
             format: 'umd',
             entryFileNames: 'Chart_SSR.js',
@@ -71,6 +77,32 @@ module.exports = [
             name: 'embed',
             file: path.resolve(__dirname, 'dist/embed.js'),
             format: 'iife'
+        }
+    },
+    {
+        input: path.resolve(__dirname, 'lib/dw/index.js'),
+        plugins: [
+            resolve(),
+            commonjs(),
+            replace({
+                __chartCoreVersion__: require('./package.json').version
+            }),
+            babel({
+                ...babelConfig,
+                presets: [['@babel/env', { targets: '> 1%', corejs: 3, useBuiltIns: 'entry' }]],
+                plugins: ['babel-plugin-transform-async-to-promises']
+            }),
+            terser()
+        ],
+        external: ['underscore'],
+        output: {
+            // name: 'dw',
+            sourcemap: true,
+            file: path.resolve(__dirname, 'dist/dw-2.0.min.js'),
+            format: 'iife',
+            globals: {
+                underscore: '_'
+            }
         }
     }
 ];
