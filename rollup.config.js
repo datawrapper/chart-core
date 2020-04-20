@@ -1,13 +1,17 @@
 import path from 'path';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
+import replace from '@rollup/plugin-replace';
 import svelte from 'rollup-plugin-svelte';
 import babel from 'rollup-plugin-babel';
 import { terser } from 'rollup-plugin-terser';
 
 const output = {
     name: 'chart',
-    dir: path.resolve(__dirname, 'dist/core'),
+    dir: path.resolve(__dirname, 'dist'),
+    globals: {
+        underscore: '_'
+    },
     compact: true
 };
 
@@ -15,6 +19,12 @@ const babelConfig = {
     exclude: [/node_modules\/(?!(@datawrapper|svelte)\/).*/],
     extensions: ['.js', '.mjs', '.svelte']
 };
+
+function onwarn(warning, warn) {
+    if (warning.code === 'EVAL') return;
+    if (warning.code === 'MISSING_NAME_OPTION_FOR_IIFE_EXPORT') return;
+    warn(warning);
+}
 
 module.exports = [
     {
@@ -31,6 +41,8 @@ module.exports = [
             }),
             terser()
         ],
+        external: ['underscore'],
+        onwarn,
         output: {
             format: 'iife',
             entryFileNames: 'main.js',
@@ -49,6 +61,8 @@ module.exports = [
                 presets: [['@babel/env', { targets: { node: true } }]]
             })
         ],
+        external: ['underscore'],
+        onwarn,
         output: {
             format: 'umd',
             entryFileNames: 'Chart_SSR.js',
@@ -69,8 +83,34 @@ module.exports = [
         ],
         output: {
             name: 'embed',
-            file: path.resolve(__dirname, 'dist/core/embed.js'),
+            file: path.resolve(__dirname, 'dist/embed.js'),
             format: 'iife'
+        }
+    },
+    {
+        input: path.resolve(__dirname, 'lib/dw/index.js'),
+        plugins: [
+            resolve(),
+            commonjs(),
+            replace({
+                __chartCoreVersion__: require('./package.json').version
+            }),
+            babel({
+                ...babelConfig,
+                presets: [['@babel/env', { targets: '> 1%', corejs: 3, useBuiltIns: 'entry' }]],
+                plugins: ['babel-plugin-transform-async-to-promises']
+            }),
+            terser()
+        ],
+        external: ['underscore'],
+        onwarn,
+        output: {
+            sourcemap: true,
+            file: path.resolve(__dirname, 'dist/dw-2.0.min.js'),
+            format: 'iife',
+            globals: {
+                underscore: '_'
+            }
         }
     }
 ];

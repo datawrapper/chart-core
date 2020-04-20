@@ -15,4 +15,6 @@
     $: background = get(data, 'background', 'red');
 </script>
 
-<div style="width: {px(width)}; height: {px(height)}; background: {background};" />
+<div
+    class="export-rect"
+    style="width: {px(width)}; height: {px(height)}; background: {background};" />

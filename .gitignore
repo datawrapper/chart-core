@@ -60,8 +60,10 @@ typings/
 # next.js build output
 .next
 
-dist/core/main.js
-dist/core/embed.js
-dist/core/Chart_SSR.js
-dist/core/locale
+dw.js/dw-2.0.js
+dist/main.js
+dist/embed.js
+dist/Chart_SSR.js
+dist/dw-2.0.min.js
+dist/locale
 token.json

@@ -9,6 +9,7 @@
     import Embed from './blocks/Embed.svelte';
     import Logo from './blocks/Logo.svelte';
     import Rectangle from './blocks/Rectangle.svelte';
+    import Watermark from './blocks/Watermark.svelte';
 
     import get from '@datawrapper/shared/get';
     import purifyHtml from '@datawrapper/shared/purifyHtml';
@@ -22,9 +23,17 @@
     $: publishData = data.publishData;
     $: locale = data.visJSON.locale;
 
+    $: watermarkCustomField = get(theme, 'data.options.watermark.custom-field');
+    $: watermark = get(theme, 'data.options.watermark')
+        ? watermarkCustomField
+            ? get(chart, `metadata.custom.${watermarkCustomField}`, '')
+            : get(theme, 'data.options.watermark.text', 'CONFIDENTIAL')
+        : false;
+
     $: customCSS = purifyHtml(get(chart, 'metadata.publish.custom-css', ''), '');
 
-    const clean = s => purifyHtml(s, '<a><span><b>');
+    const clean = s =>
+        purifyHtml(s, '<a><span><b><br><br/><i><strong><sup><sub><strike><u><em><tt>');
 
     const coreBlocks = [
         {
@@ -101,7 +110,7 @@
 
     $: blockProps = {
         __,
-        purifyHtml,
+        purifyHtml: clean,
         get,
         theme,
         data,
@@ -132,6 +141,9 @@
             };
             if (block.component.test) {
                 block.test = block.component.test;
+            }
+            if (block.component.exportText) {
+                block.exportText = block.component.exportText;
             }
             const options = get(theme, 'data.options.blocks', {})[block.id];
             if (!options) return block;
@@ -265,17 +277,6 @@ Please make sure you called __(key) with a key of type "string".
     });
 </script>
 
-<style>
-    .separator {
-        display: inline-block;
-        font-style: initial;
-    }
-    .separator:before {
-        content: '\00a0•';
-        display: inline-block;
-    }
-</style>
-
 <svelte:head>
     <title>{chart.title}</title>
     <meta name="description" content={get(chart, 'metadata.describe.intro')} />
@@ -285,13 +286,15 @@ Please make sure you called __(key) with a key of type "string".
 {#if !isStylePlain}
     <div id="header" class="dw-chart-header">
         {#each regions.header as block}
-            <div class="block {block.id}-block">
+            <div class="block {block.id}-block" class:export-text={block.exportText}>
                 {#if block.prepend}
                     <span class="prepend">
                         {@html clean(block.prepend)}
                     </span>
                 {/if}
-                <svelte:component this={block.component} props={block.props} />
+                <span class="block-inner">
+                    <svelte:component this={block.component} props={block.props} />
+                </span>
                 {#if block.append}
                     <span class="append">
                         {@html clean(block.append)}
@@ -312,13 +315,15 @@ Please make sure you called __(key) with a key of type "string".
     {#if regions.aboveFooter.length}
         <div class="dw-chart-above-footer">
             {#each regions.aboveFooter as block}
-                <div class="block {block.id}-block">
+                <div class="block {block.id}-block" class:export-text={block.exportText}>
                     {#if block.prepend}
                         <span class="prepend">
                             {@html clean(block.prepend)}
                         </span>
                     {/if}
-                    <svelte:component this={block.component} props={block.props} />
+                    <span class="block-inner">
+                        <svelte:component this={block.component} props={block.props} />
+                    </span>
                     {#if block.append}
                         <span class="append">
                             {@html clean(block.append)}
@@ -333,15 +338,17 @@ Please make sure you called __(key) with a key of type "string".
             <div class="footer-{orientation.toLowerCase()}">
                 {#each regions['footer' + orientation] as block, i}
                     {#if i}
-                        <span class="separator" />
+                        <span class="separator separator-before-{block.id}" />
                     {/if}
-                    <span class="footer-block {block.id}-block">
+                    <span class="footer-block {block.id}-block block-{block.id}">
                         {#if block.prepend}
                             <span class="prepend">
                                 {@html clean(block.prepend)}
                             </span>
                         {/if}
-                        <svelte:component this={block.component} props={block.props} />
+                        <span class="block-inner">
+                            <svelte:component this={block.component} props={block.props} />
+                        </span>
                         {#if block.append}
                             <span class="append">
                                 {@html clean(block.append)}
@@ -372,6 +379,9 @@ Please make sure you called __(key) with a key of type "string".
             {/each}
         </div>
     {/if}
+{/if}
+{#if watermark}
+    <Watermark text={watermark} monospace={get(theme, 'data.options.watermark.monospace', false)} />
 {/if}
 
 {#each regions.afterBody as block}

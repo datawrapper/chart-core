@@ -1,7 +1,7 @@
 <script>
     // external props
     export let props;
-    const { get } = props;
+    const { get, purifyHtml } = props;
     $: theme = props.theme;
 
     // internal props
@@ -15,7 +15,9 @@
                 <img height={logo.height} src={logo.url} alt={theme.title} />
             {/if}
             {#if logo.text}
-                <span class="logo-text">{logo.text}</span>
+                <span class="logo-text">
+                    {@html purifyHtml(logo.text)}
+                </span>
             {/if}
         </a>
     {:else}
@@ -23,7 +25,9 @@
             <img height={logo.height} src={logo.url} alt={theme.title} />
         {/if}
         {#if logo.text}
-            <span class="logo-text">{logo.text}</span>
+            <span class="logo-text">
+                {@html purifyHtml(logo.text)}
+            </span>
         {/if}
     {/if}
 {/if}
