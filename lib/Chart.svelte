@@ -247,9 +247,23 @@ Please make sure you called __(key) with a key of type "string".
         if (publishData.blocks.length) {
             await Promise.all(
                 publishData.blocks.map(d => {
-                    const p = [loadScript(d.source.js)];
-                    if (d.source.css) p.push(loadStylesheet(d.source.css));
-                    return Promise.all(p);
+                    return new Promise((resolve, reject) => {
+                        const p = [loadScript(d.source.js)];
+                        if (d.source.css) p.push(loadStylesheet(d.source.css));
+                        Promise.all(p)
+                            .then(resolve)
+                            .catch(err => {
+                                // log error
+                                const url = err.target
+                                    ? err.target.getAttribute('src') ||
+                                      err.target.getAttribute('href')
+                                    : null;
+                                if (url) console.warn('could not load ', url);
+                                else console.error('Unknown error', err);
+                                // but resolve anyway
+                                resolve();
+                            });
+                    });
                 })
             );
             // all plugins are loaded
@@ -257,7 +271,7 @@ Please make sure you called __(key) with a key of type "string".
                 d.blocks.forEach(block => {
                     if (!window.__dwBlocks[block.component]) {
                         return console.warn(
-                            `component ${block.component} for chart block ${block.id} not found`
+                            `component ${block.component} from chart block ${block.id} not found`
                         );
                     }
                     pluginBlocks.push({
