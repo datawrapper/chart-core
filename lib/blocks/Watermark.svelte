@@ -41,7 +41,7 @@
 <svelte:window bind:innerWidth={width} bind:innerHeight={height} />
 
 <div
-    class="export-text watermark-new noscript"
+    class="watermark noscript"
     style="transform:rotate({angle}rad); font-size: {fontSize}"
     data-rotate={angleDeg}>
     <span>

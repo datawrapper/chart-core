@@ -168,7 +168,7 @@
                 isStyleStatic
             }),
             footerRight: getBlocks(allBlocks, 'footerRight', { chart, data, theme, isStyleStatic }),
-            afterBody: getBlocks(allBlocks, 'afterBody', { chart, data, theme, isStyleStatic })
+            belowFooter: getBlocks(allBlocks, 'belowFooter', { chart, data, theme, isStyleStatic })
         };
     }
 
@@ -359,13 +359,17 @@ Please make sure you called __(key) with a key of type "string".
 
     </div>
 {/if}
-{#if watermark}
-    <Watermark text={watermark} monospace={get(theme, 'data.options.watermark.monospace', false)} />
-{/if}
 
-{#each regions.afterBody as block}
-    <svelte:component this={block.component} props={block.props} />
-{/each}
+<div class="dw-below-footer">
+    {#if watermark}
+        <Watermark
+            text={watermark}
+            monospace={get(theme, 'data.options.watermark.monospace', false)} />
+    {/if}
+    {#each regions.belowFooter as block}
+        <svelte:component this={block.component} props={block.props} />
+    {/each}
+</div>
 
 {#if publishData.chartAfterBodyHTML}
     {@html publishData.chartAfterBodyHTML}
