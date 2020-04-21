@@ -1,9 +1,18 @@
 <script>
-    import purifyHtml from '@datawrapper/shared/purifyHtml';
     import estimateTextWidth from '@datawrapper/shared/estimateTextWidth';
 
-    export let text;
-    export let monospace;
+    export let props;
+    const { get, purifyHtml } = props;
+    $: theme = props.theme;
+    $: chart = props.chart;
+
+    $: monospace = get(theme, 'data.options.watermark.monospace', false);
+    $: field = get(theme, 'data.options.watermark.custom-field');
+    $: text = get(theme, 'data.options.watermark')
+        ? field
+            ? get(chart, `metadata.custom.${field}`, '')
+            : get(theme, 'data.options.watermark.text', 'CONFIDENTIAL')
+        : false;
 
     let width;
     let height;

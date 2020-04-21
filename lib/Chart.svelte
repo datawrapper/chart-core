@@ -1,5 +1,6 @@
 <script>
     import { onMount, tick } from 'svelte';
+    import BlocksRegion from './BlocksRegion.svelte';
     import Headline from './blocks/Headline.svelte';
     import Description from './blocks/Description.svelte';
     import Source from './blocks/Source.svelte';
@@ -13,6 +14,7 @@
 
     import get from '@datawrapper/shared/get';
     import purifyHtml from '@datawrapper/shared/purifyHtml';
+    import { clean } from './shared';
     import { loadScript, loadStylesheet } from '@datawrapper/shared/fetch';
     import render from './render.js';
 
@@ -23,17 +25,7 @@
     $: publishData = data.publishData;
     $: locale = data.visJSON.locale;
 
-    $: watermarkCustomField = get(theme, 'data.options.watermark.custom-field');
-    $: watermark = get(theme, 'data.options.watermark')
-        ? watermarkCustomField
-            ? get(chart, `metadata.custom.${watermarkCustomField}`, '')
-            : get(theme, 'data.options.watermark.text', 'CONFIDENTIAL')
-        : false;
-
     $: customCSS = purifyHtml(get(chart, 'metadata.publish.custom-css', ''), '');
-
-    const clean = s =>
-        purifyHtml(s, '<a><span><b><br><br/><i><strong><sup><sub><strike><u><em><tt>');
 
     const coreBlocks = [
         {
@@ -101,6 +93,20 @@
             test: ({ theme }) => true, //!!get(theme, 'data.options.blocks.rectangle'),
             priority: 1,
             component: Rectangle
+        },
+        {
+            id: 'watermark',
+            region: 'afterBody',
+            test: ({ theme }) => {
+                const field = get(theme, 'data.options.watermark.custom-field');
+                return get(theme, 'data.options.watermark')
+                    ? field
+                        ? get(chart, `metadata.custom.${field}`, '')
+                        : get(theme, 'data.options.watermark.text', 'CONFIDENTIAL')
+                    : false;
+            },
+            priority: 1,
+            component: Watermark
         }
     ];
 
@@ -168,7 +174,8 @@
                 isStyleStatic
             }),
             footerRight: getBlocks(allBlocks, 'footerRight', { chart, data, theme, isStyleStatic }),
-            belowFooter: getBlocks(allBlocks, 'belowFooter', { chart, data, theme, isStyleStatic })
+            belowFooter: getBlocks(allBlocks, 'belowFooter', { chart, data, theme, isStyleStatic }),
+            afterBody: getBlocks(allBlocks, 'afterBody', { chart, data, theme, isStyleStatic })
         };
     }
 
@@ -297,25 +304,7 @@ Please make sure you called __(key) with a key of type "string".
 </svelte:head>
 
 {#if !isStylePlain}
-    <div id="header" class="dw-chart-header">
-        {#each regions.header as block}
-            <div class="block block-{block.id}" class:export-text={block.exportText}>
-                {#if block.prepend}
-                    <span class="prepend">
-                        {@html clean(block.prepend)}
-                    </span>
-                {/if}
-                <span class="block-inner">
-                    <svelte:component this={block.component} props={block.props} />
-                </span>
-                {#if block.append}
-                    <span class="append">
-                        {@html clean(block.append)}
-                    </span>
-                {/if}
-            </div>
-        {/each}
-    </div>
+    <BlocksRegion name="dw-chart-header" blocks={regions.header} />
 {/if}
 
 <div id="chart" class="dw-chart-body" />
@@ -325,25 +314,7 @@ Please make sure you called __(key) with a key of type "string".
 {/if}
 
 {#if !isStylePlain}
-    <div class="dw-chart-above-footer">
-        {#each regions.aboveFooter as block}
-            <div class="block block-{block.id}" class:export-text={block.exportText}>
-                {#if block.prepend}
-                    <span class="prepend">
-                        {@html clean(block.prepend)}
-                    </span>
-                {/if}
-                <span class="block-inner">
-                    <svelte:component this={block.component} props={block.props} />
-                </span>
-                {#if block.append}
-                    <span class="append">
-                        {@html clean(block.append)}
-                    </span>
-                {/if}
-            </div>
-        {/each}
-    </div>
+    <BlocksRegion name="dw-above-footer" blocks={regions.aboveFooter} />
 
     <div id="footer" class="dw-chart-footer">
         {#each ['Left', 'Center', 'Right'] as orientation}
@@ -370,17 +341,13 @@ Please make sure you called __(key) with a key of type "string".
                 {/each}
             </div>
         {/each}
-
     </div>
+
+    <BlocksRegion name="dw-below-footer" blocks={regions.belowFooter} />
 {/if}
 
-<div class="dw-below-footer">
-    {#if watermark}
-        <Watermark
-            text={watermark}
-            monospace={get(theme, 'data.options.watermark.monospace', false)} />
-    {/if}
-    {#each regions.belowFooter as block}
+<div class="dw-after-body">
+    {#each regions.afterBody as block}
         <svelte:component this={block.component} props={block.props} />
     {/each}
 </div>
