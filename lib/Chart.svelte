@@ -90,7 +90,7 @@
         {
             id: 'rectangle',
             region: 'header',
-            test: ({ theme }) => true, //!!get(theme, 'data.options.blocks.rectangle'),
+            test: ({ theme }) => !!get(theme, 'data.options.blocks.rectangle'),
             priority: 1,
             component: Rectangle
         },
