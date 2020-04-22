@@ -15,8 +15,8 @@ body {
     font-size: @typography_chart_fontSize;
     background: @colors_general_background;
 
-    padding: @style_body_padding;
     padding: @colors_general_padding;
+    padding: @style_body_padding;
 
     margin: 0;
     margin: @style_body_margin;
@@ -58,6 +58,16 @@ body {
         border-right: @style_header_border_right;
         text-align: @style_header_textAlign;
 
+        .headline-block {
+            margin: 0 0 10px;
+            margin: @style_header_title_margin;
+            padding: @style_header_title_padding;
+            border-top: @style_header_title_border_top;
+            border-bottom: @style_header_title_border_bottom;
+            border-left: @style_header_title_border_left;
+            border-right: @style_header_title_border_right;
+        }
+
         h1 {
             font-family: @typography_headline_typeface;
             font-weight: @typography_headline_fontWeight;
@@ -72,14 +82,7 @@ body {
             color: @typography_headline_color;
             text-align: @style_header_title_textAlign;
 
-            margin: 0 0 10px;
-            margin: @style_header_title_margin;
-
-            padding: @style_header_title_padding;
-            border-top: @style_header_title_border_top;
-            border-bottom: @style_header_title_border_bottom;
-            border-left: @style_header_title_border_left;
-            border-right: @style_header_title_border_right;
+            margin: 0px;
         }
 
         p {
@@ -94,10 +97,12 @@ body {
             font-style: if(@typography_description_cursive = 0, normal, italic);
             text-decoration: if(@typography_description_underlined = 0, none, underline);
             color: @typography_description_color;
+            margin: 0px;
+        }
 
+        .description-block {
             margin: 5px 0 10px !important;
             margin: @style_header_description_margin;
-
             padding: @style_header_description_padding;
             text-align: @style_header_description_textAlign;
             border-bottom: @style_header_description_border_top;
@@ -285,7 +290,25 @@ body {
         }
     }
 
-    .dw-chart-notes {
+    .dw-chart-above-footer {
+        font-family: @typography_aboveFooter_typeface;
+        font-weight: @typography_aboveFooter_fontWeight;
+        text-transform: @typography_aboveFooter_textTransform;
+        font-size: @typography_aboveFooter_fontSize;
+        line-height: @typography_aboveFooter_lineHeight;
+        font-style: if(@typography_aboveFooter_cursive = 1, italic, normal);
+        text-decoration: if(@typography_aboveFooter_underlined = 1, underline, none);
+        color: @typography_aboveFooter_color;
+        text-align: @style_aboveFooter_textAlign;
+        padding: @style_aboveFooter_padding;
+
+        margin: 0px 0px 5px 0px;
+        margin: @style_aboveFooter_margin;
+
+        position: relative;
+    }
+
+    .notes-block {
         font-family: @typography_notes_typeface;
         font-weight: @typography_notes_fontWeight;
         text-transform: @typography_notes_textTransform;
@@ -296,12 +319,27 @@ body {
         color: @typography_notes_color;
         text-align: @style_notes_textAlign;
         padding: @style_notes_padding;
-
-        margin: 0px 0px 5px 0px;
         margin: @style_notes_margin;
 
         position: relative;
     }
+
+    .dw-chart-below-footer {
+        font-family: @typography_belowFooter_typeface;
+        font-weight: @typography_belowFooter_fontWeight;
+        text-transform: @typography_belowFooter_textTransform;
+        font-size: @typography_belowFooter_fontSize;
+        line-height: @typography_belowFooter_lineHeight;
+        font-style: if(@typography_belowFooter_cursive = 1, italic, normal);
+        text-decoration: if(@typography_belowFooter_underlined = 1, underline, none);
+        color: @typography_belowFooter_color;
+        text-align: @style_belowFooter_textAlign;
+        padding: @style_belowFooter_padding;
+        margin: @style_belowFooter_margin;
+
+        position: relative;
+    }
+
     #footer,
     .dw-chart-footer {
         display: flex;
