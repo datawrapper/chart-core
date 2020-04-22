@@ -45,7 +45,7 @@
         "d3-array": "~2.4.0",
         "eslint": "~6.8.0",
         "eslint-plugin-svelte3": "~2.7.3",
-        "esm": "3.2.25",
+        "expr-eval": "github:gka/expr-eval#patch-1",
         "husky": "~4.2.5",
         "lint-staged": "~10.1.6",
         "node-fetch": "^2.6.0",
