@@ -1,18 +1,19 @@
 <script>
     // external props
     export let props;
+    import LogoInner from './LogoInner.svelte';
+
     const { get, purifyHtml } = props;
     $: theme = props.theme;
 
     // internal props
-    $: logo = get(theme, 'data.options.footer.logo', { enabled: false });
+    $: logo = get(theme, 'data.options.footer.logo');
 </script>
 
-{#if logo.url}
-    <img height={logo.height} src={logo.url} alt={theme.title} />
-{/if}
-{#if logo.text}
-    <span class="logo-text">
-        {@html purifyHtml(logo.text)}
-    </span>
+{#if logo.link}
+    <a href={logo.link} target="_blank" rel="noopener noreferrer">
+        <LogoInner {logo} {purifyHtml} />
+    </a>
+{:else}
+    <LogoInner {logo} {purifyHtml} />
 {/if}
