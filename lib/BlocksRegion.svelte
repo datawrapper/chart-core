@@ -8,7 +8,7 @@
 {#if blocks.length}
     <div class={name}>
         {#each blocks as block}
-            <div class="block block-{block.id}" class:export-text={block.exportText}>
+            <div class="block {block.id}-block" class:export-text={block.exportText}>
                 {#if block.prepend}
                     <span class="prepend">
                         {@html clean(block.prepend)}

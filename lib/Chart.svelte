@@ -323,7 +323,7 @@ Please make sure you called __(key) with a key of type "string".
                     {#if i}
                         <span class="separator separator-before-{block.id}" />
                     {/if}
-                    <span class="footer-block {block.id}-block block-{block.id}">
+                    <span class="footer-block {block.id}-block">
                         {#if block.prepend}
                             <span class="prepend">
                                 {@html clean(block.prepend)}
