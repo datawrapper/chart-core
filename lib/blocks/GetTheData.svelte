@@ -2,8 +2,7 @@
     // external props
     export let props;
     const { get, __, purifyHtml } = props;
-    $: theme = props.theme;
-    $: chart = props.chart;
+    $: ({ chart, theme } = props);
 
     // internal props
     $: getTheData = get(theme, 'data.options.footer.getTheData', { enabled: false });

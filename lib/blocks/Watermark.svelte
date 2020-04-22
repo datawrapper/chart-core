@@ -3,8 +3,7 @@
 
     export let props;
     const { get, purifyHtml } = props;
-    $: theme = props.theme;
-    $: chart = props.chart;
+    $: ({ chart, theme } = props);
 
     $: monospace = get(theme, 'data.options.watermark.monospace', false);
     $: field = get(theme, 'data.options.watermark.custom-field');
