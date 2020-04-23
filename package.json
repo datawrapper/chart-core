@@ -26,7 +26,7 @@
     "homepage": "https://github.com/datawrapper/chart-core#readme",
     "dependencies": {
         "@datawrapper/polyfills": "2.0.0-0",
-        "@datawrapper/shared": "0.25.1",
+        "@datawrapper/shared": "^0.25.2",
         "core-js": "3.6.5",
         "fontfaceobserver": "2.1.0"
     },
