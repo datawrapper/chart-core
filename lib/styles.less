@@ -101,7 +101,7 @@ body {
         }
 
         .description-block {
-            margin: 5px 0 10px !important;
+            margin: 5px 0 10px;
             margin: @style_header_description_margin;
             padding: @style_header_description_padding;
             text-align: @style_header_description_textAlign;
@@ -295,7 +295,9 @@ body {
         font-weight: @typography_aboveFooter_fontWeight;
         text-transform: @typography_aboveFooter_textTransform;
         font-size: @typography_aboveFooter_fontSize;
-        line-height: @typography_aboveFooter_lineHeight;
+            & when not (@typography_aboveFooter_lineHeight = __UNDEFINED__) {
+                line-height: @typography_aboveFooter_lineHeight * 1px;
+            }
         font-style: if(@typography_aboveFooter_cursive = 1, italic, normal);
         text-decoration: if(@typography_aboveFooter_underlined = 1, underline, none);
         color: @typography_aboveFooter_color;
@@ -313,7 +315,9 @@ body {
         font-weight: @typography_notes_fontWeight;
         text-transform: @typography_notes_textTransform;
         font-size: @typography_notes_fontSize;
-        line-height: @typography_notes_lineHeight;
+            & when not (@typography_notes_lineHeight = __UNDEFINED__) {
+                line-height: @typography_notes_lineHeight * 1px;
+            }
         font-style: if(@typography_notes_cursive = 1, italic, normal);
         text-decoration: if(@typography_notes_underlined = 1, underline, none);
         color: @typography_notes_color;
@@ -329,7 +333,9 @@ body {
         font-weight: @typography_belowFooter_fontWeight;
         text-transform: @typography_belowFooter_textTransform;
         font-size: @typography_belowFooter_fontSize;
-        line-height: @typography_belowFooter_lineHeight;
+            & when not (@typography_belowFooter_lineHeight = __UNDEFINED__) {
+                line-height: @typography_belowFooter_lineHeight * 1px;
+            }
         font-style: if(@typography_belowFooter_cursive = 1, italic, normal);
         text-decoration: if(@typography_belowFooter_underlined = 1, underline, none);
         color: @typography_belowFooter_color;
@@ -388,7 +394,9 @@ body {
         font-weight: @typography_footer_fontWeight;
         font-size: @typography_footer_fontSize;
         text-transform: @typography_footer_textTransform;
-        line-height: @typography_footer_lineHeight;
+            & when not (@typography_footer_lineHeight = __UNDEFINED__) {
+                line-height: @typography_footer_lineHeight * 1px;
+            }
         font-style: if(@typography_footer_cursive = 1, italic, normal);
         text-decoration: if(@typography_footer_underlined = 1, underline, none);
         color: @typography_footer_color;
@@ -404,7 +412,9 @@ body {
         border-bottom: @style_footer_links_border_bottom;
         font-family: @typography_links_typeface;
         font-weight: @typography_links_fontWeight;
-        line-height: @typography_links_lineHeight;
+            & when not (@typography_links_lineHeight = __UNDEFINED__) {
+                line-height: @typography_links_lineHeight * 1px;
+            }
         font-style: if(@typography_links_cursive = 1, italic, normal);
         text-decoration: if(@typography_links_underlined = 1, underline, nonee);
         color: @typography_links_color;
