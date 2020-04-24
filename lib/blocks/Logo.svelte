@@ -12,8 +12,8 @@
 
 {#if logo.link}
     <a href={logo.link} target="_blank" rel="noopener noreferrer">
-        <LogoInner {logo} {purifyHtml} />
+        <LogoInner {logo} {purifyHtml} {theme} />
     </a>
 {:else}
-    <LogoInner {logo} {purifyHtml} />
+    <LogoInner {logo} {purifyHtml} {theme} />
 {/if}

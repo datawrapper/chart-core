@@ -1,6 +1,7 @@
 <script>
     export let purifyHtml;
     export let logo;
+    export let theme;
 </script>
 
 {#if logo.url}
