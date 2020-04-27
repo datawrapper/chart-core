@@ -177,6 +177,10 @@
             belowFooter: getBlocks(allBlocks, 'belowFooter', { chart, data, theme, isStyleStatic }),
             afterBody: getBlocks(allBlocks, 'afterBody', { chart, data, theme, isStyleStatic })
         };
+
+        if (globalThis.__dw) {
+            __dw.render();
+        }
     }
 
     // plain style means no header and footer
