@@ -298,7 +298,7 @@ Please make sure you called __(key) with a key of type "string".
     });
 
     async function checkHeightAndRender() {
-        if (globalThis.__dw) {
+        if (globalThis.__dw && globalThis.__dw.vis) {
             const currentHeight = __dw.vis.size()[1];
             await tick();
             /* check after tick to get the new values after browser had time for layout and paint */
