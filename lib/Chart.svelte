@@ -1,5 +1,5 @@
 <script>
-    import { onMount, tick } from 'svelte';
+    import { onMount, afterUpdate, tick } from 'svelte';
     import BlocksRegion from './BlocksRegion.svelte';
     import Headline from './blocks/Headline.svelte';
     import Description from './blocks/Description.svelte';
@@ -161,18 +161,6 @@
         });
     }
 
-    async function checkHeightAndRender() {
-        if (globalThis.__dw) {
-            const currentHeight = __dw.vis.size()[1];
-            await tick();
-            /* check after tick to get the new values after browser had time for layout and paint */
-            const newHeight = getMaxChartHeight(document.querySelector('.dw-chart-body'));
-            if (currentHeight !== newHeight) {
-                __dw.render();
-            }
-        }
-    }
-
     let regions;
     $: {
         // build all the region
@@ -190,8 +178,6 @@
             belowFooter: getBlocks(allBlocks, 'belowFooter', { chart, data, theme, isStyleStatic }),
             afterBody: getBlocks(allBlocks, 'afterBody', { chart, data, theme, isStyleStatic })
         };
-
-        checkHeightAndRender();
     }
 
     // plain style means no header and footer
@@ -310,6 +296,20 @@ Please make sure you called __(key) with a key of type "string".
             render(data);
         }
     });
+
+    async function checkHeightAndRender() {
+        if (globalThis.__dw) {
+            const currentHeight = __dw.vis.size()[1];
+            await tick();
+            /* check after tick to get the new values after browser had time for layout and paint */
+            const newHeight = getMaxChartHeight(document.querySelector('.dw-chart-body'));
+            if (currentHeight !== newHeight) {
+                __dw.render();
+            }
+        }
+    }
+
+    afterUpdate(checkHeightAndRender);
 </script>
 
 <svelte:head>
