@@ -1,12 +1,13 @@
 <script>
     import { clean } from './shared';
 
+    export let id;
     export let name;
     export let blocks;
 </script>
 
 {#if blocks.length}
-    <div class={name}>
+    <div {id} class={name}>
         {#each blocks as block}
             <div class="block {block.id}-block" class:export-text={block.exportText}>
                 {#if block.prepend}
