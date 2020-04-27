@@ -304,7 +304,7 @@ Please make sure you called __(key) with a key of type "string".
 </svelte:head>
 
 {#if !isStylePlain}
-    <BlocksRegion name="dw-chart-header" blocks={regions.header} />
+    <BlocksRegion name="dw-chart-header" blocks={regions.header} id="header" />
 {/if}
 
 <div id="chart" class="dw-chart-body" />
