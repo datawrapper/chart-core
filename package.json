@@ -14,7 +14,6 @@
         "lint": "prettier --check 'lib/**/*.{js,html,svelte}' && eslint 'lib/**/*.{js,svelte}'",
         "prepublishOnly": "npm run build",
         "prepare": "npm run build",
-        "pretest": "make dist/dw-2.0.min.js",
         "test": "ava"
     },
     "repository": {
@@ -46,6 +45,7 @@
         "d3-array": "~2.4.0",
         "eslint": "~6.8.0",
         "eslint-plugin-svelte3": "~2.7.3",
+        "esm": "3.2.25",
         "husky": "~4.2.5",
         "lint-staged": "~10.1.6",
         "node-fetch": "^2.6.0",
@@ -57,6 +57,11 @@
         "rollup-plugin-terser": "5.3.0",
         "svelte": "3.20.1",
         "underscore": "^1.10.2"
+    },
+    "ava": {
+        "require": [
+            "esm"
+        ]
     },
     "husky": {
         "hooks": {
