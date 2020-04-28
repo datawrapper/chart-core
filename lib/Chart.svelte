@@ -248,8 +248,6 @@ Please make sure you called __(key) with a key of type "string".
             };
         }
 
-        render(data);
-
         // load & execute plugins
         window.__dwBlocks = {};
         if (publishData.blocks.length) {
