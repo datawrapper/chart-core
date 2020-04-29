@@ -248,6 +248,8 @@ Please make sure you called __(key) with a key of type "string".
             };
         }
 
+        render(data);
+
         // load & execute plugins
         window.__dwBlocks = {};
         if (publishData.blocks.length) {
@@ -296,7 +298,7 @@ Please make sure you called __(key) with a key of type "string".
     });
 
     async function checkHeightAndRender() {
-        if (globalThis.__dw && globalThis.__dw.vis) {
+        if (window && window.__dw && window.__dw.vis) {
             const currentHeight = __dw.vis.size()[1];
             await tick();
             /* check after tick to get the new values after browser had time for layout and paint */
