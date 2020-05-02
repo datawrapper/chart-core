@@ -22,7 +22,8 @@
 
     $: basedOnByline =
         (needBrackets ? '(' : '') +
-        forkCaption +
+        __(forkCaption) +
+        ' ' +
         purifyHtml(chart.basedOnByline) +
         (needBrackets ? ')' : '');
 
