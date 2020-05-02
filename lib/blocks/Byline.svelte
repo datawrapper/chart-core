@@ -29,6 +29,7 @@
 <span class="byline-caption">{__(bylineCaption)}</span>
 {byline}
 {#if chart.basedOnByline}
+    <!-- prettier-ignore !-->
     {#if needBrackets}({/if}
     {__(forkCaption)}
     {@html purifyHtml(chart.basedOnByline)}
