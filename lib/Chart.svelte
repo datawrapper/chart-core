@@ -207,10 +207,6 @@ Please make sure you called __(key) with a key of type "string".
 
         let translation = locale[key] || key;
 
-        if (!locale[key]) {
-            console.warn(`No translation available for key "${key}"`);
-        }
-
         if (args.length) {
             translation = translation.replace(/\$(\d)/g, (m, i) => {
                 i = +i;
