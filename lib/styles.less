@@ -214,6 +214,7 @@ body {
         }
 
         &.value,
+        &.value tspan,
         &.value span {
             & when (@style_chart_labels_values_tabularNums = 1) {
                 font-feature-settings: 'tnum';
@@ -222,6 +223,7 @@ body {
             }
 
             font-size: @style_chart_labels_values_fontSize;
+            font-weight: @style_chart_labels_values_fontWeight;
             letter-spacing: @style_chart_labels_values_letterSpacing;
             color: @style_chart_labels_values_color;
             font-family: @style_chart_labels_values_typeface;
