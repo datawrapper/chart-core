@@ -232,6 +232,8 @@ Please make sure you called __(key) with a key of type "string".
         const { basemap, minimap, highlight } = publishData;
         window.__dwParams = {};
         if (basemap) {
+            basemap.content = JSON.parse(basemap.content);
+
             window.__dwParams.d3maps_basemap = {
                 [basemap.__id]: basemap
             };
