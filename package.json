@@ -27,7 +27,7 @@
     "homepage": "https://github.com/datawrapper/chart-core#readme",
     "dependencies": {
         "@datawrapper/polyfills": "2.0.0-0",
-        "@datawrapper/shared": "github:datawrapper/shared#expr-eval",
+        "@datawrapper/shared": "^0.25.6",
         "core-js": "3.6.5",
         "d3-array": "~2.4.0",
         "expr-eval": "github:gka/expr-eval#patch-1",
