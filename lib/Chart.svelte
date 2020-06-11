@@ -149,9 +149,6 @@
             if (block.component.test) {
                 block.test = block.component.test;
             }
-            if (block.component.exportText) {
-                block.exportText = block.component.exportText;
-            }
             const options = get(theme, 'data.options.blocks', {})[block.id];
             if (!options) return block;
             return {
