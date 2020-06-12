@@ -11,6 +11,7 @@
     import Logo from './blocks/Logo.svelte';
     import Rectangle from './blocks/Rectangle.svelte';
     import Watermark from './blocks/Watermark.svelte';
+    import HorizontalRule from './blocks/HorizontalRule.svelte';
 
     import get from '@datawrapper/shared/get';
     import purifyHtml from '@datawrapper/shared/purifyHtml';
@@ -108,8 +109,22 @@
             },
             priority: 1,
             component: Watermark
-        }
+        },
+        hr(0),
+        hr(1),
+        hr(2)
     ];
+
+    function hr(index) {
+        const id = `hr${index ? index : ''}`;
+        return {
+            id,
+            region: 'header',
+            test: ({ theme }) => !!get(theme, `data.options.blocks.${id}`),
+            priority: 0,
+            component: HorizontalRule
+        };
+    }
 
     let pluginBlocks = [];
 
@@ -144,7 +159,8 @@
         return blocks.map(block => {
             block.props = {
                 ...(block.data || {}),
-                ...blockProps
+                ...blockProps,
+                id: block.id
             };
             if (block.component.test) {
                 block.test = block.component.test;
