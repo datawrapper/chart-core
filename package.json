@@ -30,7 +30,7 @@
         "@datawrapper/shared": "^0.25.6",
         "core-js": "3.6.5",
         "d3-array": "~2.4.0",
-        "expr-eval": "github:gka/expr-eval#patch-1",
+        "@datawrapper/expr-eval": "^3.0.0",
         "fontfaceobserver": "2.1.0",
         "underscore": "^1.10.2"
     },
