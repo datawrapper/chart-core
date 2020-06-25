@@ -311,6 +311,9 @@ Please make sure you called __(key) with a key of type "string".
     <title>{chart.title}</title>
     <meta name="description" content={get(chart, 'metadata.describe.intro')} />
     {@html `<${'style'}>${customCSS}</style>`}
+    {#if publishData.chartAfterHeadHTML}
+        {@html publishData.chartAfterHeadHTML}
+    {/if}
 </svelte:head>
 
 {#if !isStylePlain}
