@@ -8,4 +8,4 @@
     $: border = get(data, 'border', '1px solid #cccccc');
 </script>
 
-<hr class="export-line" style="border: 0; border-bottom: {border};" />
+<hr class="dw-line" style="border: 0; border-bottom: {border};" />
