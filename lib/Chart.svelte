@@ -31,6 +31,7 @@
     const coreBlocks = [
         {
             id: 'headline',
+            tag: 'h1',
             region: 'header',
             priority: 10,
             test: ({ chart }) => chart.title && !get(chart, 'metadata.describe.hide-title'),
@@ -38,6 +39,7 @@
         },
         {
             id: 'description',
+            tag: 'p',
             region: 'header',
             priority: 20,
             test: ({ chart }) => get(chart, 'metadata.describe.intro'),
