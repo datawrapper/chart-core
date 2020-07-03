@@ -5,6 +5,4 @@
     $: chart = props.chart;
 </script>
 
-<div class="dw-chart-notes">
-    {@html purifyHtml(get(chart, 'metadata.annotate.notes'))}
-</div>
+{@html purifyHtml(get(chart, 'metadata.annotate.notes'))}

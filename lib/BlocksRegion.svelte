@@ -1,5 +1,5 @@
 <script>
-    import { clean } from './shared';
+    import Block from './Block.svelte';
 
     export let id;
     export let name;
@@ -9,21 +9,19 @@
 {#if blocks.length}
     <div {id} class={name}>
         {#each blocks as block}
-            <div class="block {block.id}-block">
-                {#if block.prepend}
-                    <span class="prepend">
-                        {@html clean(block.prepend)}
-                    </span>
-                {/if}
-                <span class="block-inner">
-                    <svelte:component this={block.component} props={block.props} />
-                </span>
-                {#if block.append}
-                    <span class="append">
-                        {@html clean(block.append)}
-                    </span>
-                {/if}
-            </div>
+            {#if block.tag === 'h1'}
+                <h1 class="block {block.id}-block">
+                    <Block {block} />
+                </h1>
+            {:else if block.tag === 'p'}
+                <p class="block {block.id}-block">
+                    <Block {block} />
+                </p>
+            {:else}
+                <div class="block {block.id}-block">
+                    <Block {block} />
+                </div>
+            {/if}
         {/each}
     </div>
 {/if}
