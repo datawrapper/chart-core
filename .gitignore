@@ -67,3 +67,6 @@ dist/Chart_SSR.js
 dist/dw-2.0.min.js
 dist/locale
 token.json
+
+# Source maps
+*.js.map
