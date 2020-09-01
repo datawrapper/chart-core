@@ -29,7 +29,7 @@
         "@datawrapper/polyfills": "2.0.1",
         "@datawrapper/shared": "^0.26.2",
         "core-js": "3.6.5",
-        "@datawrapper/expr-eval": "^3.0.0",
+        "@datawrapper/expr-eval": "^2.0.2-datawrapper.1",
         "fontfaceobserver": "2.1.0",
         "underscore": "^1.10.2"
     },
