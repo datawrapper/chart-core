@@ -1,6 +1,6 @@
 {
     "name": "@datawrapper/chart-core",
-    "version": "8.16.2",
+    "version": "8.16.3",
     "description": "Svelte component to render charts. Used by Sapper App and Node API.",
     "main": "index.js",
     "files": [
