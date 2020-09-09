@@ -23,7 +23,7 @@
     export let data = {};
     export let theme = {};
 
-    if (window) {
+    if (typeof window !== 'undefined') {
         window.__dwUpdate = ({ chart }) => {
             Object.assign(data.chartJSON, chart);
             data = data; // to force re-rendering
