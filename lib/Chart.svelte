@@ -23,10 +23,12 @@
     export let data = {};
     export let theme = {};
 
-    window.__dwUpdate = ({ chart }) => {
-        Object.assign(data.chartJSON, chart);
-        data = data; // to force re-rendering
-    };
+    if (window) {
+        window.__dwUpdate = ({ chart }) => {
+            Object.assign(data.chartJSON, chart);
+            data = data; // to force re-rendering
+        };
+    }
 
     $: chart = data.chartJSON;
     $: publishData = data.publishData;
