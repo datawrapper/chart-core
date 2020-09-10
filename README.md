@@ -12,15 +12,15 @@
 
 ```
 ├── main.js
-│     - Entry point for rollup to bundle `Chart.svelte` 
+│     - Entry point for rollup to bundle `Chart.svelte`
 │     - (used by datawrapper/api)
 │
 ├── lib
 │     - Directory of source files like `Chart.svelte`
 │     - (used by datawrapper/frontend)
 │
-├── dist  
-│     - Files with global dependencies needed for chart rendering 
+├── dist
+│     - Files with global dependencies needed for chart rendering
 │     - (used by datawrapper/{api,frontend})
 │
 └── vendor
@@ -29,12 +29,18 @@
 
 Above are the interesting files and directories to render charts. Only `lib/` and `dist/` get packaged and published with `npm`.
 
+## API reference
+
+* [Chart](docs/chart.md) ⇒ <code>class</code>
+* [Column](docs/column.md) ⇒ <code>class</code>
+* [Dataset](docs/dataset.md) ⇒ <code>class</code>
+
 ## Development
 
 When changing core functionality it is advised to link a local copy of `@datawrapper/chart-core` in the `datawrapper/api` or `datawrapper/frontend` repositories. Follow these steps to link the package:
 
 ```sh
-~/code/chart-core 
+~/code/chart-core
 ❯  npm link
 
 ~/code/frontend
@@ -46,4 +52,3 @@ Everytime `npm install` is called after that, the link is removed. Usually it is
 ## Publishing
 
 To publish this package run `npm version {major|minor|patch}`  and `npm publish`. To publish you have to be part of the Datawrapper organization on npm.
-

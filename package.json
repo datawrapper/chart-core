@@ -1,6 +1,6 @@
 {
     "name": "@datawrapper/chart-core",
-    "version": "8.17.3",
+    "version": "8.18.3",
     "description": "Svelte component to render charts. Used by Sapper App and Node API.",
     "main": "index.js",
     "files": [
@@ -26,10 +26,10 @@
     },
     "homepage": "https://github.com/datawrapper/chart-core#readme",
     "dependencies": {
-        "@datawrapper/polyfills": "2.0.1",
-        "@datawrapper/shared": "^0.26.2",
-        "core-js": "3.6.5",
         "@datawrapper/expr-eval": "^2.0.2-datawrapper.1",
+        "@datawrapper/polyfills": "2.0.1",
+        "@datawrapper/shared": "^0.27.4",
+        "core-js": "3.6.5",
         "fontfaceobserver": "2.1.0",
         "underscore": "^1.11.0"
     },
