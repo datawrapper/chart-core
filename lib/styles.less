@@ -6,10 +6,12 @@ body {
 }
 
 .chart {
-    font-family: @typography_chart_typeface;
-
     color: @typography_chart_color;
+    text, tspan {
+        fill:@typography_chart_color;
+    }
 
+    font-family: @typography_chart_typeface;
     text-transform: @typography_chart_textTransform;
     letter-spacing: @typography_chart_letterSpacing;
     font-size: @typography_chart_fontSize;
