@@ -6,11 +6,12 @@ body {
 }
 
 .chart {
-    font-family: @typography_chart_typeface;
-
-    color: @colors_text;
     color: @typography_chart_color;
+    text, tspan {
+        fill: @typography_chart_color;
+    }
 
+    font-family: @typography_chart_typeface;
     text-transform: @typography_chart_textTransform;
     letter-spacing: @typography_chart_letterSpacing;
     font-size: @typography_chart_fontSize;
@@ -691,7 +692,6 @@ html[xmlns] .clearfix {
 .static {
     .chart {
         a {
-            color: @colors_text;
             color: @typography_chart_color;
         }
         .dw-chart-header {
@@ -703,11 +703,11 @@ html[xmlns] .clearfix {
             }
         }
         .dw-chart-footer a {
-            color: @colors_text;
+            color: @typography_chart_color;
             color: @typography_footer_color;
         }
         .notes-block a {
-            color: @colors_text;
+            color: @typography_chart_color;
             color: @typography_notes_color;
         }
     }
