@@ -24,11 +24,11 @@
 * [ISNULL()](#ISNULL) ⇒ <code>boolean</code>
 * [JOIN(array, string, string)](#JOIN) ⇒ <code>string</code>
 * [LENGTH()](#LENGTH) ⇒ <code>number</code>
-* [LG()](#LG)
-* [LN()](#LN)
-* [LOG()](#LOG)
-* [LOG10()](#LOG10)
-* [LOG2()](#LOG2)
+* [LG()](#LG) ⇒ <code>number</code>
+* [LN()](#LN) ⇒ <code>number</code>
+* [LOG()](#LOG) ⇒ <code>number</code>
+* [LOG10()](#LOG10) ⇒ <code>number</code>
+* [LOG2()](#LOG2) ⇒ <code>number</code>
 * [LOWER()](#LOWER) ⇒ <code>string</code>
 * [MAP(function, array)](#MAP) ⇒ <code>array</code>
 * [MAX()](#MAX) ⇒ <code>number</code>
@@ -60,7 +60,7 @@
 * [TEXT()](#TEXT) ⇒ <code>string</code>
 * [TIMEDIFF(date, date)](#TIMEDIFF) ⇒ <code>number</code>
 * [TITLE()](#TITLE) ⇒ <code>string</code>
-* [TRIM()](#TRIM)
+* [TRIM()](#TRIM) ⇒ <code>string</code>
 * [TRUNC()](#TRUNC) ⇒ <code>number</code>
 * [UPPER()](#UPPER) ⇒ <code>string</code>
 * [WEEKDAY(date)](#WEEKDAY) ⇒ <code>number</code>
@@ -334,17 +334,17 @@ LENGTH [1,2,3] // 3
 ```
 <a name="LG"></a>
 
-## LG()
+## LG() ⇒ <code>number</code>
 Alias for [LOG10](#LOG10)
 
 <a name="LN"></a>
 
-## LN()
+## LN() ⇒ <code>number</code>
 Alias for [LOG](#LOG)
 
 <a name="LOG"></a>
 
-## LOG()
+## LOG() ⇒ <code>number</code>
 Returns the natural logarithm (base `e`) of a number
 
 ```js
@@ -352,7 +352,7 @@ LOG x
 ```
 <a name="LOG10"></a>
 
-## LOG10()
+## LOG10() ⇒ <code>number</code>
 Returns the base 10 logarithm of a number
 
 ```js
@@ -362,7 +362,7 @@ LOG10(1000) // 3
 ```
 <a name="LOG2"></a>
 
-## LOG2()
+## LOG2() ⇒ <code>number</code>
 Returns the base 2 logarithm of a number
 
 ```js
@@ -747,7 +747,7 @@ TITLE("baron lloyd-webber") // 'Baron Lloyd-webber'
 ```
 <a name="TRIM"></a>
 
-## TRIM()
+## TRIM() ⇒ <code>string</code>
 Removes whitespaces at the beginning and end of a string
 
 ```js
