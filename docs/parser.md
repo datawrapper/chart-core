@@ -544,6 +544,7 @@ RANGE(0,1,0.25) // [0,0.25,0.5,0.75]
 ## REPLACE(string, string, string) ⇒ <code>string</code>
 Replaces all occurances of a string with another string
 
+**See**: [REPLACE_REGEX](#REPLACE_REGEX)  
 
 | Param | Description |
 | --- | --- |
@@ -561,6 +562,7 @@ REPLACE("hello name", "name", f(d) = CONCAT("<b>", d, "</b>")) // 'hello <b>name
 ## REPLACE\_REGEX(string, string, string) ⇒ <code>string</code>
 Like REPLACE, but interprets the search string as regular expression
 
+**See**: [REPLACE](#REPLACE)  
 
 | Param | Description |
 | --- | --- |
