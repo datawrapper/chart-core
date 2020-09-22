@@ -14,7 +14,8 @@
         "lint": "prettier --check 'lib/**/*.{js,html,svelte}' && eslint 'lib/**/*.{js,svelte}'",
         "prepublishOnly": "npm run build",
         "prepare": "npm run build",
-        "test": "ava"
+        "test": "ava",
+        "docs:parser": "jsdoc2md  --template docs/.tpl.hbs --files 'lib/dw/utils/parser.js' -g grouped  | sed '/\\*\\*Kind\\*\\*/d'  | sed '/\\*\\*Example\\*\\*/d' | sed '/## $/d' | sed 's/## \\([a-z]\\)/### \\1/' > docs/parser.md && node docs/.fix.js parser.md"
     },
     "repository": {
         "type": "git",
@@ -50,6 +51,7 @@
         "eslint-plugin-svelte3": "~2.7.3",
         "esm": "^3.2.25",
         "husky": "~4.2.5",
+        "jsdoc-to-markdown": "^5.0.0",
         "lint-staged": "^10.1.7",
         "node-fetch": "^2.6.0",
         "prettier": "~1.19.1",
