@@ -1,4 +1,4 @@
-# API reference
+# Reference
 
 * [!()](#!)
 * [ABS()](#ABS) ⇒ <code>number</code>
@@ -151,6 +151,7 @@ DATE(2020, 1, 1) // January 1st, 2020
 ## DATEDIFF(date, date) ⇒ <code>number</code>
 Computes the  number of days between two dates
 
+**See**: [TIMEDIFF](#TIMEDIFF)  
 
 | Param | Description |
 | --- | --- |
@@ -165,6 +166,7 @@ DATEDIFF(date1, date2)
 ## DAY(date) ⇒ <code>number</code>
 Returns the day of a date (1-31)
 
+**See**: [WEEKDAY](#WEEKDAY),[YEAR](#YEAR),[MONTH](#MONTH),[DAY](#DAY)  
 
 | Param | Description |
 | --- | --- |
@@ -178,6 +180,7 @@ DAY(DATE(2020, 6, 1)) // 1
 ## EVERY(array, function) ⇒ <code>boolean</code>
 Returns TRUE if the test function is TRUE for every element in the arrat
 
+**See**: [SOME](#SOME)  
 
 | Param | Description |
 | --- | --- |
@@ -257,6 +260,7 @@ FOLD(f(a,b) = a * b, 1, [1,2,3,4,5]) // 120
 ## HOURS(date) ⇒ <code>number</code>
 Returns the hours of a date (0-23)
 
+**See**: [DAY](#DAY),[MINUTES](#MINUTES),[SECONDS](#SECONDS)  
 
 | Param | Description |
 | --- | --- |
@@ -435,6 +439,7 @@ MIN([1,2,3]) // 1
 ## MINUTES(date) ⇒ <code>number</code>
 Returns the minutes of a date (0-59)
 
+**See**: [HOURS](#HOURS),[SECONDS](#SECONDS)  
 
 | Param | Description |
 | --- | --- |
@@ -448,6 +453,7 @@ MINUTES(time)
 ## MONTH(date) ⇒ <code>number</code>
 Returns the month of a date (1-12)
 
+**See**: [YEAR](#YEAR),[DAY](#DAY)  
 
 | Param | Description |
 | --- | --- |
@@ -589,6 +595,7 @@ ROUND(3.1415, 2) // 3.14
 ## SECONDS(date) ⇒ <code>number</code>
 Returns the seconds of a date (0-59)
 
+**See**: [HOURS](#HOURS),[MINUTES](#MINUTES)  
 
 | Param | Description |
 | --- | --- |
@@ -628,6 +635,7 @@ SLICE([1,2,3,4,5], -2) // [4,5]
 ## SOME(array, function) ⇒ <code>boolean</code>
 Returns `true` if the test function is `true` for at least one element in the arrat
 
+**See**: [EVERY](#EVERY)  
 
 | Param | Description |
 | --- | --- |
@@ -725,6 +733,7 @@ TEXT 12.5 // '12.5'
 ## TIMEDIFF(date, date) ⇒ <code>number</code>
 Computes the  number of seconds between two dates
 
+**See**: [DATEDIFF](#DATEDIFF)  
 
 | Param | Description |
 | --- | --- |
@@ -777,6 +786,7 @@ UPPER("Hello World") // 'HELLO WORLD'
 ## WEEKDAY(date) ⇒ <code>number</code>
 Returns the weekday of a date (0 = Sunday, 1 = Monday, etc)
 
+**See**: [DAY](#DAY)  
 
 | Param | Description |
 | --- | --- |
@@ -790,6 +800,7 @@ WEEKDAY(DATE(2020, 5, 10)) // 0
 ## YEAR(date) ⇒ <code>number</code>
 Returns the year of a date
 
+**See**: [MONTH](#MONTH),[DAY](#DAY)  
 
 | Param | Description |
 | --- | --- |
