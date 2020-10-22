@@ -32,6 +32,7 @@
         "@datawrapper/shared": "^0.27.8",
         "core-js": "3.6.5",
         "fontfaceobserver": "2.1.0",
+        "normalize.css": "^8.0.1",
         "svelte-extras": "^2.0.2",
         "svelte2": "npm:svelte@^2.16.1",
         "underscore": "^1.11.0"
