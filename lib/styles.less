@@ -8,6 +8,12 @@ body {
     background: @colors_general_background;
 }
 
+b {
+    // We want a B element to always produce 'font-weight: 700', so we need to override the default
+    // 'font-weight: bolder', otherwise a 'font-weight: 300' becomes only 400.
+    font-weight: bold;
+}
+
 .chart {
     color: @typography_chart_color;
 
