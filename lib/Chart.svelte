@@ -324,7 +324,7 @@ Please make sure you called __(key) with a key of type "string".
             /* check after tick to get the new values after browser had time for layout and paint */
             const newHeight = getMaxChartHeight(document.querySelector('.dw-chart-body'));
             if (currentHeight !== newHeight) {
-                __dw.renderNow();
+                __dw.render();
             }
         }
     }
