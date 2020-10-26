@@ -70,6 +70,26 @@ module.exports = [
         }
     },
     {
+        input: path.resolve(__dirname, 'load-polyfills.js'),
+        plugins: [
+            resolve(),
+            commonjs(),
+            babel({
+                ...babelConfig,
+                presets: [['@babel/env', { targets: '> 1%', corejs: 3, useBuiltIns: 'entry' }]],
+                plugins: ['babel-plugin-transform-async-to-promises']
+            }),
+            terser()
+        ],
+        external: ['underscore'],
+        onwarn,
+        output: {
+            format: 'iife',
+            entryFileNames: 'load-polyfills.js',
+            ...output
+        }
+    },
+    {
         input: path.resolve(__dirname, 'lib/embed.js'),
         plugins: [
             resolve(),
