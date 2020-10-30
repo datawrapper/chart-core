@@ -28,7 +28,7 @@
     "homepage": "https://github.com/datawrapper/chart-core#readme",
     "dependencies": {
         "@datawrapper/expr-eval": "^2.0.2-datawrapper.1",
-        "@datawrapper/polyfills": "2.0.1",
+        "@datawrapper/polyfills": "2.1.0",
         "@datawrapper/shared": "^0.27.8",
         "core-js": "3.6.5",
         "fontfaceobserver": "2.1.0",
