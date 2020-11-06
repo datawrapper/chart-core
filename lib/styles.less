@@ -487,11 +487,14 @@ body {
         font-family: @style_chart_labels_ticks_secondary_typeface;
         font-size: @style_chart_labels_ticks_secondary_fontSize;
 
-        color: @style_chart_labels_ticks_secondary_color;
         color: @style_chart_labels_ticks_color;
+        color: @style_chart_labels_ticks_secondary_color;
 
-        fill: @style_chart_labels_ticks_secondary_color;
         fill: @style_chart_labels_ticks_color;
+        fill: @style_chart_labels_ticks_secondary_color;
+
+        font-weight: @style_chart_labels_ticks_fontWeight;
+        font-weight: @style_chart_labels_ticks_secondary_fontWeight;
     }
 
     .primary.tick {
@@ -513,6 +516,9 @@ body {
 
             fill: @style_chart_labels_ticks_color;
             fill: @style_chart_labels_ticks_primary_color;
+
+            font-weight: @style_chart_labels_ticks_fontWeight;
+            font-weight: @style_chart_labels_ticks_primary_fontWeight;
         }
     }
 
