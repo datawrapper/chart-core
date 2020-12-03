@@ -12,6 +12,7 @@
     import Rectangle from './blocks/Rectangle.svelte';
     import Watermark from './blocks/Watermark.svelte';
     import HorizontalRule from './blocks/HorizontalRule.svelte';
+    import svgRule from './blocks/svgRule.svelte';
 
     import get from '@datawrapper/shared/get';
     import purifyHtml from '@datawrapper/shared/purifyHtml';
@@ -119,19 +120,22 @@
             priority: 1,
             component: Watermark
         },
-        hr(0),
-        hr(1),
-        hr(2)
+        hr(0, 'hr'),
+        hr(1, 'hr'),
+        hr(2, 'hr'),
+        hr(0, 'svg-rule'),
+        hr(1, 'svg-rule'),
+        hr(2, 'svg-rule')
     ];
 
-    function hr(index) {
-        const id = `hr${index ? index : ''}`;
+    function hr(index, type) {
+        const id = `${type}${index ? index : ''}`;
         return {
             id,
             region: 'header',
             test: ({ theme }) => !!get(theme, `data.options.blocks.${id}`),
             priority: 0,
-            component: HorizontalRule
+            component: type === 'hr' ? HorizontalRule : svgRule
         };
     }
 
