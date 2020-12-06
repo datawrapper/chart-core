@@ -1,6 +1,7 @@
 <script>
     import { onMount, afterUpdate, tick } from 'svelte';
     import BlocksRegion from './BlocksRegion.svelte';
+    import Menu from './Menu.svelte';
     import Headline from './blocks/Headline.svelte';
     import Description from './blocks/Description.svelte';
     import Source from './blocks/Source.svelte';
@@ -198,7 +199,8 @@
             }),
             footerRight: getBlocks(allBlocks, 'footerRight', { chart, data, theme, isStyleStatic }),
             belowFooter: getBlocks(allBlocks, 'belowFooter', { chart, data, theme, isStyleStatic }),
-            afterBody: getBlocks(allBlocks, 'afterBody', { chart, data, theme, isStyleStatic })
+            afterBody: getBlocks(allBlocks, 'afterBody', { chart, data, theme, isStyleStatic }),
+            menu: getBlocks(allBlocks, 'menu', { chart, data, theme, isStyleStatic })
         };
     }
 
@@ -343,6 +345,8 @@ Please make sure you called __(key) with a key of type "string".
 
 {#if !isStylePlain}
     <BlocksRegion name="dw-chart-header" blocks={regions.header} id="header" />
+
+    <Menu name="dw-chart-menu" blocks={regions.menu} />
 {/if}
 
 <div id="chart" class="dw-chart-body" />
