@@ -55,12 +55,13 @@
         z-index: 1;
     }
 
-    :global(.menu-content > .dw-chart-menu > *) {
+    :global(.menu-content > .dw-chart-menu > a) {
         padding: 10px;
+        display: block;
         border-bottom: 1px solid #ccc;
     }
 
-    :global(.menu-content > .dw-chart-menu > *:last-child) {
+    :global(.menu-content > .dw-chart-menu > a:last-child) {
         border-bottom: none;
     }
 </style>
