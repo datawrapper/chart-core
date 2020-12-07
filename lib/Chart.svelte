@@ -346,7 +346,9 @@ Please make sure you called __(key) with a key of type "string".
 {#if !isStylePlain}
     <BlocksRegion name="dw-chart-header" blocks={regions.header} id="header" />
 
-    <Menu name="dw-chart-menu" blocks={regions.menu} />
+    {#if !isStyleStatic}
+        <Menu name="dw-chart-menu" blocks={regions.menu} />
+    {/if}
 {/if}
 
 <div id="chart" class="dw-chart-body" />
