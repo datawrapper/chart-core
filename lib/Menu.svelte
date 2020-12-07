@@ -68,11 +68,11 @@
 <svelte:window on:click={hide} />
 
 {#if blocks.length}
-    <div class="menu qtip" on:click|stopPropagation={toggle}>
+    <div class="menu tooltip" on:click|stopPropagation={toggle}>
         <div />
     </div>
 
-    <div class="menu-content qtip" on:click|stopPropagation class:hidden={!open}>
+    <div class="menu-content tooltip" on:click|stopPropagation class:hidden={!open}>
         <BlocksRegion {id} {name} {blocks} />
     </div>
 {/if}
