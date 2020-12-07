@@ -23,16 +23,16 @@
         position: absolute;
         top: 0px;
         right: 0px;
-        margin: 10px 10px 3px 3px;
-        width: 20px;
-        padding: 5px 0px;
+        margin: 4px 10px 3px 3px;
+        width: 18px;
+        padding: 3px 0px;
 
-        border-top: 1px solid black;
-        border-bottom: 1px solid black;
+        border-top: 2px solid black;
+        border-bottom: 2px solid black;
     }
 
     .menu div {
-        height: 1px;
+        height: 2px;
         width: 100%;
         background: black;
     }
@@ -48,16 +48,18 @@
 
     .menu-content {
         position: absolute;
-        top: 40px;
-        right: 0px;
+        top: 30px;
+        right: 4px;
         background: white;
         border: 1px solid #ccc;
         z-index: 1;
+        box-shadow: 0px 0px 4px 1px rgba(0, 0, 0, 0.1);
     }
 
     :global(.menu-content > .dw-chart-menu a) {
         padding: 10px;
         display: block;
+        color: initial;
         border-bottom: 1px solid #ccc;
     }
 
