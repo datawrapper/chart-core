@@ -2,6 +2,8 @@
     // external props
     export let props;
     const { get } = props;
+    let svg;
+    let length = 0;
     $: theme = props.theme;
 
     $: data = get(theme, `data.options.blocks.${props.id}.data`, {});
@@ -10,14 +12,20 @@
     $: width = get(data, 'width', 1);
     $: strokeDasharray = get(data, 'strokeDasharray', 'none');
     $: strokeLinecap = get(data, 'strokeLinecap', 'butt');
+
+    $: {
+        if (svg) {
+            length = svg.getBoundingClientRect().width;
+        }
+    }
 </script>
 
-<svg style="width:100%; height:{width}px; margin:{margin};">
+<svg bind:this={svg} style="width:100%; height:{Math.max(width, 1)}px; margin:{margin};">
     <line
         style="stroke:{color}; stroke-width:{width}; stroke-dasharray:{strokeDasharray};
         stroke-linecap: {strokeLinecap};"
         x1="0"
         y1={width / 2}
-        x2="100%"
+        x2={length}
         y2={width / 2} />
 </svg>
