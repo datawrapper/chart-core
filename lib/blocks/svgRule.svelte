@@ -1,15 +1,21 @@
 <script>
+    import { onMount } from 'svelte';
     // external props
     export let props;
     const { get } = props;
     let svg;
     let length = 0;
 
-    window.addEventListener('resize', function() {
-        if (svg) {
-            length = svg.getBoundingClientRect().width;
-        }
+    onMount(() => {
+        length = svg.getBoundingClientRect().width;
     });
+
+    if (typeof window !== 'undefined') {
+        window.addEventListener('resize', () => {
+            length = svg.getBoundingClientRect().width;
+        });
+    }
+
     $: theme = props.theme;
 
     $: data = get(theme, `data.options.blocks.${props.id}.data`, {});
