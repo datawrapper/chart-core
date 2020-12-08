@@ -23,7 +23,9 @@
 <style type="text/css">
     svg {
         width: 100%;
-        overflow: hidden;
+
+        /*For IE*/
+        overflow-x: hidden;
     }
 </style>
 
