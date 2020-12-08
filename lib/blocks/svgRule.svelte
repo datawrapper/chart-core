@@ -4,6 +4,12 @@
     const { get } = props;
     let svg;
     let length = 0;
+
+    window.addEventListener('resize', function() {
+        if (svg) {
+            length = svg.getBoundingClientRect().width;
+        }
+    });
     $: theme = props.theme;
 
     $: data = get(theme, `data.options.blocks.${props.id}.data`, {});
@@ -12,15 +18,16 @@
     $: width = get(data, 'width', 1);
     $: strokeDasharray = get(data, 'strokeDasharray', 'none');
     $: strokeLinecap = get(data, 'strokeLinecap', 'butt');
-
-    $: {
-        if (svg) {
-            length = svg.getBoundingClientRect().width;
-        }
-    }
 </script>
 
-<svg bind:this={svg} style="width:100%; height:{Math.max(width, 1)}px; margin:{margin};">
+<style type="text/css">
+    svg {
+        width: 100%;
+        overflow: hidden;
+    }
+</style>
+
+<svg bind:this={svg} style="height:{Math.max(width, 1)}px; margin:{margin};">
     <line
         style="stroke:{color}; stroke-width:{width}; stroke-dasharray:{strokeDasharray};
         stroke-linecap: {strokeLinecap};"
