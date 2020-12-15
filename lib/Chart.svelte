@@ -210,7 +210,7 @@
 
     let menu;
     $: {
-        menu = get(theme, 'data.options.menu');
+        menu = get(theme, 'data.options.menu', {});
     }
 
     // plain style means no header and footer
