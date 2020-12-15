@@ -4,6 +4,7 @@
     export let id;
     export let name;
     export let blocks;
+    export let props;
 
     let open = false;
 
@@ -23,6 +24,9 @@
         position: absolute;
         top: 0px;
         right: 0px;
+    }
+
+    .ha-menu {
         margin: 4px 10px 3px 3px;
         width: 18px;
         padding: 3px 0px;
@@ -31,18 +35,18 @@
         border-bottom: 2px solid black;
     }
 
-    .menu div {
+    .ha-menu div {
         height: 2px;
         width: 100%;
         background: black;
     }
 
-    .menu:hover {
+    .ha-menu:hover {
         border-top-color: #ccc;
         border-bottom-color: #ccc;
     }
 
-    .menu:hover div {
+    .ha-menu:hover div {
         background: #ccc;
     }
 
@@ -75,8 +79,12 @@
 <svelte:window on:click={hide} />
 
 {#if blocks.length}
-    <div class="menu tooltip" on:click|stopPropagation={toggle}>
-        <div />
+    <div class:ha-menu={!props.icon} class="menu tooltip" on:click|stopPropagation={toggle}>
+        {#if props.icon}
+            {@html props.icon}
+        {:else}
+            <div />
+        {/if}
     </div>
 
     <div class="menu-content tooltip" on:click|stopPropagation class:hidden={!open}>

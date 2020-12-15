@@ -208,6 +208,11 @@
         };
     }
 
+    let menu;
+    $: {
+        menu = get(theme, 'data.options.menu', {});
+    }
+
     // plain style means no header and footer
     export let isStylePlain = false;
     // static style means user can't interact (e.g. in a png version)
@@ -351,7 +356,7 @@ Please make sure you called __(key) with a key of type "string".
     <BlocksRegion name="dw-chart-header" blocks={regions.header} id="header" />
 
     {#if !isStyleStatic}
-        <Menu name="dw-chart-menu" blocks={regions.menu} />
+        <Menu name="dw-chart-menu" props={menu} blocks={regions.menu} />
     {/if}
 {/if}
 
