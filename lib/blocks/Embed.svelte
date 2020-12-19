@@ -25,13 +25,11 @@
     }
 </script>
 
-{#if embed.enabled}
-    <a href="#embed" class="chart-action-embed" on:click={handleClick}>{__(embed.caption)}</a>
-    {#if !modalIsHidden}
-        <div class="embed-code">
-            <div class="close" on:click={handleClick}>×</div>
-            <div>{embed.text || 'Please use the following HTML code to embed this chart:'}</div>
-            <textarea readonly on:click={handleTextareaClick}>{embedCode}</textarea>
-        </div>
-    {/if}
+<a href="#embed" class="chart-action-embed" on:click={handleClick}>{__(embed.caption)}</a>
+{#if !modalIsHidden}
+    <div class="embed-code">
+        <div class="close" on:click={handleClick}>×</div>
+        <div>{embed.text || 'Please use the following HTML code to embed this chart:'}</div>
+        <textarea readonly on:click={handleTextareaClick}>{embedCode}</textarea>
+    </div>
 {/if}

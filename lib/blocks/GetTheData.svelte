@@ -8,11 +8,9 @@
     $: getTheData = get(theme, 'data.options.footer.getTheData', { enabled: false });
 </script>
 
-{#if getTheData.enabled}
-    <a
-        class="dw-data-link"
-        aria-label="{__(getTheData.caption)}: {purifyHtml(chart.title, '')}"
-        href="data">
-        {__(getTheData.caption)}
-    </a>
-{/if}
+<a
+    class="dw-data-link"
+    aria-label="{__(getTheData.caption)}: {purifyHtml(chart.title, '')}"
+    href="data">
+    {__(getTheData.caption)}
+</a>

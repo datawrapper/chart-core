@@ -80,23 +80,23 @@
         {
             id: 'get-the-data',
             region: 'footerLeft',
-            test: ({ theme, isStyleStatic }) =>
-                get(theme, 'data.options.footer.getTheData.enabled') && !isStyleStatic,
+            test: ({ chart, isStyleStatic }) =>
+                get(chart, 'metadata.publish.options.get-the-data') && !isStyleStatic,
             priority: 30,
             component: GetTheData
         },
         {
             id: 'embed',
             region: 'footerLeft',
-            test: ({ theme, isStyleStatic }) =>
-                get(theme, 'data.options.footer.embed.enabled') && !isStyleStatic,
+            test: ({ chart, isStyleStatic }) =>
+                get(chart, 'metadata.publish.options.embed') && !isStyleStatic,
             priority: 40,
             component: Embed
         },
         {
             id: 'logo',
             region: 'footerRight',
-            test: ({ theme }) => get(theme, 'data.options.footer.logo.enabled'),
+            test: ({ chart }) => get(chart, 'metadata.publish.options.logo'),
             priority: 10,
             component: Logo
         },
