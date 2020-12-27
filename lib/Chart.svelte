@@ -19,13 +19,14 @@
     import purifyHtml from '@datawrapper/shared/purifyHtml';
     import { clean } from './shared';
     import { loadScript, loadStylesheet } from '@datawrapper/shared/fetch';
-    import render from './render.js';
+    import init from './render.js';
     import { getMaxChartHeight } from './dw/utils';
 
     export let data = {};
     export let theme = {};
+    export let iframe;
 
-    if (typeof window !== 'undefined') {
+    if (iframe && typeof window !== 'undefined') {
         window.__dwUpdate = ({ chart }) => {
             Object.assign(data.chartJSON, chart);
             data = data; // to force re-rendering
@@ -250,6 +251,8 @@ Please make sure you called __(key) with a key of type "string".
         return translation;
     }
 
+    let target;
+
     onMount(async () => {
         document.body.classList.toggle('plain', isStylePlain);
         document.body.classList.toggle('static', isStyleStatic);
@@ -263,23 +266,34 @@ Please make sure you called __(key) with a key of type "string".
         dw.theme.register(theme.id, theme.data);
 
         const { basemap, minimap, highlight } = publishData;
-        window.__dwParams = {};
+
         if (basemap) {
             basemap.content = JSON.parse(basemap.content);
 
-            window.__dwParams.d3maps_basemap = {
+            data.d3maps_basemap = {
                 [basemap.__id]: basemap
             };
         }
 
         if (minimap || highlight) {
-            window.__dwParams.locatorMap = {
+            data.locatorMap = {
                 minimapGeom: minimap,
                 highlightGeom: highlight
             };
         }
 
-        render(data);
+        const { render } = init(target, {
+            data: data.chartData,
+            chart: data.chartJSON,
+            visualization: data.visJSON,
+            theme: theme.data,
+            locales: data.locales,
+            d3maps_basemap: data.d3maps_basemap,
+            locatorMap: data.locatorMap,
+            isPreview: data.isPreview,
+            iframe: iframe,
+            fonts: data.fontsJSON
+        });
 
         // load & execute plugins
         window.__dwBlocks = {};
@@ -321,36 +335,27 @@ Please make sure you called __(key) with a key of type "string".
             });
             // trigger svelte update after modifying array
             pluginBlocks = pluginBlocks;
-
-            // re-render chart after loading blocks
-            await tick();
-            render(data);
         }
+
+        await tick();
+        render();
     });
 
-    async function checkHeightAndRender() {
-        if (window && window.__dw && window.__dw.vis) {
-            const currentHeight = __dw.vis.size()[1];
-            await tick();
-            /* check after tick to get the new values after browser had time for layout and paint */
-            const newHeight = getMaxChartHeight(document.querySelector('.dw-chart-body'));
-            if (currentHeight !== newHeight) {
-                __dw.render();
-            }
-        }
-    }
-
-    afterUpdate(checkHeightAndRender);
+    // afterUpdate(checkHeightAndRender);
 </script>
 
-<svelte:head>
-    <title>{chart.title}</title>
-    <meta name="description" content={get(chart, 'metadata.describe.intro')} />
-    {@html `<${'style'}>${customCSS}</style>`}
-    {#if publishData.chartAfterHeadHTML}
-        {@html publishData.chartAfterHeadHTML}
-    {/if}
-</svelte:head>
+<!--
+{#if iframe}
+    <svelte:head>
+        <title>{chart.title}</title>
+        <meta name="description" content={get(chart, 'metadata.describe.intro')} />
+        {@html `<${'style'}>${customCSS}</style>`}
+        {#if publishData.chartAfterHeadHTML}
+            {@html publishData.chartAfterHeadHTML}
+        {/if}
+    </svelte:head>
+{/if}
+-->
 
 {#if !isStylePlain}
     <BlocksRegion name="dw-chart-header" blocks={regions.header} id="header" />
@@ -360,7 +365,7 @@ Please make sure you called __(key) with a key of type "string".
     {/if}
 {/if}
 
-<div id="chart" class="dw-chart-body" />
+<div bind:this={target} class="dw-chart-body" />
 
 {#if get(theme, 'data.template.afterChart')}
     {@html theme.data.template.afterChart}

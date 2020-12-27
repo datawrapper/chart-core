@@ -9,9 +9,6 @@ import { terser } from 'rollup-plugin-terser';
 const output = {
     name: 'chart',
     dir: path.resolve(__dirname, 'dist'),
-    globals: {
-        underscore: '_'
-    },
     compact: true
 };
 
@@ -28,6 +25,27 @@ function onwarn(warning, warn) {
 
 module.exports = [
     {
+        /* Svelte Chart Component as library */
+        input: path.resolve(__dirname, 'lib.js'),
+        plugins: [
+            svelte({ hydratable: true }),
+            resolve(),
+            commonjs(),
+            babel({
+                ...babelConfig,
+                presets: [['@babel/env', { targets: '> 1%', corejs: 3, useBuiltIns: 'entry' }]],
+                plugins: ['babel-plugin-transform-async-to-promises']
+            })
+            // terser()
+        ],
+        onwarn,
+        output: {
+            format: 'iife',
+            entryFileNames: 'lib.js',
+            ...output
+        }
+    },
+    {
         /* Client side Svelte Chart Component */
         input: path.resolve(__dirname, 'main.js'),
         plugins: [
@@ -38,10 +56,9 @@ module.exports = [
                 ...babelConfig,
                 presets: [['@babel/env', { targets: '> 1%', corejs: 3, useBuiltIns: 'entry' }]],
                 plugins: ['babel-plugin-transform-async-to-promises']
-            }),
-            terser()
+            })
+            // terser()
         ],
-        external: ['underscore'],
         onwarn,
         output: {
             format: 'iife',
@@ -61,7 +78,6 @@ module.exports = [
                 presets: [['@babel/env', { targets: { node: true } }]]
             })
         ],
-        external: ['underscore'],
         onwarn,
         output: {
             format: 'umd',
@@ -81,7 +97,6 @@ module.exports = [
             }),
             terser()
         ],
-        external: ['underscore'],
         onwarn,
         output: {
             format: 'iife',
@@ -122,15 +137,11 @@ module.exports = [
             }),
             terser()
         ],
-        external: ['underscore'],
         onwarn,
         output: {
             sourcemap: true,
             file: path.resolve(__dirname, 'dist/dw-2.0.min.js'),
-            format: 'iife',
-            globals: {
-                underscore: '_'
-            }
+            format: 'iife'
         }
     }
 ];
