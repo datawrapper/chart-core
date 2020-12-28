@@ -35,7 +35,7 @@
     }
 </script>
 
-<svelte:options tag="datawrapper-visualization" />
+<svelte:options tag={null} />
 
 <div bind:this={styleHolder} />
 

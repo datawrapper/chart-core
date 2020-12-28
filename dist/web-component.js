@@ -289,6 +289,63 @@ function _nonIterableSpread() {
 
 function _nonIterableRest() {
   throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+}
+
+function _createForOfIteratorHelper(o, allowArrayLike) {
+  var it;
+
+  if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) {
+    if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
+      if (it) o = it;
+      var i = 0;
+
+      var F = function () {};
+
+      return {
+        s: F,
+        n: function () {
+          if (i >= o.length) return {
+            done: true
+          };
+          return {
+            done: false,
+            value: o[i++]
+          };
+        },
+        e: function (e) {
+          throw e;
+        },
+        f: F
+      };
+    }
+
+    throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+
+  var normalCompletion = true,
+      didErr = false,
+      err;
+  return {
+    s: function () {
+      it = o[Symbol.iterator]();
+    },
+    n: function () {
+      var step = it.next();
+      normalCompletion = step.done;
+      return step;
+    },
+    e: function (e) {
+      didErr = true;
+      err = e;
+    },
+    f: function () {
+      try {
+        if (!normalCompletion && it.return != null) it.return();
+      } finally {
+        if (didErr) throw err;
+      }
+    }
+  };
 }function noop() {}
 
 function run(fn) {
@@ -11685,9 +11742,7 @@ var ChartWebComponent_wc = /*#__PURE__*/function (_SvelteElement) {
   }]);
 
   return ChartWebComponent_wc;
-}(SvelteElement);
-
-customElements.define("datawrapper-visualization", ChartWebComponent_wc);function _await$1(value, then, direct) {
+}(SvelteElement);function _await$1(value, then, direct) {
   if (direct) {
     return then ? then(value) : value;
   }
@@ -11697,6 +11752,204 @@ customElements.define("datawrapper-visualization", ChartWebComponent_wc);functio
   }
 
   return then ? value.then(then) : value;
+}
+
+var _iteratorSymbol = /*#__PURE__*/typeof Symbol !== "undefined" ? Symbol.iterator || (Symbol.iterator = Symbol("Symbol.iterator")) : "@@iterator";
+
+function _settle(pact, state, value) {
+  if (!pact.s) {
+    if (value instanceof _Pact) {
+      if (value.s) {
+        if (state & 1) {
+          state = value.s;
+        }
+
+        value = value.v;
+      } else {
+        value.o = _settle.bind(null, pact, state);
+        return;
+      }
+    }
+
+    if (value && value.then) {
+      value.then(_settle.bind(null, pact, state), _settle.bind(null, pact, 2));
+      return;
+    }
+
+    pact.s = state;
+    pact.v = value;
+    var observer = pact.o;
+
+    if (observer) {
+      observer(pact);
+    }
+  }
+}
+
+var _Pact = /*#__PURE__*/function () {
+  function _Pact() {}
+
+  _Pact.prototype.then = function (onFulfilled, onRejected) {
+    var result = new _Pact();
+    var state = this.s;
+
+    if (state) {
+      var callback = state & 1 ? onFulfilled : onRejected;
+
+      if (callback) {
+        try {
+          _settle(result, 1, callback(this.v));
+        } catch (e) {
+          _settle(result, 2, e);
+        }
+
+        return result;
+      } else {
+        return this;
+      }
+    }
+
+    this.o = function (_this) {
+      try {
+        var value = _this.v;
+
+        if (_this.s & 1) {
+          _settle(result, 1, onFulfilled ? onFulfilled(value) : value);
+        } else if (onRejected) {
+          _settle(result, 1, onRejected(value));
+        } else {
+          _settle(result, 2, value);
+        }
+      } catch (e) {
+        _settle(result, 2, e);
+      }
+    };
+
+    return result;
+  };
+
+  return _Pact;
+}();
+
+function _isSettledPact(thenable) {
+  return thenable instanceof _Pact && thenable.s & 1;
+}
+
+function _forTo(array, body, check) {
+  var i = -1,
+      pact,
+      reject;
+
+  function _cycle(result) {
+    try {
+      while (++i < array.length && (!check || !check())) {
+        result = body(i);
+
+        if (result && result.then) {
+          if (_isSettledPact(result)) {
+            result = result.v;
+          } else {
+            result.then(_cycle, reject || (reject = _settle.bind(null, pact = new _Pact(), 2)));
+            return;
+          }
+        }
+      }
+
+      if (pact) {
+        _settle(pact, 1, result);
+      } else {
+        pact = result;
+      }
+    } catch (e) {
+      _settle(pact || (pact = new _Pact()), 2, e);
+    }
+  }
+
+  _cycle();
+
+  return pact;
+}
+
+function _forOf(target, body, check) {
+  if (typeof target[_iteratorSymbol] === "function") {
+    var iterator = target[_iteratorSymbol](),
+        step,
+        pact,
+        reject;
+
+    function _cycle2(result) {
+      try {
+        while (!(step = iterator.next()).done && (!check || !check())) {
+          result = body(step.value);
+
+          if (result && result.then) {
+            if (_isSettledPact(result)) {
+              result = result.v;
+            } else {
+              result.then(_cycle2, reject || (reject = _settle.bind(null, pact = new _Pact(), 2)));
+              return;
+            }
+          }
+        }
+
+        if (pact) {
+          _settle(pact, 1, result);
+        } else {
+          pact = result;
+        }
+      } catch (e) {
+        _settle(pact || (pact = new _Pact()), 2, e);
+      }
+    }
+
+    _cycle2();
+
+    if (iterator.return) {
+      var _fixup = function _fixup(value) {
+        try {
+          if (!step.done) {
+            iterator.return();
+          }
+        } catch (e) {}
+
+        return value;
+      };
+
+      if (pact && pact.then) {
+        return pact.then(_fixup, function (e) {
+          throw _fixup(e);
+        });
+      }
+
+      _fixup();
+    }
+
+    return pact;
+  } // No support for Symbol.iterator
+
+
+  if (!("length" in target)) {
+    throw new TypeError("Object is not iterable");
+  } // Handle live collections properly
+
+
+  var values = [];
+
+  for (var i = 0; i < target.length; i++) {
+    values.push(target[i]);
+  }
+
+  return _forTo(values, function (i) {
+    return body(values[i]);
+  }, check);
+}
+
+function _empty() {}
+
+function _continueIgnored(value) {
+  if (value && value.then) {
+    return value.then(_empty);
+  }
 }
 
 function _async$1(f) {
@@ -11713,56 +11966,86 @@ function _async$1(f) {
   };
 }
 
-function _empty() {}
+if (typeof window.__dw === 'undefined') {
+  var callbacks = [];
+  window.__dw = {
+    onDependencyCompleted: function onDependencyCompleted(cb) {
+      callbacks.push(cb);
+    },
+    dependencyCompleted: function dependencyCompleted() {
+      var _iterator = _createForOfIteratorHelper(callbacks),
+          _step;
 
-function _invokeIgnored(body) {
-  var result = body();
-
-  if (result && result.then) {
-    return result.then(_empty);
-  }
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var cb = _step.value;
+          cb();
+        }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
+      }
+    }
+  };
 }
 
-if (typeof window.__dw === 'undefined') window.__dw = {};
 window.__dw.renderInto = _async$1(function (chart) {
   var elementId = "datawrapper-chart-".concat(chart.chart.id);
   document.write("<div id=\"".concat(elementId, "\"></div>"));
   if (typeof __dw.dependencies === 'undefined') __dw.dependencies = {};
-  var scripts = [];
+  var rendered = false;
 
-  for (var dep in chart.visualization.dependencies) {
-    var path = {
-      jquery: 'http://app.datawrapper.local/lib/chart-core/jquery.min.js'
-    }[dep];
+  var awaitLibraries = function awaitLibraries() {
+    var loaded = true;
 
-    if (chart.visualization.dependencies[dep] && path) {
-      scripts.push(path);
+    var _iterator2 = _createForOfIteratorHelper(chart.dependencies),
+        _step2;
+
+    try {
+      for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+        var dep = _step2.value;
+        if (__dw.dependencies[dep] !== 'finished') loaded = false;
+      }
+    } catch (err) {
+      _iterator2.e(err);
+    } finally {
+      _iterator2.f();
     }
-  }
 
-  scripts = [].concat(_toConsumableArray(scripts), _toConsumableArray(chart.visualization.libraries.map(function (el) {
-    return "http://app.datawrapper.local".concat(el.uri);
-  })), ['http://app.datawrapper.local/lib/chart-core/dw-2.0.min.js', "http://api.datawrapper.local/v3/visualizations/".concat(chart.visualization.id, "/script.js")]);
-  var promises = [];
-  scripts.forEach(function (script) {
-    promises.push(new Promise(_async$1(function (resolve, reject) {
-      return _invokeIgnored(function () {
-        if (__dw.dependencies[script]) {
-          resolve();
-        } else {
-          __dw.dependencies[script] = true;
-          return _await$1(loadScript(script), function () {
-            resolve();
-          });
-        }
-      });
-    })));
-  });
-  return _await$1(Promise.all(promises), function () {
-    new ChartWebComponent_wc({
-      target: document.getElementById(elementId),
-      props: chart,
-      hydrate: false
+    console.log("all deps for ".concat(chart.visualization.id, " loaded: "), loaded);
+
+    if (loaded && !rendered) {
+      var props = {
+        target: document.getElementById(elementId),
+        props: chart,
+        hydrate: false
+      };
+
+      if (!customElements.get('datawrapper-visualization')) {
+        customElements.define('datawrapper-visualization', ChartWebComponent_wc);
+        new ChartWebComponent_wc(props);
+      } else {
+        var WebComponent = customElements.get('datawrapper-visualization');
+        new WebComponent(props);
+      }
+
+      rendered = true;
+    }
+  };
+
+  __dw.onDependencyCompleted(awaitLibraries); // slightly hacky way to determine the script origin
+
+
+  var scripts = document.getElementsByTagName('script');
+  var src = scripts[scripts.length - 1].getAttribute("src").split("/").slice(0, -1).join("/");
+  return _continueIgnored(_forOf(chart.dependencies, function (script) {
+    if (__dw.dependencies[script]) return;
+    __dw.dependencies[script] = 'loading';
+    return _await$1(loadScript("".concat(src, "/").concat(script)), function () {
+      __dw.dependencies[script] = 'finished';
+
+      __dw.dependencyCompleted();
     });
-  });
+  }));
 });}());

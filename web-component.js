@@ -3,7 +3,20 @@ import { loadScript } from '@datawrapper/shared/fetch';
 
 // initialize the library
 
-if (typeof window.__dw === 'undefined') window.__dw = {};
+if (typeof window.__dw === 'undefined') {
+    const callbacks = [];
+
+    window.__dw = {
+        onDependencyCompleted: function(cb) {
+            callbacks.push(cb);
+        },
+        dependencyCompleted: function() {
+            for (let cb of callbacks) {
+                cb();
+            }
+        }
+    };
+}
 
 window.__dw.renderInto = async function(chart) {
     const elementId = `datawrapper-chart-${chart.chart.id}`;
@@ -11,46 +24,51 @@ window.__dw.renderInto = async function(chart) {
 
     if (typeof __dw.dependencies === 'undefined') __dw.dependencies = {};
 
-    let scripts = [];
-
-    for (var dep in chart.visualization.dependencies) {
-        const path = {
-            jquery: 'http://app.datawrapper.local/lib/chart-core/jquery.min.js'
-        }[dep];
-
-        if (chart.visualization.dependencies[dep] && path) {
-            scripts.push(path);
-        }
-    }
-
-    scripts = [
-        ...scripts,
-        ...chart.visualization.libraries.map(el => `http://app.datawrapper.local${el.uri}`),
-        'http://app.datawrapper.local/lib/chart-core/dw-2.0.min.js',
-        `http://api.datawrapper.local/v3/visualizations/${chart.visualization.id}/script.js`
-    ];
-
     const promises = [];
 
-    scripts.forEach(script => {
-        promises.push(
-            new Promise(async function(resolve, reject) {
-                if (__dw.dependencies[script]) {
-                    resolve();
-                } else {
-                    __dw.dependencies[script] = true;
-                    await loadScript(script);
-                    resolve();
-                }
-            })
-        );
-    });
+    let rendered = false;
 
-    await Promise.all(promises);
+    const awaitLibraries = () => {
+        let loaded = true;
 
-    new ChartWebComponent({
-        target: document.getElementById(elementId),
-        props: chart,
-        hydrate: false
-    });
+        for (let dep of chart.dependencies) {
+            if (__dw.dependencies[dep] !== 'finished') loaded = false;
+        }
+
+        if (loaded && !rendered) {
+            const props = {
+                target: document.getElementById(elementId),
+                props: chart,
+                hydrate: false
+            };
+
+            if (!customElements.get('datawrapper-visualization')) {
+                customElements.define('datawrapper-visualization', ChartWebComponent);
+                new ChartWebComponent(props);
+            } else {
+                const WebComponent = customElements.get('datawrapper-visualization');
+                new WebComponent(props);
+            }
+
+            rendered = true;
+        }
+    };
+
+    __dw.onDependencyCompleted(awaitLibraries);
+
+    // slightly hacky way to determine the script origin
+    const scripts = document.getElementsByTagName('script');
+    const src = scripts[scripts.length - 1]
+        .getAttribute('src')
+        .split('/')
+        .slice(0, -1)
+        .join('/');
+
+    for (let script of chart.dependencies) {
+        if (__dw.dependencies[script]) continue;
+        __dw.dependencies[script] = 'loading';
+        await loadScript(`${src}/${script}`);
+        __dw.dependencies[script] = 'finished';
+        __dw.dependencyCompleted();
+    }
 };
