@@ -9354,7 +9354,7 @@ function init$1(target, _ref) {
       d3maps_basemap = _ref.d3maps_basemap,
       locatorMap = _ref.locatorMap,
       isPreview = _ref.isPreview,
-      iframe = _ref.iframe,
+      isIframe = _ref.isIframe,
       fonts = _ref.fonts;
   if (!visualization.id || !target) return {
     success: false,
@@ -9382,7 +9382,7 @@ function init$1(target, _ref) {
   var chart = dw.chart(chartAttrs).locale(chartLocale).theme(dw.theme(chartAttrs.theme));
   var emotion = createEmotion({
     key: "datawrapper-".concat(chartAttrs.id),
-    container: target
+    container: isIframe ? document.head : target
   });
   var vis;
   chart.load(data || '', isPreview ? undefined : chartAttrs.externalData).then(function () {
@@ -9390,7 +9390,7 @@ function init$1(target, _ref) {
     vis.meta = visualization;
     vis.lang = language;
 
-    if (iframe) {
+    if (isIframe) {
       window.__dw.vis = vis;
     }
 
@@ -9610,7 +9610,7 @@ function get_each_context_1(ctx, list, i) {
   var child_ctx = ctx.slice();
   child_ctx[32] = list[i];
   return child_ctx;
-} // (368:0) {#if !isStylePlain}
+} // (367:0) {#if !isStylePlain}
 
 
 function create_if_block_6(ctx) {
@@ -9696,7 +9696,7 @@ function create_if_block_6(ctx) {
       if (detaching) detach(if_block_anchor);
     }
   };
-} // (371:4) {#if !isStyleStatic}
+} // (370:4) {#if !isStyleStatic}
 
 
 function create_if_block_7(ctx) {
@@ -9748,7 +9748,7 @@ function create_if_block_7(ctx) {
       destroy_component(menu_1, detaching);
     }
   };
-} // (378:0) {#if get(theme, 'data.template.afterChart')}
+} // (377:0) {#if get(theme, 'data.template.afterChart')}
 
 
 function create_if_block_5(ctx) {
@@ -9774,7 +9774,7 @@ function create_if_block_5(ctx) {
       if (detaching) html_tag.d();
     }
   };
-} // (382:0) {#if !isStylePlain}
+} // (381:0) {#if !isStylePlain}
 
 
 function create_if_block_1$6(ctx) {
@@ -9923,7 +9923,7 @@ function create_if_block_1$6(ctx) {
       destroy_component(blocksregion1, detaching);
     }
   };
-} // (389:20) {#if i}
+} // (388:20) {#if i}
 
 
 function create_if_block_4(ctx) {
@@ -9952,7 +9952,7 @@ function create_if_block_4(ctx) {
       if (detaching) detach(span);
     }
   };
-} // (393:24) {#if block.prepend}
+} // (392:24) {#if block.prepend}
 
 
 function create_if_block_3(ctx) {
@@ -9980,7 +9980,7 @@ function create_if_block_3(ctx) {
       if (detaching) detach(span);
     }
   };
-} // (401:24) {#if block.append}
+} // (400:24) {#if block.append}
 
 
 function create_if_block_2$1(ctx) {
@@ -10008,7 +10008,7 @@ function create_if_block_2$1(ctx) {
       if (detaching) detach(span);
     }
   };
-} // (388:16) {#each regions['footer' + orientation] as block, i}
+} // (387:16) {#each regions['footer' + orientation] as block, i}
 
 
 function create_each_block_2(ctx) {
@@ -10171,7 +10171,7 @@ function create_each_block_2(ctx) {
       if (if_block2) if_block2.d();
     }
   };
-} // (386:8) {#each ['Left', 'Center', 'Right'] as orientation}
+} // (385:8) {#each ['Left', 'Center', 'Right'] as orientation}
 
 
 function create_each_block_1(ctx) {
@@ -10281,7 +10281,7 @@ function create_each_block_1(ctx) {
       destroy_each(each_blocks, detaching);
     }
   };
-} // (416:4) {#each regions.afterBody as block}
+} // (415:4) {#each regions.afterBody as block}
 
 
 function create_each_block$1(ctx) {
@@ -10365,7 +10365,7 @@ function create_each_block$1(ctx) {
       if (switch_instance) destroy_component(switch_instance, detaching);
     }
   };
-} // (421:0) {#if chartAfterBodyHTML}
+} // (420:0) {#if chartAfterBodyHTML}
 
 
 function create_if_block$9(ctx) {
@@ -11099,10 +11099,7 @@ var Chart = /*#__PURE__*/function (_SvelteComponent) {
   }
 
   return Chart;
-}(SvelteComponent);function create_fragment$h(ctx) {
-  var link;
-  var link_href_value;
-  var t;
+}(SvelteComponent);function create_if_block$a(ctx) {
   var div;
   var chart_1;
   var current;
@@ -11157,36 +11154,16 @@ var Chart = /*#__PURE__*/function (_SvelteComponent) {
   });
   return {
     c: function c() {
-      link = element("link");
-      t = space();
       div = element("div");
       create_component(chart_1.$$.fragment);
-      this.c = noop;
-      attr(link, "rel", "stylesheet");
-      attr(link, "href", link_href_value = "http://charts.datawrapper.local/" +
-      /*chart*/
-      ctx[1].id + "/styles.css");
       attr(div, "class", "chart dw-chart");
     },
     m: function m(target, anchor) {
-      insert(target, link, anchor);
-      insert(target, t, anchor);
       insert(target, div, anchor);
       mount_component(chart_1, div, null);
       current = true;
     },
-    p: function p(ctx, _ref) {
-      var _ref2 = _slicedToArray(_ref, 1),
-          dirty = _ref2[0];
-
-      if (!current || dirty &
-      /*chart*/
-      2 && link_href_value !== (link_href_value = "http://charts.datawrapper.local/" +
-      /*chart*/
-      ctx[1].id + "/styles.css")) {
-        attr(link, "href", link_href_value);
-      }
-
+    p: function p(ctx, dirty) {
       var chart_1_changes = {};
       if (dirty &
       /*data*/
@@ -11275,10 +11252,84 @@ var Chart = /*#__PURE__*/function (_SvelteComponent) {
       current = false;
     },
     d: function d(detaching) {
-      if (detaching) detach(link);
-      if (detaching) detach(t);
       if (detaching) detach(div);
       destroy_component(chart_1);
+    }
+  };
+}
+
+function create_fragment$h(ctx) {
+  var div;
+  var t;
+  var if_block_anchor;
+  var current;
+  var if_block =
+  /*stylesLoaded*/
+  ctx[15] && create_if_block$a(ctx);
+  return {
+    c: function c() {
+      div = element("div");
+      t = space();
+      if (if_block) if_block.c();
+      if_block_anchor = empty();
+      this.c = noop;
+    },
+    m: function m(target, anchor) {
+      insert(target, div, anchor);
+      /*div_binding*/
+
+      ctx[18](div);
+      insert(target, t, anchor);
+      if (if_block) if_block.m(target, anchor);
+      insert(target, if_block_anchor, anchor);
+      current = true;
+    },
+    p: function p(ctx, _ref) {
+      var _ref2 = _slicedToArray(_ref, 1),
+          dirty = _ref2[0];
+
+      if (
+      /*stylesLoaded*/
+      ctx[15]) {
+        if (if_block) {
+          if_block.p(ctx, dirty);
+
+          if (dirty &
+          /*stylesLoaded*/
+          32768) {
+            transition_in(if_block, 1);
+          }
+        } else {
+          if_block = create_if_block$a(ctx);
+          if_block.c();
+          transition_in(if_block, 1);
+          if_block.m(if_block_anchor.parentNode, if_block_anchor);
+        }
+      } else if (if_block) {
+        group_outros();
+        transition_out(if_block, 1, 1, function () {
+          if_block = null;
+        });
+        check_outros();
+      }
+    },
+    i: function i(local) {
+      if (current) return;
+      transition_in(if_block);
+      current = true;
+    },
+    o: function o(local) {
+      transition_out(if_block);
+      current = false;
+    },
+    d: function d(detaching) {
+      if (detaching) detach(div);
+      /*div_binding*/
+
+      ctx[18](null);
+      if (detaching) detach(t);
+      if (if_block) if_block.d(detaching);
+      if (detaching) detach(if_block_anchor);
     }
   };
 }
@@ -11303,12 +11354,22 @@ function instance$h($$self, $$props, $$invalidate) {
   var basemap = $$props.basemap;
   var minimap = $$props.minimap;
   var highlight = $$props.highlight;
+  var styles = $$props.styles;
   var _$$props$fonts = $$props.fonts,
       fonts = _$$props$fonts === void 0 ? {} : _$$props$fonts;
   var _$$props$isStylePlain = $$props.isStylePlain,
       isStylePlain = _$$props$isStylePlain === void 0 ? false : _$$props$isStylePlain;
   var _$$props$isStyleStati = $$props.isStyleStatic,
       isStyleStatic = _$$props$isStyleStati === void 0 ? false : _$$props$isStyleStati;
+  var stylesLoaded = false;
+  var styleHolder;
+
+  function div_binding($$value) {
+    binding_callbacks[$$value ? "unshift" : "push"](function () {
+      styleHolder = $$value;
+      $$invalidate(16, styleHolder);
+    });
+  }
 
   $$self.$set = function ($$props) {
     if ("data" in $$props) $$invalidate(0, data = $$props.data);
@@ -11323,12 +11384,30 @@ function instance$h($$self, $$props, $$invalidate) {
     if ("basemap" in $$props) $$invalidate(9, basemap = $$props.basemap);
     if ("minimap" in $$props) $$invalidate(10, minimap = $$props.minimap);
     if ("highlight" in $$props) $$invalidate(11, highlight = $$props.highlight);
+    if ("styles" in $$props) $$invalidate(17, styles = $$props.styles);
     if ("fonts" in $$props) $$invalidate(12, fonts = $$props.fonts);
     if ("isStylePlain" in $$props) $$invalidate(13, isStylePlain = $$props.isStylePlain);
     if ("isStyleStatic" in $$props) $$invalidate(14, isStyleStatic = $$props.isStyleStatic);
   };
 
-  return [data, chart, visualization, theme, locales, blocks, chartAfterBodyHTML, isIframe, isPreview, basemap, minimap, highlight, fonts, isStylePlain, isStyleStatic];
+  $$self.$$.update = function () {
+    if ($$self.$$.dirty &
+    /*stylesLoaded, styleHolder, styles*/
+    229376) {
+      // ensure styles are loaded before the vis is rendered to prevent flickering
+       {
+        if (!stylesLoaded && styleHolder && styles) {
+          var style = document.createElement("style");
+          style.type = "text/css";
+          style.innerText = styles;
+          styleHolder.appendChild(style);
+          $$invalidate(15, stylesLoaded = true);
+        }
+      }
+    }
+  };
+
+  return [data, chart, visualization, theme, locales, blocks, chartAfterBodyHTML, isIframe, isPreview, basemap, minimap, highlight, fonts, isStylePlain, isStyleStatic, stylesLoaded, styleHolder, styles, div_binding];
 }
 
 var ChartWebComponent_wc = /*#__PURE__*/function (_SvelteElement) {
@@ -11357,6 +11436,7 @@ var ChartWebComponent_wc = /*#__PURE__*/function (_SvelteElement) {
       basemap: 9,
       minimap: 10,
       highlight: 11,
+      styles: 17,
       fonts: 12,
       isStylePlain: 13,
       isStyleStatic: 14
@@ -11510,6 +11590,17 @@ var ChartWebComponent_wc = /*#__PURE__*/function (_SvelteElement) {
       flush();
     }
   }, {
+    key: "styles",
+    get: function get() {
+      return this.$$.ctx[17];
+    },
+    set: function set(styles) {
+      this.$set({
+        styles: styles
+      });
+      flush();
+    }
+  }, {
     key: "fonts",
     get: function get() {
       return this.$$.ctx[12];
@@ -11545,7 +11636,7 @@ var ChartWebComponent_wc = /*#__PURE__*/function (_SvelteElement) {
   }], [{
     key: "observedAttributes",
     get: function get() {
-      return ["data", "chart", "visualization", "theme", "locales", "blocks", "chartAfterBodyHTML", "isIframe", "isPreview", "basemap", "minimap", "highlight", "fonts", "isStylePlain", "isStyleStatic"];
+      return ["data", "chart", "visualization", "theme", "locales", "blocks", "chartAfterBodyHTML", "isIframe", "isPreview", "basemap", "minimap", "highlight", "styles", "fonts", "isStylePlain", "isStyleStatic"];
     }
   }]);
 
