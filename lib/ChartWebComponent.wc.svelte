@@ -13,33 +13,50 @@
     export let basemap;
     export let minimap;
     export let highlight;
+    export let styles;
     export let fonts = {};
 
     // plain style means no header and footer
     export let isStylePlain = false;
     // static style means user can't interact (e.g. in a png version)
     export let isStyleStatic = false;
+
+    let stylesLoaded = false;
+    let styleHolder;
+
+    // ensure styles are loaded before the vis is rendered to prevent flickering
+    $: {
+        if (!stylesLoaded && styleHolder && styles) {
+            const style = document.createElement('style');
+            style.type = 'text/css';
+            style.innerText = styles;
+            styleHolder.appendChild(style);
+            stylesLoaded = true;
+        }
+    }
 </script>
 
 <svelte:options tag="datawrapper-visualization" />
 
-<link rel="stylesheet" href="http://charts.datawrapper.local/{chart.id}/styles.css" />
+<div bind:this={styleHolder} />
 
-<div class="chart dw-chart">
-    <Chart
-        {data}
-        {chart}
-        {visualization}
-        {theme}
-        {locales}
-        {blocks}
-        {chartAfterBodyHTML}
-        {isIframe}
-        {isPreview}
-        {basemap}
-        {minimap}
-        {highlight}
-        {fonts}
-        {isStylePlain}
-        {isStyleStatic} />
-</div>
+{#if stylesLoaded}
+    <div class="chart dw-chart">
+        <Chart
+            {data}
+            {chart}
+            {visualization}
+            {theme}
+            {locales}
+            {blocks}
+            {chartAfterBodyHTML}
+            {isIframe}
+            {isPreview}
+            {basemap}
+            {minimap}
+            {highlight}
+            {fonts}
+            {isStylePlain}
+            {isStyleStatic} />
+    </div>
+{/if}
