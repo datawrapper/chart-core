@@ -48,8 +48,6 @@ window.__dw.renderInto = async function(chart) {
 
     await Promise.all(promises);
 
-    chart.iframe = false;
-
     new ChartWebComponent({
         target: document.getElementById(elementId),
         props: chart,

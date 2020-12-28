@@ -8,7 +8,6 @@
     export let locales = {};
     export let blocks = {};
     export let chartAfterBodyHTML = '';
-    export let isIframe;
     export let isPreview;
     export let basemap;
     export let minimap;
@@ -50,7 +49,7 @@
             {locales}
             {blocks}
             {chartAfterBodyHTML}
-            {isIframe}
+            isIframe={false}
             {isPreview}
             {basemap}
             {minimap}

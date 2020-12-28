@@ -11126,30 +11126,28 @@ var Chart = /*#__PURE__*/function (_SvelteComponent) {
       chartAfterBodyHTML:
       /*chartAfterBodyHTML*/
       ctx[6],
-      isIframe:
-      /*isIframe*/
-      ctx[7],
+      isIframe: false,
       isPreview:
       /*isPreview*/
-      ctx[8],
+      ctx[7],
       basemap:
       /*basemap*/
-      ctx[9],
+      ctx[8],
       minimap:
       /*minimap*/
-      ctx[10],
+      ctx[9],
       highlight:
       /*highlight*/
-      ctx[11],
+      ctx[10],
       fonts:
       /*fonts*/
-      ctx[12],
+      ctx[11],
       isStylePlain:
       /*isStylePlain*/
-      ctx[13],
+      ctx[12],
       isStyleStatic:
       /*isStyleStatic*/
-      ctx[14]
+      ctx[13]
     }
   });
   return {
@@ -11201,45 +11199,40 @@ var Chart = /*#__PURE__*/function (_SvelteComponent) {
       /*chartAfterBodyHTML*/
       ctx[6];
       if (dirty &
-      /*isIframe*/
-      128) chart_1_changes.isIframe =
-      /*isIframe*/
+      /*isPreview*/
+      128) chart_1_changes.isPreview =
+      /*isPreview*/
       ctx[7];
       if (dirty &
-      /*isPreview*/
-      256) chart_1_changes.isPreview =
-      /*isPreview*/
+      /*basemap*/
+      256) chart_1_changes.basemap =
+      /*basemap*/
       ctx[8];
       if (dirty &
-      /*basemap*/
-      512) chart_1_changes.basemap =
-      /*basemap*/
+      /*minimap*/
+      512) chart_1_changes.minimap =
+      /*minimap*/
       ctx[9];
       if (dirty &
-      /*minimap*/
-      1024) chart_1_changes.minimap =
-      /*minimap*/
+      /*highlight*/
+      1024) chart_1_changes.highlight =
+      /*highlight*/
       ctx[10];
       if (dirty &
-      /*highlight*/
-      2048) chart_1_changes.highlight =
-      /*highlight*/
+      /*fonts*/
+      2048) chart_1_changes.fonts =
+      /*fonts*/
       ctx[11];
       if (dirty &
-      /*fonts*/
-      4096) chart_1_changes.fonts =
-      /*fonts*/
+      /*isStylePlain*/
+      4096) chart_1_changes.isStylePlain =
+      /*isStylePlain*/
       ctx[12];
       if (dirty &
-      /*isStylePlain*/
-      8192) chart_1_changes.isStylePlain =
-      /*isStylePlain*/
+      /*isStyleStatic*/
+      8192) chart_1_changes.isStyleStatic =
+      /*isStyleStatic*/
       ctx[13];
-      if (dirty &
-      /*isStyleStatic*/
-      16384) chart_1_changes.isStyleStatic =
-      /*isStyleStatic*/
-      ctx[14];
       chart_1.$set(chart_1_changes);
     },
     i: function i(local) {
@@ -11265,7 +11258,7 @@ function create_fragment$h(ctx) {
   var current;
   var if_block =
   /*stylesLoaded*/
-  ctx[15] && create_if_block$a(ctx);
+  ctx[14] && create_if_block$a(ctx);
   return {
     c: function c() {
       div = element("div");
@@ -11278,7 +11271,7 @@ function create_fragment$h(ctx) {
       insert(target, div, anchor);
       /*div_binding*/
 
-      ctx[18](div);
+      ctx[17](div);
       insert(target, t, anchor);
       if (if_block) if_block.m(target, anchor);
       insert(target, if_block_anchor, anchor);
@@ -11290,13 +11283,13 @@ function create_fragment$h(ctx) {
 
       if (
       /*stylesLoaded*/
-      ctx[15]) {
+      ctx[14]) {
         if (if_block) {
           if_block.p(ctx, dirty);
 
           if (dirty &
           /*stylesLoaded*/
-          32768) {
+          16384) {
             transition_in(if_block, 1);
           }
         } else {
@@ -11326,7 +11319,7 @@ function create_fragment$h(ctx) {
       if (detaching) detach(div);
       /*div_binding*/
 
-      ctx[18](null);
+      ctx[17](null);
       if (detaching) detach(t);
       if (if_block) if_block.d(detaching);
       if (detaching) detach(if_block_anchor);
@@ -11349,7 +11342,6 @@ function instance$h($$self, $$props, $$invalidate) {
       blocks = _$$props$blocks === void 0 ? {} : _$$props$blocks;
   var _$$props$chartAfterBo = $$props.chartAfterBodyHTML,
       chartAfterBodyHTML = _$$props$chartAfterBo === void 0 ? "" : _$$props$chartAfterBo;
-  var isIframe = $$props.isIframe;
   var isPreview = $$props.isPreview;
   var basemap = $$props.basemap;
   var minimap = $$props.minimap;
@@ -11367,7 +11359,7 @@ function instance$h($$self, $$props, $$invalidate) {
   function div_binding($$value) {
     binding_callbacks[$$value ? "unshift" : "push"](function () {
       styleHolder = $$value;
-      $$invalidate(16, styleHolder);
+      $$invalidate(15, styleHolder);
     });
   }
 
@@ -11379,21 +11371,20 @@ function instance$h($$self, $$props, $$invalidate) {
     if ("locales" in $$props) $$invalidate(4, locales = $$props.locales);
     if ("blocks" in $$props) $$invalidate(5, blocks = $$props.blocks);
     if ("chartAfterBodyHTML" in $$props) $$invalidate(6, chartAfterBodyHTML = $$props.chartAfterBodyHTML);
-    if ("isIframe" in $$props) $$invalidate(7, isIframe = $$props.isIframe);
-    if ("isPreview" in $$props) $$invalidate(8, isPreview = $$props.isPreview);
-    if ("basemap" in $$props) $$invalidate(9, basemap = $$props.basemap);
-    if ("minimap" in $$props) $$invalidate(10, minimap = $$props.minimap);
-    if ("highlight" in $$props) $$invalidate(11, highlight = $$props.highlight);
-    if ("styles" in $$props) $$invalidate(17, styles = $$props.styles);
-    if ("fonts" in $$props) $$invalidate(12, fonts = $$props.fonts);
-    if ("isStylePlain" in $$props) $$invalidate(13, isStylePlain = $$props.isStylePlain);
-    if ("isStyleStatic" in $$props) $$invalidate(14, isStyleStatic = $$props.isStyleStatic);
+    if ("isPreview" in $$props) $$invalidate(7, isPreview = $$props.isPreview);
+    if ("basemap" in $$props) $$invalidate(8, basemap = $$props.basemap);
+    if ("minimap" in $$props) $$invalidate(9, minimap = $$props.minimap);
+    if ("highlight" in $$props) $$invalidate(10, highlight = $$props.highlight);
+    if ("styles" in $$props) $$invalidate(16, styles = $$props.styles);
+    if ("fonts" in $$props) $$invalidate(11, fonts = $$props.fonts);
+    if ("isStylePlain" in $$props) $$invalidate(12, isStylePlain = $$props.isStylePlain);
+    if ("isStyleStatic" in $$props) $$invalidate(13, isStyleStatic = $$props.isStyleStatic);
   };
 
   $$self.$$.update = function () {
     if ($$self.$$.dirty &
     /*stylesLoaded, styleHolder, styles*/
-    229376) {
+    114688) {
       // ensure styles are loaded before the vis is rendered to prevent flickering
        {
         if (!stylesLoaded && styleHolder && styles) {
@@ -11401,13 +11392,13 @@ function instance$h($$self, $$props, $$invalidate) {
           style.type = "text/css";
           style.innerText = styles;
           styleHolder.appendChild(style);
-          $$invalidate(15, stylesLoaded = true);
+          $$invalidate(14, stylesLoaded = true);
         }
       }
     }
   };
 
-  return [data, chart, visualization, theme, locales, blocks, chartAfterBodyHTML, isIframe, isPreview, basemap, minimap, highlight, fonts, isStylePlain, isStyleStatic, stylesLoaded, styleHolder, styles, div_binding];
+  return [data, chart, visualization, theme, locales, blocks, chartAfterBodyHTML, isPreview, basemap, minimap, highlight, fonts, isStylePlain, isStyleStatic, stylesLoaded, styleHolder, styles, div_binding];
 }
 
 var ChartWebComponent_wc = /*#__PURE__*/function (_SvelteElement) {
@@ -11431,15 +11422,14 @@ var ChartWebComponent_wc = /*#__PURE__*/function (_SvelteElement) {
       locales: 4,
       blocks: 5,
       chartAfterBodyHTML: 6,
-      isIframe: 7,
-      isPreview: 8,
-      basemap: 9,
-      minimap: 10,
-      highlight: 11,
-      styles: 17,
-      fonts: 12,
-      isStylePlain: 13,
-      isStyleStatic: 14
+      isPreview: 7,
+      basemap: 8,
+      minimap: 9,
+      highlight: 10,
+      styles: 16,
+      fonts: 11,
+      isStylePlain: 12,
+      isStyleStatic: 13
     });
 
     if (options) {
@@ -11535,20 +11525,9 @@ var ChartWebComponent_wc = /*#__PURE__*/function (_SvelteElement) {
       flush();
     }
   }, {
-    key: "isIframe",
-    get: function get() {
-      return this.$$.ctx[7];
-    },
-    set: function set(isIframe) {
-      this.$set({
-        isIframe: isIframe
-      });
-      flush();
-    }
-  }, {
     key: "isPreview",
     get: function get() {
-      return this.$$.ctx[8];
+      return this.$$.ctx[7];
     },
     set: function set(isPreview) {
       this.$set({
@@ -11559,7 +11538,7 @@ var ChartWebComponent_wc = /*#__PURE__*/function (_SvelteElement) {
   }, {
     key: "basemap",
     get: function get() {
-      return this.$$.ctx[9];
+      return this.$$.ctx[8];
     },
     set: function set(basemap) {
       this.$set({
@@ -11570,7 +11549,7 @@ var ChartWebComponent_wc = /*#__PURE__*/function (_SvelteElement) {
   }, {
     key: "minimap",
     get: function get() {
-      return this.$$.ctx[10];
+      return this.$$.ctx[9];
     },
     set: function set(minimap) {
       this.$set({
@@ -11581,7 +11560,7 @@ var ChartWebComponent_wc = /*#__PURE__*/function (_SvelteElement) {
   }, {
     key: "highlight",
     get: function get() {
-      return this.$$.ctx[11];
+      return this.$$.ctx[10];
     },
     set: function set(highlight) {
       this.$set({
@@ -11592,7 +11571,7 @@ var ChartWebComponent_wc = /*#__PURE__*/function (_SvelteElement) {
   }, {
     key: "styles",
     get: function get() {
-      return this.$$.ctx[17];
+      return this.$$.ctx[16];
     },
     set: function set(styles) {
       this.$set({
@@ -11603,7 +11582,7 @@ var ChartWebComponent_wc = /*#__PURE__*/function (_SvelteElement) {
   }, {
     key: "fonts",
     get: function get() {
-      return this.$$.ctx[12];
+      return this.$$.ctx[11];
     },
     set: function set(fonts) {
       this.$set({
@@ -11614,7 +11593,7 @@ var ChartWebComponent_wc = /*#__PURE__*/function (_SvelteElement) {
   }, {
     key: "isStylePlain",
     get: function get() {
-      return this.$$.ctx[13];
+      return this.$$.ctx[12];
     },
     set: function set(isStylePlain) {
       this.$set({
@@ -11625,7 +11604,7 @@ var ChartWebComponent_wc = /*#__PURE__*/function (_SvelteElement) {
   }, {
     key: "isStyleStatic",
     get: function get() {
-      return this.$$.ctx[14];
+      return this.$$.ctx[13];
     },
     set: function set(isStyleStatic) {
       this.$set({
@@ -11636,7 +11615,7 @@ var ChartWebComponent_wc = /*#__PURE__*/function (_SvelteElement) {
   }], [{
     key: "observedAttributes",
     get: function get() {
-      return ["data", "chart", "visualization", "theme", "locales", "blocks", "chartAfterBodyHTML", "isIframe", "isPreview", "basemap", "minimap", "highlight", "styles", "fonts", "isStylePlain", "isStyleStatic"];
+      return ["data", "chart", "visualization", "theme", "locales", "blocks", "chartAfterBodyHTML", "isPreview", "basemap", "minimap", "highlight", "styles", "fonts", "isStylePlain", "isStyleStatic"];
     }
   }]);
 
@@ -11713,7 +11692,6 @@ window.__dw.renderInto = _async$1(function (chart) {
     })));
   });
   return _await$1(Promise.all(promises), function () {
-    chart.iframe = false;
     new ChartWebComponent_wc({
       target: document.getElementById(elementId),
       props: chart,
