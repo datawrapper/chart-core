@@ -25,10 +25,15 @@ function onwarn(warning, warn) {
 
 module.exports = [
     {
-        /* Svelte Chart Component as library */
+        /* Svelte Chart Component as web component */
         input: path.resolve(__dirname, 'lib.js'),
         plugins: [
-            svelte({ hydratable: true }),
+            svelte({ customElement: true, include: /\.wc\.svelte$/ }),
+            svelte({ customElement: false, exclude: /\.wc\.svelte$/ }),
+            // for @emotion/css
+            replace({
+                'process.env.NODE_ENV': JSON.stringify('production')
+            }),
             resolve(),
             commonjs(),
             babel({
@@ -50,6 +55,10 @@ module.exports = [
         input: path.resolve(__dirname, 'main.js'),
         plugins: [
             svelte({ hydratable: true }),
+            // for @emotion/css
+            replace({
+                'process.env.NODE_ENV': JSON.stringify('production')
+            }),
             resolve(),
             commonjs(),
             babel({
@@ -71,6 +80,10 @@ module.exports = [
         input: path.resolve(__dirname, 'lib/Chart.svelte'),
         plugins: [
             svelte({ generate: 'ssr', hydratable: true }),
+            // for @emotion/css
+            replace({
+                'process.env.NODE_ENV': JSON.stringify('production')
+            }),
             resolve(),
             commonjs(),
             babel({

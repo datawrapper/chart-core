@@ -22,22 +22,31 @@
     import init from './render.js';
     import { getMaxChartHeight } from './dw/utils';
 
-    export let data = {};
+    export let data = '';
+    export let chart = {};
+    export let visualization = {};
     export let theme = {};
-    export let iframe;
+    export let locales = {};
+    export let blocks = {};
+    export let chartAfterBodyHTML = '';
+    export let isIframe;
+    export let isPreview;
+    export let basemap;
+    export let minimap;
+    export let highlight;
+    export let fonts = {};
 
-    if (iframe && typeof window !== 'undefined') {
+    // plain style means no header and footer
+    export let isStylePlain = false;
+    // static style means user can't interact (e.g. in a png version)
+    export let isStyleStatic = false;
+
+    if (isIframe && typeof window !== 'undefined') {
         window.__dwUpdate = ({ chart }) => {
-            Object.assign(data.chartJSON, chart);
-            data = data; // to force re-rendering
+            Object.assign(chart, chart);
+            chart = chart; // to force re-rendering
         };
     }
-
-    $: chart = data.chartJSON;
-    $: publishData = data.publishData;
-    $: locale = data.visJSON.locale;
-
-    $: customCSS = purifyHtml(get(chart, 'metadata.publish.custom-css', ''), '');
 
     const coreBlocks = [
         {
@@ -214,11 +223,6 @@
         menu = get(theme, 'data.options.menu', {});
     }
 
-    // plain style means no header and footer
-    export let isStylePlain = false;
-    // static style means user can't interact (e.g. in a png version)
-    export let isStyleStatic = false;
-
     function getCaption(id) {
         if (id === 'd3-maps-choropleth' || id === 'd3-maps-symbols' || id === 'locator-map')
             return 'map';
@@ -226,7 +230,7 @@
         return 'chart';
     }
 
-    const caption = getCaption(data.visJSON.id);
+    const caption = getCaption(visualization.id);
 
     function __(key, ...args) {
         if (typeof key !== 'string') {
@@ -239,7 +243,7 @@ Please make sure you called __(key) with a key of type "string".
         }
         key = key.trim();
 
-        let translation = locale[key] || key;
+        let translation = locales[key] || key;
 
         if (args.length) {
             translation = translation.replace(/\$(\d)/g, (m, i) => {
@@ -254,108 +258,111 @@ Please make sure you called __(key) with a key of type "string".
     let target;
 
     onMount(async () => {
-        document.body.classList.toggle('plain', isStylePlain);
-        document.body.classList.toggle('static', isStyleStatic);
-        // the body class "png-export" kept for backwards compatibility
-        document.body.classList.toggle('png-export', isStyleStatic);
+        if (isIframe) {
+            document.body.classList.toggle('plain', isStylePlain);
+            document.body.classList.toggle('static', isStyleStatic);
+            // the body class "png-export" kept for backwards compatibility
+            document.body.classList.toggle('png-export', isStyleStatic);
 
-        if (isStyleStatic) {
-            document.body.style['pointer-events'] = 'none';
+            if (isStyleStatic) {
+                document.body.style['pointer-events'] = 'none';
+            }
         }
+    });
 
-        dw.theme.register(theme.id, theme.data);
+    let initialized = false;
 
-        const { basemap, minimap, highlight } = publishData;
+    $: {
+        async function run() {
+            if (typeof dw === 'undefined') return;
+            if (initialized) return;
 
-        if (basemap) {
-            basemap.content = JSON.parse(basemap.content);
+            dw.theme.register(theme.id, theme.data);
 
-            data.d3maps_basemap = {
-                [basemap.__id]: basemap
-            };
-        }
+            let d3maps_basemap, locatorMap;
 
-        if (minimap || highlight) {
-            data.locatorMap = {
-                minimapGeom: minimap,
-                highlightGeom: highlight
-            };
-        }
+            if (basemap) {
+                basemap.content = JSON.parse(basemap.content);
 
-        const { render } = init(target, {
-            data: data.chartData,
-            chart: data.chartJSON,
-            visualization: data.visJSON,
-            theme: theme.data,
-            locales: data.locales,
-            d3maps_basemap: data.d3maps_basemap,
-            locatorMap: data.locatorMap,
-            isPreview: data.isPreview,
-            iframe: iframe,
-            fonts: data.fontsJSON
-        });
+                d3maps_basemap = {
+                    [basemap.__id]: basemap
+                };
+            }
 
-        // load & execute plugins
-        window.__dwBlocks = {};
-        if (publishData.blocks.length) {
-            await Promise.all(
-                publishData.blocks.map(d => {
-                    return new Promise((resolve, reject) => {
-                        const p = [loadScript(d.source.js)];
-                        if (d.source.css) p.push(loadStylesheet(d.source.css));
-                        Promise.all(p)
-                            .then(resolve)
-                            .catch(err => {
-                                // log error
-                                const url = err.target
-                                    ? err.target.getAttribute('src') ||
-                                      err.target.getAttribute('href')
-                                    : null;
-                                if (url) console.warn('could not load ', url);
-                                else console.error('Unknown error', err);
-                                // but resolve anyway
-                                resolve();
-                            });
-                    });
-                })
-            );
-            // all plugins are loaded
-            publishData.blocks.forEach(d => {
-                d.blocks.forEach(block => {
-                    if (!window.__dwBlocks[block.component]) {
-                        return console.warn(
-                            `component ${block.component} from chart block ${block.id} not found`
-                        );
-                    }
-                    pluginBlocks.push({
-                        ...block,
-                        component: window.__dwBlocks[block.component]
+            if (minimap || highlight) {
+                locatorMap = {
+                    minimapGeom: minimap,
+                    highlightGeom: highlight
+                };
+            }
+
+            const { success, render } = init(target, {
+                data,
+                chart,
+                visualization,
+                theme,
+                locales,
+                d3maps_basemap,
+                locatorMap,
+                isPreview,
+                isIframe,
+                fonts
+            });
+
+            if (!success) return;
+            else initialized = true;
+
+            // load & execute plugins
+            window.__dwBlocks = {};
+            if (blocks.length) {
+                await Promise.all(
+                    blocks.map(d => {
+                        return new Promise((resolve, reject) => {
+                            const p = [loadScript(d.source.js)];
+                            if (d.source.css) p.push(loadStylesheet(d.source.css));
+                            Promise.all(p)
+                                .then(resolve)
+                                .catch(err => {
+                                    // log error
+                                    const url = err.target
+                                        ? err.target.getAttribute('src') ||
+                                          err.target.getAttribute('href')
+                                        : null;
+                                    if (url) console.warn('could not load ', url);
+                                    else console.error('Unknown error', err);
+                                    // but resolve anyway
+                                    resolve();
+                                });
+                        });
+                    })
+                );
+                // all plugins are loaded
+                blocks.forEach(d => {
+                    d.blocks.forEach(block => {
+                        if (!window.__dwBlocks[block.component]) {
+                            return console.warn(
+                                `component ${block.component} from chart block ${block.id} not found`
+                            );
+                        }
+                        pluginBlocks.push({
+                            ...block,
+                            component: window.__dwBlocks[block.component]
+                        });
                     });
                 });
-            });
-            // trigger svelte update after modifying array
-            pluginBlocks = pluginBlocks;
+                // trigger svelte update after modifying array
+                pluginBlocks = pluginBlocks;
+            }
+
+            await tick();
+            render();
         }
 
-        await tick();
-        render();
-    });
+        run();
+    }
 
     // afterUpdate(checkHeightAndRender);
 </script>
-
-<!--
-{#if iframe}
-    <svelte:head>
-        <title>{chart.title}</title>
-        <meta name="description" content={get(chart, 'metadata.describe.intro')} />
-        {@html `<${'style'}>${customCSS}</style>`}
-        {#if publishData.chartAfterHeadHTML}
-            {@html publishData.chartAfterHeadHTML}
-        {/if}
-    </svelte:head>
-{/if}
--->
 
 {#if !isStylePlain}
     <BlocksRegion name="dw-chart-header" blocks={regions.header} id="header" />
@@ -410,6 +417,6 @@ Please make sure you called __(key) with a key of type "string".
     {/each}
 </div>
 
-{#if publishData.chartAfterBodyHTML}
-    {@html publishData.chartAfterBodyHTML}
+{#if chartAfterBodyHTML}
+    {@html chartAfterBodyHTML}
 {/if}

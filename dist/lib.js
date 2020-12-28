@@ -146,6 +146,44 @@ function _construct(Parent, args, Class) {
   return _construct.apply(null, arguments);
 }
 
+function _isNativeFunction(fn) {
+  return Function.toString.call(fn).indexOf("[native code]") !== -1;
+}
+
+function _wrapNativeSuper(Class) {
+  var _cache = typeof Map === "function" ? new Map() : undefined;
+
+  _wrapNativeSuper = function _wrapNativeSuper(Class) {
+    if (Class === null || !_isNativeFunction(Class)) return Class;
+
+    if (typeof Class !== "function") {
+      throw new TypeError("Super expression must either be null or a function");
+    }
+
+    if (typeof _cache !== "undefined") {
+      if (_cache.has(Class)) return _cache.get(Class);
+
+      _cache.set(Class, Wrapper);
+    }
+
+    function Wrapper() {
+      return _construct(Class, arguments, _getPrototypeOf(this).constructor);
+    }
+
+    Wrapper.prototype = Object.create(Class.prototype, {
+      constructor: {
+        value: Wrapper,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+    return _setPrototypeOf(Wrapper, Class);
+  };
+
+  return _wrapNativeSuper(Class);
+}
+
 function _assertThisInitialized(self) {
   if (self === void 0) {
     throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -332,50 +370,6 @@ function attr(node, attribute, value) {
 
 function children(element) {
   return Array.from(element.childNodes);
-}
-
-function claim_element(nodes, name, attributes, svg) {
-  for (var i = 0; i < nodes.length; i += 1) {
-    var node = nodes[i];
-
-    if (node.nodeName === name) {
-      var j = 0;
-      var remove = [];
-
-      while (j < node.attributes.length) {
-        var attribute = node.attributes[j++];
-
-        if (!attributes[attribute.name]) {
-          remove.push(attribute.name);
-        }
-      }
-
-      for (var k = 0; k < remove.length; k++) {
-        node.removeAttribute(remove[k]);
-      }
-
-      return nodes.splice(i, 1)[0];
-    }
-  }
-
-  return svg ? svg_element(name) : element(name);
-}
-
-function claim_text(nodes, data) {
-  for (var i = 0; i < nodes.length; i += 1) {
-    var node = nodes[i];
-
-    if (node.nodeType === 3) {
-      node.data = '' + data;
-      return nodes.splice(i, 1)[0];
-    }
-  }
-
-  return text(data);
-}
-
-function claim_space(nodes) {
-  return claim_text(nodes, ' ');
 }
 
 function set_data(text, data) {
@@ -600,10 +594,6 @@ function create_component(block) {
   block && block.c();
 }
 
-function claim_component(block, parent_nodes) {
-  block && block.l(parent_nodes);
-}
-
 function mount_component(component, target, anchor) {
   var _component$$$ = component.$$,
       fragment = _component$$$.fragment,
@@ -708,6 +698,69 @@ function init(component, options, instance, create_fragment, not_equal, props) {
   }
 
   set_current_component(parent_component);
+}
+
+var SvelteElement;
+
+if (typeof HTMLElement === 'function') {
+  SvelteElement = /*#__PURE__*/function (_HTMLElement) {
+    _inherits(SvelteElement, _HTMLElement);
+
+    var _super = _createSuper(SvelteElement);
+
+    function SvelteElement() {
+      var _this;
+
+      _classCallCheck(this, SvelteElement);
+
+      _this = _super.call(this);
+
+      _this.attachShadow({
+        mode: 'open'
+      });
+
+      return _this;
+    }
+
+    _createClass(SvelteElement, [{
+      key: "connectedCallback",
+      value: function connectedCallback() {
+        // @ts-ignore todo: improve typings
+        for (var key in this.$$.slotted) {
+          // @ts-ignore todo: improve typings
+          this.appendChild(this.$$.slotted[key]);
+        }
+      }
+    }, {
+      key: "attributeChangedCallback",
+      value: function attributeChangedCallback(attr, _oldValue, newValue) {
+        this[attr] = newValue;
+      }
+    }, {
+      key: "$destroy",
+      value: function $destroy() {
+        destroy_component(this, 1);
+        this.$destroy = noop;
+      }
+    }, {
+      key: "$on",
+      value: function $on(type, callback) {
+        // TODO should this delegate to addEventListener?
+        var callbacks = this.$$.callbacks[type] || (this.$$.callbacks[type] = []);
+        callbacks.push(callback);
+        return function () {
+          var index = callbacks.indexOf(callback);
+          if (index !== -1) callbacks.splice(index, 1);
+        };
+      }
+    }, {
+      key: "$set",
+      value: function $set() {// overridden by instance, if it has props
+      }
+    }]);
+
+    return SvelteElement;
+  }( /*#__PURE__*/_wrapNativeSuper(HTMLElement));
 }
 
 var SvelteComponent = /*#__PURE__*/function () {
@@ -828,17 +881,6 @@ function stripTags(input, allowed) {
   return {
     c: function c() {
       span = element("span");
-      this.h();
-    },
-    l: function l(nodes) {
-      span = claim_element(nodes, "SPAN", {
-        class: true
-      });
-      var span_nodes = children(span);
-      span_nodes.forEach(detach);
-      this.h();
-    },
-    h: function h() {
       attr(span, "class", "prepend");
     },
     m: function m(target, anchor) {
@@ -867,17 +909,6 @@ function create_if_block(ctx) {
   return {
     c: function c() {
       span = element("span");
-      this.h();
-    },
-    l: function l(nodes) {
-      span = claim_element(nodes, "SPAN", {
-        class: true
-      });
-      var span_nodes = children(span);
-      span_nodes.forEach(detach);
-      this.h();
-    },
-    h: function h() {
       attr(span, "class", "append");
     },
     m: function m(target, anchor) {
@@ -937,23 +968,6 @@ function create_fragment(ctx) {
       t1 = space();
       if (if_block1) if_block1.c();
       if_block1_anchor = empty();
-      this.h();
-    },
-    l: function l(nodes) {
-      if (if_block0) if_block0.l(nodes);
-      t0 = claim_space(nodes);
-      span = claim_element(nodes, "SPAN", {
-        class: true
-      });
-      var span_nodes = children(span);
-      if (switch_instance) claim_component(switch_instance.$$.fragment, span_nodes);
-      span_nodes.forEach(detach);
-      t1 = claim_space(nodes);
-      if (if_block1) if_block1.l(nodes);
-      if_block1_anchor = empty();
-      this.h();
-    },
-    h: function h() {
       attr(span, "class", "block-inner");
     },
     m: function m(target, anchor) {
@@ -1117,23 +1131,6 @@ function create_if_block$1(ctx) {
         each_blocks[_i].c();
       }
 
-      this.h();
-    },
-    l: function l(nodes) {
-      div = claim_element(nodes, "DIV", {
-        id: true,
-        class: true
-      });
-      var div_nodes = children(div);
-
-      for (var _i2 = 0; _i2 < each_blocks.length; _i2 += 1) {
-        each_blocks[_i2].l(div_nodes);
-      }
-
-      div_nodes.forEach(detach);
-      this.h();
-    },
-    h: function h() {
       attr(div, "id",
       /*id*/
       ctx[0]);
@@ -1144,8 +1141,8 @@ function create_if_block$1(ctx) {
     m: function m(target, anchor) {
       insert(target, div, anchor);
 
-      for (var _i3 = 0; _i3 < each_blocks.length; _i3 += 1) {
-        each_blocks[_i3].m(div, null);
+      for (var _i2 = 0; _i2 < each_blocks.length; _i2 += 1) {
+        each_blocks[_i2].m(div, null);
       }
 
       current = true;
@@ -1158,30 +1155,30 @@ function create_if_block$1(ctx) {
         /*blocks*/
         ctx[2];
 
-        var _i4;
+        var _i3;
 
-        for (_i4 = 0; _i4 < each_value.length; _i4 += 1) {
-          var child_ctx = get_each_context(ctx, each_value, _i4);
+        for (_i3 = 0; _i3 < each_value.length; _i3 += 1) {
+          var child_ctx = get_each_context(ctx, each_value, _i3);
 
-          if (each_blocks[_i4]) {
-            each_blocks[_i4].p(child_ctx, dirty);
+          if (each_blocks[_i3]) {
+            each_blocks[_i3].p(child_ctx, dirty);
 
-            transition_in(each_blocks[_i4], 1);
+            transition_in(each_blocks[_i3], 1);
           } else {
-            each_blocks[_i4] = create_each_block(child_ctx);
+            each_blocks[_i3] = create_each_block(child_ctx);
 
-            each_blocks[_i4].c();
+            each_blocks[_i3].c();
 
-            transition_in(each_blocks[_i4], 1);
+            transition_in(each_blocks[_i3], 1);
 
-            each_blocks[_i4].m(div, null);
+            each_blocks[_i3].m(div, null);
           }
         }
 
         group_outros();
 
-        for (_i4 = each_value.length; _i4 < each_blocks.length; _i4 += 1) {
-          out(_i4);
+        for (_i3 = each_value.length; _i3 < each_blocks.length; _i3 += 1) {
+          out(_i3);
         }
 
         check_outros();
@@ -1206,8 +1203,8 @@ function create_if_block$1(ctx) {
     i: function i(local) {
       if (current) return;
 
-      for (var _i5 = 0; _i5 < each_value.length; _i5 += 1) {
-        transition_in(each_blocks[_i5]);
+      for (var _i4 = 0; _i4 < each_value.length; _i4 += 1) {
+        transition_in(each_blocks[_i4]);
       }
 
       current = true;
@@ -1215,8 +1212,8 @@ function create_if_block$1(ctx) {
     o: function o(local) {
       each_blocks = each_blocks.filter(Boolean);
 
-      for (var _i6 = 0; _i6 < each_blocks.length; _i6 += 1) {
-        transition_out(each_blocks[_i6]);
+      for (var _i5 = 0; _i5 < each_blocks.length; _i5 += 1) {
+        transition_out(each_blocks[_i5]);
       }
 
       current = false;
@@ -1248,20 +1245,6 @@ function create_else_block(ctx) {
       div = element("div");
       create_component(block.$$.fragment);
       t = space();
-      this.h();
-    },
-    l: function l(nodes) {
-      div = claim_element(nodes, "DIV", {
-        class: true,
-        style: true
-      });
-      var div_nodes = children(div);
-      claim_component(block.$$.fragment, div_nodes);
-      t = claim_space(div_nodes);
-      div_nodes.forEach(detach);
-      this.h();
-    },
-    h: function h() {
       attr(div, "class", div_class_value = "block " +
       /*block*/
       ctx[3].id + "-block");
@@ -1336,19 +1319,6 @@ function create_if_block_2(ctx) {
       _p = element("p");
       create_component(block.$$.fragment);
       t = space();
-      this.h();
-    },
-    l: function l(nodes) {
-      _p = claim_element(nodes, "P", {
-        class: true
-      });
-      var p_nodes = children(_p);
-      claim_component(block.$$.fragment, p_nodes);
-      t = claim_space(p_nodes);
-      p_nodes.forEach(detach);
-      this.h();
-    },
-    h: function h() {
       attr(_p, "class", p_class_value = "block " +
       /*block*/
       ctx[3].id + "-block");
@@ -1411,19 +1381,6 @@ function create_if_block_1$1(ctx) {
       h1 = element("h1");
       create_component(block.$$.fragment);
       t = space();
-      this.h();
-    },
-    l: function l(nodes) {
-      h1 = claim_element(nodes, "H1", {
-        class: true
-      });
-      var h1_nodes = children(h1);
-      claim_component(block.$$.fragment, h1_nodes);
-      t = claim_space(h1_nodes);
-      h1_nodes.forEach(detach);
-      this.h();
-    },
-    h: function h() {
       attr(h1, "class", h1_class_value = "block " +
       /*block*/
       ctx[3].id + "-block");
@@ -1493,10 +1450,6 @@ function create_each_block(ctx) {
       if_block.c();
       if_block_anchor = empty();
     },
-    l: function l(nodes) {
-      if_block.l(nodes);
-      if_block_anchor = empty();
-    },
     m: function m(target, anchor) {
       if_blocks[current_block_type_index].m(target, anchor);
       insert(target, if_block_anchor, anchor);
@@ -1550,10 +1503,6 @@ function create_fragment$1(ctx) {
   return {
     c: function c() {
       if (if_block) if_block.c();
-      if_block_anchor = empty();
-    },
-    l: function l(nodes) {
-      if (if_block) if_block.l(nodes);
       if_block_anchor = empty();
     },
     m: function m(target, anchor) {
@@ -1686,25 +1635,6 @@ function create_if_block$2(ctx) {
       t = space();
       div1 = element("div");
       create_component(blocksregion.$$.fragment);
-      this.h();
-    },
-    l: function l(nodes) {
-      div0 = claim_element(nodes, "DIV", {
-        class: true
-      });
-      var div0_nodes = children(div0);
-      if_block.l(div0_nodes);
-      div0_nodes.forEach(detach);
-      t = claim_space(nodes);
-      div1 = claim_element(nodes, "DIV", {
-        class: true
-      });
-      var div1_nodes = children(div1);
-      claim_component(blocksregion.$$.fragment, div1_nodes);
-      div1_nodes.forEach(detach);
-      this.h();
-    },
-    h: function h() {
       attr(div0, "class", "menu tooltip svelte-5ffq6v");
       toggle_class(div0, "ha-menu", !
       /*props*/
@@ -1805,16 +1735,6 @@ function create_else_block$1(ctx) {
   return {
     c: function c() {
       div = element("div");
-      this.h();
-    },
-    l: function l(nodes) {
-      div = claim_element(nodes, "DIV", {
-        class: true
-      });
-      children(div).forEach(detach);
-      this.h();
-    },
-    h: function h() {
       attr(div, "class", "svelte-5ffq6v");
     },
     m: function m(target, anchor) {
@@ -1835,12 +1755,6 @@ function create_if_block_1$2(ctx) {
   ctx[3].icon + "";
   return {
     c: function c() {
-      this.h();
-    },
-    l: function l(nodes) {
-      this.h();
-    },
-    h: function h() {
       html_tag = new HtmlTag(null);
     },
     m: function m(target, anchor) {
@@ -1870,10 +1784,6 @@ function create_fragment$2(ctx) {
   return {
     c: function c() {
       if (if_block) if_block.c();
-      if_block_anchor = empty();
-    },
-    l: function l(nodes) {
-      if (if_block) if_block.l(nodes);
       if_block_anchor = empty();
     },
     m: function m(target, anchor) {
@@ -1990,12 +1900,6 @@ var Menu = /*#__PURE__*/function (_SvelteComponent) {
   var html_tag;
   return {
     c: function c() {
-      this.h();
-    },
-    l: function l(nodes) {
-      this.h();
-    },
-    h: function h() {
       html_tag = new HtmlTag(null);
     },
     m: function m(target, anchor) {
@@ -2072,12 +1976,6 @@ var Headline = /*#__PURE__*/function (_SvelteComponent) {
   var html_tag;
   return {
     c: function c() {
-      this.h();
-    },
-    l: function l(nodes) {
-      this.h();
-    },
-    h: function h() {
       html_tag = new HtmlTag(null);
     },
     m: function m(target, anchor) {
@@ -2181,22 +2079,6 @@ var Description = /*#__PURE__*/function (_SvelteComponent) {
       t2 = space();
       if_block.c();
       if_block_anchor = empty();
-      this.h();
-    },
-    l: function l(nodes) {
-      span = claim_element(nodes, "SPAN", {
-        class: true
-      });
-      var span_nodes = children(span);
-      t0 = claim_text(span_nodes, t0_value);
-      t1 = claim_text(span_nodes, ":");
-      span_nodes.forEach(detach);
-      t2 = claim_space(nodes);
-      if_block.l(nodes);
-      if_block_anchor = empty();
-      this.h();
-    },
-    h: function h() {
       attr(span, "class", "source-caption");
     },
     m: function m(target, anchor) {
@@ -2243,17 +2125,6 @@ function create_else_block$2(ctx) {
   return {
     c: function c() {
       span = element("span");
-      this.h();
-    },
-    l: function l(nodes) {
-      span = claim_element(nodes, "SPAN", {
-        class: true
-      });
-      var span_nodes = children(span);
-      span_nodes.forEach(detach);
-      this.h();
-    },
-    h: function h() {
       attr(span, "class", "source");
     },
     m: function m(target, anchor) {
@@ -2281,20 +2152,6 @@ function create_if_block_1$3(ctx) {
   return {
     c: function c() {
       a = element("a");
-      this.h();
-    },
-    l: function l(nodes) {
-      a = claim_element(nodes, "A", {
-        class: true,
-        target: true,
-        rel: true,
-        href: true
-      });
-      var a_nodes = children(a);
-      a_nodes.forEach(detach);
-      this.h();
-    },
-    h: function h() {
       attr(a, "class", "source");
       attr(a, "target", "_blank");
       attr(a, "rel", "noopener noreferrer");
@@ -2337,10 +2194,6 @@ function create_fragment$5(ctx) {
   return {
     c: function c() {
       if (if_block) if_block.c();
-      if_block_anchor = empty();
-    },
-    l: function l(nodes) {
-      if (if_block) if_block.l(nodes);
       if_block_anchor = empty();
     },
     m: function m(target, anchor) {
@@ -2451,12 +2304,6 @@ var Source = /*#__PURE__*/function (_SvelteComponent) {
   ctx[3]) + "";
   return {
     c: function c() {
-      this.h();
-    },
-    l: function l(nodes) {
-      this.h();
-    },
-    h: function h() {
       html_tag = new HtmlTag(null);
     },
     m: function m(target, anchor) {
@@ -2503,25 +2350,6 @@ function create_fragment$6(ctx) {
       t3 = space();
       if (if_block) if_block.c();
       if_block_anchor = empty();
-      this.h();
-    },
-    l: function l(nodes) {
-      span = claim_element(nodes, "SPAN", {
-        class: true
-      });
-      var span_nodes = children(span);
-      t0 = claim_text(span_nodes, t0_value);
-      span_nodes.forEach(detach);
-      t1 = claim_space(nodes);
-      t2 = claim_text(nodes,
-      /*byline*/
-      ctx[2]);
-      t3 = claim_space(nodes);
-      if (if_block) if_block.l(nodes);
-      if_block_anchor = empty();
-      this.h();
-    },
-    h: function h() {
       attr(span, "class", "byline-caption");
     },
     m: function m(target, anchor) {
@@ -2681,12 +2509,6 @@ var Byline = /*#__PURE__*/function (_SvelteComponent) {
   ctx[0], "metadata.annotate.notes")) + "";
   return {
     c: function c() {
-      this.h();
-    },
-    l: function l(nodes) {
-      this.h();
-    },
-    h: function h() {
       html_tag = new HtmlTag(null);
     },
     m: function m(target, anchor) {
@@ -2768,20 +2590,6 @@ var Notes = /*#__PURE__*/function (_SvelteComponent) {
     c: function c() {
       a = element("a");
       t = text(t_value);
-      this.h();
-    },
-    l: function l(nodes) {
-      a = claim_element(nodes, "A", {
-        class: true,
-        "aria-label": true,
-        href: true
-      });
-      var a_nodes = children(a);
-      t = claim_text(a_nodes, t_value);
-      a_nodes.forEach(detach);
-      this.h();
-    },
-    h: function h() {
       attr(a, "class", "dw-data-link");
       attr(a, "aria-label", a_aria_label_value = "" + (
       /*__*/
@@ -2835,10 +2643,6 @@ function create_fragment$8(ctx) {
   return {
     c: function c() {
       if (if_block) if_block.c();
-      if_block_anchor = empty();
-    },
-    l: function l(nodes) {
-      if (if_block) if_block.l(nodes);
       if_block_anchor = empty();
     },
     m: function m(target, anchor) {
@@ -2950,22 +2754,6 @@ var GetTheData = /*#__PURE__*/function (_SvelteComponent) {
       t1 = space();
       if (if_block) if_block.c();
       if_block_anchor = empty();
-      this.h();
-    },
-    l: function l(nodes) {
-      a = claim_element(nodes, "A", {
-        href: true,
-        class: true
-      });
-      var a_nodes = children(a);
-      t0 = claim_text(a_nodes, t0_value);
-      a_nodes.forEach(detach);
-      t1 = claim_space(nodes);
-      if (if_block) if_block.l(nodes);
-      if_block_anchor = empty();
-      this.h();
-    },
-    h: function h() {
       attr(a, "href", "#embed");
       attr(a, "class", "chart-action-embed");
     },
@@ -3022,7 +2810,6 @@ var GetTheData = /*#__PURE__*/function (_SvelteComponent) {
 function create_if_block_1$4(ctx) {
   var div2;
   var div0;
-  var t0;
   var t1;
   var div1;
   var t2_value = (
@@ -3037,40 +2824,12 @@ function create_if_block_1$4(ctx) {
     c: function c() {
       div2 = element("div");
       div0 = element("div");
-      t0 = text("×");
+      div0.textContent = "×";
       t1 = space();
       div1 = element("div");
       t2 = text(t2_value);
       t3 = space();
       textarea = element("textarea");
-      this.h();
-    },
-    l: function l(nodes) {
-      div2 = claim_element(nodes, "DIV", {
-        class: true
-      });
-      var div2_nodes = children(div2);
-      div0 = claim_element(div2_nodes, "DIV", {
-        class: true
-      });
-      var div0_nodes = children(div0);
-      t0 = claim_text(div0_nodes, "×");
-      div0_nodes.forEach(detach);
-      t1 = claim_space(div2_nodes);
-      div1 = claim_element(div2_nodes, "DIV", {});
-      var div1_nodes = children(div1);
-      t2 = claim_text(div1_nodes, t2_value);
-      div1_nodes.forEach(detach);
-      t3 = claim_space(div2_nodes);
-      textarea = claim_element(div2_nodes, "TEXTAREA", {
-        readonly: true,
-        value: true
-      });
-      children(textarea).forEach(detach);
-      div2_nodes.forEach(detach);
-      this.h();
-    },
-    h: function h() {
       attr(div0, "class", "close");
       textarea.readOnly = true;
       textarea.value =
@@ -3081,7 +2840,6 @@ function create_if_block_1$4(ctx) {
     m: function m(target, anchor) {
       insert(target, div2, anchor);
       append(div2, div0);
-      append(div0, t0);
       append(div2, t1);
       append(div2, div1);
       append(div1, t2);
@@ -3126,10 +2884,6 @@ function create_fragment$9(ctx) {
   return {
     c: function c() {
       if (if_block) if_block.c();
-      if_block_anchor = empty();
-    },
-    l: function l(nodes) {
-      if (if_block) if_block.l(nodes);
       if_block_anchor = empty();
     },
     m: function m(target, anchor) {
@@ -3244,17 +2998,6 @@ var Embed = /*#__PURE__*/function (_SvelteComponent) {
   return {
     c: function c() {
       img = element("img");
-      this.h();
-    },
-    l: function l(nodes) {
-      img = claim_element(nodes, "IMG", {
-        height: true,
-        src: true,
-        alt: true
-      });
-      this.h();
-    },
-    h: function h() {
       attr(img, "height", img_height_value =
       /*logo*/
       ctx[1].height);
@@ -3310,17 +3053,6 @@ function create_if_block$7(ctx) {
   return {
     c: function c() {
       span = element("span");
-      this.h();
-    },
-    l: function l(nodes) {
-      span = claim_element(nodes, "SPAN", {
-        class: true
-      });
-      var span_nodes = children(span);
-      span_nodes.forEach(detach);
-      this.h();
-    },
-    h: function h() {
       attr(span, "class", "logo-text");
     },
     m: function m(target, anchor) {
@@ -3356,12 +3088,6 @@ function create_fragment$a(ctx) {
       if (if_block0) if_block0.c();
       t = space();
       if (if_block1) if_block1.c();
-      if_block1_anchor = empty();
-    },
-    l: function l(nodes) {
-      if (if_block0) if_block0.l(nodes);
-      t = claim_space(nodes);
-      if (if_block1) if_block1.l(nodes);
       if_block1_anchor = empty();
     },
     m: function m(target, anchor) {
@@ -3469,9 +3195,6 @@ var LogoInner = /*#__PURE__*/function (_SvelteComponent) {
     c: function c() {
       create_component(logoinner.$$.fragment);
     },
-    l: function l(nodes) {
-      claim_component(logoinner.$$.fragment, nodes);
-    },
     m: function m(target, anchor) {
       mount_component(logoinner, target, anchor);
       current = true;
@@ -3528,20 +3251,6 @@ function create_if_block$8(ctx) {
     c: function c() {
       a = element("a");
       create_component(logoinner.$$.fragment);
-      this.h();
-    },
-    l: function l(nodes) {
-      a = claim_element(nodes, "A", {
-        href: true,
-        target: true,
-        rel: true
-      });
-      var a_nodes = children(a);
-      claim_component(logoinner.$$.fragment, a_nodes);
-      a_nodes.forEach(detach);
-      this.h();
-    },
-    h: function h() {
       attr(a, "href", a_href_value =
       /*logo*/
       ctx[1].link);
@@ -3611,10 +3320,6 @@ function create_fragment$b(ctx) {
   return {
     c: function c() {
       if_block.c();
-      if_block_anchor = empty();
-    },
-    l: function l(nodes) {
-      if_block.l(nodes);
       if_block_anchor = empty();
     },
     m: function m(target, anchor) {
@@ -3718,17 +3423,6 @@ var Logo = /*#__PURE__*/function (_SvelteComponent) {
   return {
     c: function c() {
       div = element("div");
-      this.h();
-    },
-    l: function l(nodes) {
-      div = claim_element(nodes, "DIV", {
-        class: true,
-        style: true
-      });
-      children(div).forEach(detach);
-      this.h();
-    },
-    h: function h() {
       attr(div, "class", "export-rect");
       set_style(div, "width", px(
       /*width*/
@@ -3969,22 +3663,6 @@ function create_fragment$d(ctx) {
     c: function c() {
       div = element("div");
       span = element("span");
-      this.h();
-    },
-    l: function l(nodes) {
-      div = claim_element(nodes, "DIV", {
-        class: true,
-        style: true,
-        "data-rotate": true
-      });
-      var div_nodes = children(div);
-      span = claim_element(div_nodes, "SPAN", {});
-      var span_nodes = children(span);
-      span_nodes.forEach(detach);
-      div_nodes.forEach(detach);
-      this.h();
-    },
-    h: function h() {
       attr(div, "class", "watermark noscript svelte-111z7el");
       set_style(div, "transform", "rotate(" +
       /*angle*/
@@ -4170,16 +3848,6 @@ var Watermark = /*#__PURE__*/function (_SvelteComponent) {
   return {
     c: function c() {
       hr = element("hr");
-      this.h();
-    },
-    l: function l(nodes) {
-      hr = claim_element(nodes, "HR", {
-        class: true,
-        style: true
-      });
-      this.h();
-    },
-    h: function h() {
       attr(hr, "class", "dw-line");
       set_style(hr, "border", "0");
       set_style(hr, "border-bottom",
@@ -4297,26 +3965,6 @@ function create_fragment$f(ctx) {
     c: function c() {
       svg_1 = svg_element("svg");
       line = svg_element("line");
-      this.h();
-    },
-    l: function l(nodes) {
-      svg_1 = claim_element(nodes, "svg", {
-        style: true,
-        class: true
-      }, 1);
-      var svg_1_nodes = children(svg_1);
-      line = claim_element(svg_1_nodes, "line", {
-        style: true,
-        x1: true,
-        y1: true,
-        x2: true,
-        y2: true
-      }, 1);
-      children(line).forEach(detach);
-      svg_1_nodes.forEach(detach);
-      this.h();
-    },
-    h: function h() {
       set_style(line, "stroke",
       /*color*/
       ctx[3]);
@@ -6344,46 +5992,6 @@ var knownFormats = {
 
 function reg() {
   return new RegExp(begin + Array.prototype.slice.call(arguments).join(' *') + end, 'i');
-}function outerHeight(element) {
-  var withMargin = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-  if (!element) return null;
-  var height = element.offsetHeight;
-  if (!withMargin) return height;
-  var style = getComputedStyle(element);
-  height += parseInt(style.marginTop) + parseInt(style.marginBottom);
-  return height;
-}
-/* global getComputedStyle */
-
-function getNonChartHeight() {
-  var h = 0;
-  var chart = document.querySelector('.dw-chart');
-
-  for (var i = 0; i < chart.children.length; i++) {
-    var el = chart.children[i];
-    var tagName = el.tagName.toLowerCase();
-
-    if (tagName !== 'script' && tagName !== 'style' && el.id !== 'chart' && !el.getAttribute('aria-hidden') && !hasClass(el, 'tooltip') && !hasClass(el, 'vg-tooltip') && !hasClass(el, 'hidden') && !hasClass(el, 'qtip') && !hasClass(el, 'container') && !hasClass(el, 'noscript') && !hasClass(el, 'hidden') && !hasClass(el, 'filter-ui') && !hasClass(el, 'dw-after-body') && !hasClass(el, 'dw-chart-body')) {
-      h += Number(outerHeight(el, true));
-    }
-  }
-
-  function hasClass(el, className) {
-    return el.classList.contains(className);
-  }
-
-  function getProp(selector, property) {
-    return getComputedStyle(document.querySelector(selector))[property].replace('px', '');
-  }
-
-  var selectors = ['.dw-chart', '.dw-chart-body'];
-  var properties = ['padding-top', 'padding-bottom', 'margin-top', 'margin-bottom', 'border-top-width', 'border-bottom-width'];
-  selectors.forEach(function (sel) {
-    properties.forEach(function (prop) {
-      h += Number(getProp(sel, prop));
-    });
-  });
-  return h;
 }var TEOF = 'TEOF';
 var TOP = 'TOP';
 var TNUMBER = 'TNUMBER';
@@ -8764,17 +8372,7 @@ Parser.prototype.isOperatorEnabled = function (op) {
   var optionName = getOptionName(op);
   var operators = this.options.operators || {};
   return !(optionName in operators) || !!operators[optionName];
-};function getMaxChartHeight() {
-  if (window.innerHeight === 0) return 0;
-  var maxH = window.innerHeight - 8;
-  maxH -= getNonChartHeight();
-  return Math.max(maxH, 0);
-}
-function width(element) {
-  var w = parseFloat(getComputedStyle(element, null).width.replace('px', ''));
-  return isNaN(w) ? 0 : w;
-}
-function domReady(callback) {
+};function domReady(callback) {
   if (/complete|interactive|loaded/.test(document.readyState)) {
     // dom is already loaded
     callback();
@@ -8856,7 +8454,888 @@ function observeFonts(fontsJSON, typographyJSON) {
     observers.push(obs.load(null, 5000));
   });
   return Promise.all(observers);
-}/* globals dw, Blob */
+}/*
+
+Based off glamor's StyleSheet, thanks Sunil ❤️
+
+high performance StyleSheet for css-in-js systems
+
+- uses multiple style tags behind the scenes for millions of rules
+- uses `insertRule` for appending in production for *much* faster performance
+
+// usage
+
+import { StyleSheet } from '@emotion/sheet'
+
+let styleSheet = new StyleSheet({ key: '', container: document.head })
+
+styleSheet.insert('#box { border: 1px solid red; }')
+- appends a css rule into the stylesheet
+
+styleSheet.flush()
+- empties the stylesheet of all its contents
+
+*/
+// $FlowFixMe
+function sheetForTag(tag) {
+  if (tag.sheet) {
+    // $FlowFixMe
+    return tag.sheet;
+  } // this weirdness brought to you by firefox
+
+  /* istanbul ignore next */
+
+
+  for (var i = 0; i < document.styleSheets.length; i++) {
+    if (document.styleSheets[i].ownerNode === tag) {
+      // $FlowFixMe
+      return document.styleSheets[i];
+    }
+  }
+}
+
+function createStyleElement(options) {
+  var tag = document.createElement('style');
+  tag.setAttribute('data-emotion', options.key);
+
+  if (options.nonce !== undefined) {
+    tag.setAttribute('nonce', options.nonce);
+  }
+
+  tag.appendChild(document.createTextNode(''));
+  tag.setAttribute('data-s', '');
+  return tag;
+}
+
+var StyleSheet = /*#__PURE__*/function () {
+  function StyleSheet(options) {
+    var _this = this;
+
+    this._insertTag = function (tag) {
+      var before;
+
+      if (_this.tags.length === 0) {
+        before = _this.prepend ? _this.container.firstChild : _this.before;
+      } else {
+        before = _this.tags[_this.tags.length - 1].nextSibling;
+      }
+
+      _this.container.insertBefore(tag, before);
+
+      _this.tags.push(tag);
+    };
+
+    this.isSpeedy = options.speedy === undefined ? "production" === 'production' : options.speedy;
+    this.tags = [];
+    this.ctr = 0;
+    this.nonce = options.nonce; // key is the value of the data-emotion attribute, it's used to identify different sheets
+
+    this.key = options.key;
+    this.container = options.container;
+    this.prepend = options.prepend;
+    this.before = null;
+  }
+
+  var _proto = StyleSheet.prototype;
+
+  _proto.hydrate = function hydrate(nodes) {
+    nodes.forEach(this._insertTag);
+  };
+
+  _proto.insert = function insert(rule) {
+    // the max length is how many rules we have per style tag, it's 65000 in speedy mode
+    // it's 1 in dev because we insert source maps that map a single rule to a location
+    // and you can only have one source map per style tag
+    if (this.ctr % (this.isSpeedy ? 65000 : 1) === 0) {
+      this._insertTag(createStyleElement(this));
+    }
+
+    var tag = this.tags[this.tags.length - 1];
+
+    if (this.isSpeedy) {
+      var sheet = sheetForTag(tag);
+
+      try {
+        // this is the ultrafast version, works across browsers
+        // the big drawback is that the css won't be editable in devtools
+        sheet.insertRule(rule, sheet.cssRules.length);
+      } catch (e) {
+      }
+    } else {
+      tag.appendChild(document.createTextNode(rule));
+    }
+
+    this.ctr++;
+  };
+
+  _proto.flush = function flush() {
+    // $FlowFixMe
+    this.tags.forEach(function (tag) {
+      return tag.parentNode.removeChild(tag);
+    });
+    this.tags = [];
+    this.ctr = 0;
+  };
+
+  return StyleSheet;
+}();var e="-ms-";var r="-moz-";var a="-webkit-";var c="comm";var n="rule";var t="decl";var i="@import";var p="@keyframes";var k=Math.abs;var d=String.fromCharCode;function m(e,r){return (((r<<2^z(e,0))<<2^z(e,1))<<2^z(e,2))<<2^z(e,3)}function g(e){return e.trim()}function x(e,r){return (e=r.exec(e))?e[0]:e}function y(e,r,a){return e.replace(r,a)}function j(e,r){return e.indexOf(r)}function z(e,r){return e.charCodeAt(r)|0}function C(e,r,a){return e.slice(r,a)}function A(e){return e.length}function M(e){return e.length}function O(e,r){return r.push(e),e}function S(e,r){return e.map(r).join("")}var q=1;var B=1;var D=0;var E=0;var F=0;var G="";function H(e,r,a,c,n,t,s){return {value:e,root:r,parent:a,type:c,props:n,children:t,line:q,column:B,length:s,return:""}}function I(e,r,a){return H(e,r.root,r.parent,a,r.props,r.children,0)}function J(){return F}function K(){F=E<D?z(G,E++):0;if(B++,F===10)B=1,q++;return F}function L(){return z(G,E)}function N(){return E}function P(e,r){return C(G,e,r)}function Q(e){switch(e){case 0:case 9:case 10:case 13:case 32:return 5;case 33:case 43:case 44:case 47:case 62:case 64:case 126:case 59:case 123:case 125:return 4;case 58:return 3;case 34:case 39:case 40:case 91:return 2;case 41:case 93:return 1}return 0}function R(e){return q=B=1,D=A(G=e),E=0,[]}function T(e){return G="",e}function U(e){return g(P(E-1,Y(e===91?e+2:e===40?e+1:e)))}function W(e){while(F=L())if(F<33)K();else break;return Q(e)>2||Q(F)>3?"":" "}function Y(e){while(K())switch(F){case e:return E;case 34:case 39:return Y(e===34||e===39?e:F);case 40:if(e===41)Y(e);break;case 92:K();break}return E}function Z(e,r){while(K())if(e+F===47+10)break;else if(e+F===42+42&&L()===47)break;return "/*"+P(r,E-1)+"*"+d(e===47?e:K())}function _$2(e){while(!Q(L()))K();return P(e,E)}function ee(e){return T(re("",null,null,null,[""],e=R(e),0,[0],e))}function re(e,r,a,c,n,t,s,u,i){var f=0;var o=0;var l=s;var v=0;var h=0;var p=0;var w=1;var b=1;var $=1;var k=0;var m="";var g=n;var x=t;var j=c;var z=m;while(b)switch(p=k,k=K()){case 34:case 39:case 91:case 40:z+=U(k);break;case 9:case 10:case 13:case 32:z+=W(p);break;case 47:switch(L()){case 42:case 47:O(ce(Z(K(),N()),r,a),i);break;default:z+="/";}break;case 123*w:u[f++]=A(z)*$;case 125*w:case 59:case 0:switch(k){case 0:case 125:b=0;case 59+o:if(h>0)O(h>32?ne(z+";",c,a,l-1):ne(y(z," ","")+";",c,a,l-2),i);break;case 59:z+=";";default:O(j=ae(z,r,a,f,o,n,u,m,g=[],x=[],l),t);if(k===123)if(o===0)re(z,r,j,j,g,t,l,u,x);else switch(v){case 100:case 109:case 115:re(e,j,j,c&&O(ae(e,j,j,0,0,n,u,m,n,g=[],l),x),n,x,l,u,c?g:x);break;default:re(z,j,j,j,[""],x,l,u,x);}}f=o=h=0,w=$=1,m=z="",l=s;break;case 58:l=1+A(z),h=p;default:switch(z+=d(k),k*w){case 38:$=o>0?1:(z+="\f",-1);break;case 44:u[f++]=(A(z)-1)*$,$=1;break;case 64:if(L()===45)z+=U(K());v=L(),o=A(m=z+=_$2(N())),k++;break;case 45:if(p===45&&A(z)==2)w=0;}}return t}function ae(e,r,a,c,t,s,u,i,f,o,l){var v=t-1;var h=t===0?s:[""];var p=M(h);for(var w=0,b=0,$=0;w<c;++w)for(var d=0,m=C(e,v+1,v=k(b=u[w])),x=e;d<p;++d)if(x=g(b>0?h[d]+" "+m:y(m,/&\f/g,h[d])))f[$++]=x;return H(e,r,a,t===0?n:i,f,o,l)}function ce(e,r,a){return H(e,r,a,c,d(J()),C(e,2,-2),0)}function ne(e,r,a,c){return H(e,r,a,t,C(e,0,c),C(e,c+1,-1),c)}function te(c,n){switch(m(c,n)){case 5737:case 4201:case 3177:case 3433:case 1641:case 4457:case 2921:case 5572:case 6356:case 5844:case 3191:case 6645:case 3005:case 6391:case 5879:case 5623:case 6135:case 4599:case 4855:case 4215:case 6389:case 5109:case 5365:case 5621:case 3829:return a+c+c;case 5349:case 4246:case 4810:case 6968:case 2756:return a+c+r+c+e+c+c;case 6828:case 4268:return a+c+e+c+c;case 6165:return a+c+e+"flex-"+c+c;case 5187:return a+c+y(c,/(\w+).+(:[^]+)/,a+"box-$1$2"+e+"flex-$1$2")+c;case 5443:return a+c+e+"flex-item-"+y(c,/flex-|-self/,"")+c;case 4675:return a+c+e+"flex-line-pack"+y(c,/align-content|flex-|-self/,"")+c;case 5548:return a+c+e+y(c,"shrink","negative")+c;case 5292:return a+c+e+y(c,"basis","preferred-size")+c;case 6060:return a+"box-"+y(c,"-grow","")+a+c+e+y(c,"grow","positive")+c;case 4554:return a+y(c,/([^-])(transform)/g,"$1"+a+"$2")+c;case 6187:return y(y(y(c,/(zoom-|grab)/,a+"$1"),/(image-set)/,a+"$1"),c,"")+c;case 5495:case 3959:return y(c,/(image-set\([^]*)/,a+"$1"+"$`$1");case 4968:return y(y(c,/(.+:)(flex-)?(.*)/,a+"box-pack:$3"+e+"flex-pack:$3"),/s.+-b[^;]+/,"justify")+a+c+c;case 4095:case 3583:case 4068:case 2532:return y(c,/(.+)-inline(.+)/,a+"$1$2")+c;case 8116:case 7059:case 5753:case 5535:case 5445:case 5701:case 4933:case 4677:case 5533:case 5789:case 5021:case 4765:if(A(c)-1-n>6)switch(z(c,n+1)){case 102:n=z(c,n+3);case 109:return y(c,/(.+:)(.+)-([^]+)/,"$1"+a+"$2-$3"+"$1"+r+(n==108?"$3":"$2-$3"))+c;case 115:return ~j(c,"stretch")?te(y(c,"stretch","fill-available"),n)+c:c}break;case 4949:if(z(c,n+1)!==115)break;case 6444:switch(z(c,A(c)-3-(~j(c,"!important")&&10))){case 107:case 111:return y(c,c,a+c)+c;case 101:return y(c,/(.+:)([^;!]+)(;|!.+)?/,"$1"+a+(z(c,14)===45?"inline-":"")+"box$3"+"$1"+a+"$2$3"+"$1"+e+"$2box$3")+c}break;case 5936:switch(z(c,n+11)){case 114:return a+c+e+y(c,/[svh]\w+-[tblr]{2}/,"tb")+c;case 108:return a+c+e+y(c,/[svh]\w+-[tblr]{2}/,"tb-rl")+c;case 45:return a+c+e+y(c,/[svh]\w+-[tblr]{2}/,"lr")+c}return a+c+e+c+c}return c}function se(e,r){var a="";var c=M(e);for(var n=0;n<c;n++)a+=r(e[n],n,e,r)||"";return a}function ue(e,r,a,s){switch(e.type){case i:case t:return e.return=e.return||e.value;case c:return "";case n:e.value=e.props.join(",");}return A(a=se(e.children,s))?e.return=e.value+"{"+a+"}":""}function ie(e){var r=M(e);return function(a,c,n,t){var s="";for(var u=0;u<r;u++)s+=e[u](a,c,n,t)||"";return s}}function fe(e){return function(r){if(!r.root)if(r=r.return)e(r);}}function oe(c,s,u,i){if(!c.return)switch(c.type){case t:c.return=te(c.value,c.length);break;case p:return se([I(y(c.value,"@","@"+a),c,"")],i);case n:if(c.length)return S(c.props,(function(n){switch(x(n,/(::plac\w+|:read-\w+)/)){case":read-only":case":read-write":return se([I(y(n,/:(read-\w+)/,":"+r+"$1"),c,"")],i);case"::placeholder":return se([I(y(n,/:(plac\w+)/,":"+a+"input-$1"),c,""),I(y(n,/:(plac\w+)/,":"+r+"$1"),c,""),I(y(n,/:(plac\w+)/,e+"input-$1"),c,"")],i)}return ""}))}}var weakMemoize = function weakMemoize(func) {
+  // $FlowFixMe flow doesn't include all non-primitive types as allowed for weakmaps
+  var cache = new WeakMap();
+  return function (arg) {
+    if (cache.has(arg)) {
+      // $FlowFixMe
+      return cache.get(arg);
+    }
+
+    var ret = func(arg);
+    cache.set(arg, ret);
+    return ret;
+  };
+};function memoize$1(fn) {
+  var cache = Object.create(null);
+  return function (arg) {
+    if (cache[arg] === undefined) cache[arg] = fn(arg);
+    return cache[arg];
+  };
+}var toRules = function toRules(parsed, points) {
+  // pretend we've started with a comma
+  var index = -1;
+  var character = 44;
+
+  do {
+    switch (Q(character)) {
+      case 0:
+        // &\f
+        if (character === 38 && L() === 12) {
+          // this is not 100% correct, we don't account for literal sequences here - like for example quoted strings
+          // stylis inserts \f after & to know when & where it should replace this sequence with the context selector
+          // and when it should just concatenate the outer and inner selectors
+          // it's very unlikely for this sequence to actually appear in a different context, so we just leverage this fact here
+          points[index] = 1;
+        }
+
+        parsed[index] += _$2(E - 1);
+        break;
+
+      case 2:
+        parsed[index] += U(character);
+        break;
+
+      case 4:
+        // comma
+        if (character === 44) {
+          // colon
+          parsed[++index] = L() === 58 ? '&\f' : '';
+          points[index] = parsed[index].length;
+          break;
+        }
+
+      // fallthrough
+
+      default:
+        parsed[index] += d(character);
+    }
+  } while (character = K());
+
+  return parsed;
+};
+
+var getRules = function getRules(value, points) {
+  return T(toRules(R(value), points));
+}; // WeakSet would be more appropriate, but only WeakMap is supported in IE11
+
+
+var fixedElements = /* #__PURE__ */new WeakMap();
+var compat = function compat(element) {
+  if (element.type !== 'rule' || !element.parent || // .length indicates if this rule contains pseudo or not
+  !element.length) {
+    return;
+  }
+
+  var value = element.value,
+      parent = element.parent;
+  var isImplicitRule = element.column === parent.column && element.line === parent.line;
+
+  while (parent.type !== 'rule') {
+    parent = parent.parent;
+    if (!parent) return;
+  } // short-circuit for the simplest case
+
+
+  if (element.props.length === 1 && value.charCodeAt(0) !== 58
+  /* colon */
+  && !fixedElements.get(parent)) {
+    return;
+  } // if this is an implicitly inserted rule (the one eagerly inserted at the each new nested level)
+  // then the props has already been manipulated beforehand as they that array is shared between it and its "rule parent"
+
+
+  if (isImplicitRule) {
+    return;
+  }
+
+  fixedElements.set(element, true);
+  var points = [];
+  var rules = getRules(value, points);
+  var parentRules = parent.props;
+
+  for (var i = 0, k = 0; i < rules.length; i++) {
+    for (var j = 0; j < parentRules.length; j++, k++) {
+      element.props[k] = points[i] ? rules[i].replace(/&\f/g, parentRules[j]) : parentRules[j] + " " + rules[i];
+    }
+  }
+};
+var removeLabel = function removeLabel(element) {
+  if (element.type === 'decl') {
+    var value = element.value;
+
+    if ( // charcode for l
+    value.charCodeAt(0) === 108 && // charcode for b
+    value.charCodeAt(2) === 98) {
+      // this ignores label
+      element["return"] = '';
+      element.value = '';
+    }
+  }
+};
+
+var isBrowser = typeof document !== 'undefined';
+var getServerStylisCache = isBrowser ? undefined : weakMemoize(function () {
+  return memoize$1(function () {
+    var cache = {};
+    return function (name) {
+      return cache[name];
+    };
+  });
+});
+var defaultStylisPlugins = [oe];
+
+var createCache = function createCache(options) {
+  var key = options.key;
+
+  if (isBrowser && key === 'css') {
+    var ssrStyles = document.querySelectorAll("style[data-emotion]:not([data-s])"); // get SSRed styles out of the way of React's hydration
+    // document.head is a safe place to move them to
+
+    Array.prototype.forEach.call(ssrStyles, function (node) {
+      document.head.appendChild(node);
+      node.setAttribute('data-s', '');
+    });
+  }
+
+  var stylisPlugins = options.stylisPlugins || defaultStylisPlugins;
+
+  var inserted = {}; // $FlowFixMe
+
+  var container;
+  var nodesToHydrate = [];
+
+  if (isBrowser) {
+    container = options.container || document.head;
+    Array.prototype.forEach.call(document.querySelectorAll("style[data-emotion]"), function (node) {
+      var attrib = node.getAttribute("data-emotion").split(' ');
+
+      if (attrib[0] !== key) {
+        return;
+      } // $FlowFixMe
+
+
+      for (var i = 1; i < attrib.length; i++) {
+        inserted[attrib[i]] = true;
+      }
+
+      nodesToHydrate.push(node);
+    });
+  }
+
+  var _insert;
+
+  var omnipresentPlugins = [compat, removeLabel];
+
+  if (isBrowser) {
+    var currentSheet;
+    var finalizingPlugins = [ue,  fe(function (rule) {
+      currentSheet.insert(rule);
+    })];
+    var serializer = ie(omnipresentPlugins.concat(stylisPlugins, finalizingPlugins));
+
+    var stylis = function stylis(styles) {
+      return se(ee(styles), serializer);
+    };
+
+    _insert = function insert(selector, serialized, sheet, shouldCache) {
+      currentSheet = sheet;
+
+      stylis(selector ? selector + "{" + serialized.styles + "}" : serialized.styles);
+
+      if (shouldCache) {
+        cache.inserted[serialized.name] = true;
+      }
+    };
+  } else {
+    var _finalizingPlugins = [ue];
+
+    var _serializer = ie(omnipresentPlugins.concat(stylisPlugins, _finalizingPlugins));
+
+    var _stylis = function _stylis(styles) {
+      return se(ee(styles), _serializer);
+    }; // $FlowFixMe
+
+
+    var serverStylisCache = getServerStylisCache(stylisPlugins)(key);
+
+    var getRules = function getRules(selector, serialized) {
+      var name = serialized.name;
+
+      if (serverStylisCache[name] === undefined) {
+        serverStylisCache[name] = _stylis(selector ? selector + "{" + serialized.styles + "}" : serialized.styles);
+      }
+
+      return serverStylisCache[name];
+    };
+
+    _insert = function _insert(selector, serialized, sheet, shouldCache) {
+      var name = serialized.name;
+      var rules = getRules(selector, serialized);
+
+      if (cache.compat === undefined) {
+        // in regular mode, we don't set the styles on the inserted cache
+        // since we don't need to and that would be wasting memory
+        // we return them so that they are rendered in a style tag
+        if (shouldCache) {
+          cache.inserted[name] = true;
+        }
+
+        return rules;
+      } else {
+        // in compat mode, we put the styles on the inserted cache so
+        // that emotion-server can pull out the styles
+        // except when we don't want to cache it which was in Global but now
+        // is nowhere but we don't want to do a major right now
+        // and just in case we're going to leave the case here
+        // it's also not affecting client side bundle size
+        // so it's really not a big deal
+        if (shouldCache) {
+          cache.inserted[name] = rules;
+        } else {
+          return rules;
+        }
+      }
+    };
+  }
+
+  var cache = {
+    key: key,
+    sheet: new StyleSheet({
+      key: key,
+      container: container,
+      nonce: options.nonce,
+      speedy: options.speedy,
+      prepend: options.prepend
+    }),
+    nonce: options.nonce,
+    inserted: inserted,
+    registered: {},
+    insert: _insert
+  };
+  cache.sheet.hydrate(nodesToHydrate);
+  return cache;
+};/* eslint-disable */
+// Inspired by https://github.com/garycourt/murmurhash-js
+// Ported from https://github.com/aappleby/smhasher/blob/61a0530f28277f2e850bfc39600ce61d02b518de/src/MurmurHash2.cpp#L37-L86
+function murmur2(str) {
+  // 'm' and 'r' are mixing constants generated offline.
+  // They're not really 'magic', they just happen to work well.
+  // const m = 0x5bd1e995;
+  // const r = 24;
+  // Initialize the hash
+  var h = 0; // Mix 4 bytes at a time into the hash
+
+  var k,
+      i = 0,
+      len = str.length;
+
+  for (; len >= 4; ++i, len -= 4) {
+    k = str.charCodeAt(i) & 0xff | (str.charCodeAt(++i) & 0xff) << 8 | (str.charCodeAt(++i) & 0xff) << 16 | (str.charCodeAt(++i) & 0xff) << 24;
+    k =
+    /* Math.imul(k, m): */
+    (k & 0xffff) * 0x5bd1e995 + ((k >>> 16) * 0xe995 << 16);
+    k ^=
+    /* k >>> r: */
+    k >>> 24;
+    h =
+    /* Math.imul(k, m): */
+    (k & 0xffff) * 0x5bd1e995 + ((k >>> 16) * 0xe995 << 16) ^
+    /* Math.imul(h, m): */
+    (h & 0xffff) * 0x5bd1e995 + ((h >>> 16) * 0xe995 << 16);
+  } // Handle the last few bytes of the input array
+
+
+  switch (len) {
+    case 3:
+      h ^= (str.charCodeAt(i + 2) & 0xff) << 16;
+
+    case 2:
+      h ^= (str.charCodeAt(i + 1) & 0xff) << 8;
+
+    case 1:
+      h ^= str.charCodeAt(i) & 0xff;
+      h =
+      /* Math.imul(h, m): */
+      (h & 0xffff) * 0x5bd1e995 + ((h >>> 16) * 0xe995 << 16);
+  } // Do a few final mixes of the hash to ensure the last few
+  // bytes are well-incorporated.
+
+
+  h ^= h >>> 13;
+  h =
+  /* Math.imul(h, m): */
+  (h & 0xffff) * 0x5bd1e995 + ((h >>> 16) * 0xe995 << 16);
+  return ((h ^ h >>> 15) >>> 0).toString(36);
+}var unitlessKeys = {
+  animationIterationCount: 1,
+  borderImageOutset: 1,
+  borderImageSlice: 1,
+  borderImageWidth: 1,
+  boxFlex: 1,
+  boxFlexGroup: 1,
+  boxOrdinalGroup: 1,
+  columnCount: 1,
+  columns: 1,
+  flex: 1,
+  flexGrow: 1,
+  flexPositive: 1,
+  flexShrink: 1,
+  flexNegative: 1,
+  flexOrder: 1,
+  gridRow: 1,
+  gridRowEnd: 1,
+  gridRowSpan: 1,
+  gridRowStart: 1,
+  gridColumn: 1,
+  gridColumnEnd: 1,
+  gridColumnSpan: 1,
+  gridColumnStart: 1,
+  msGridRow: 1,
+  msGridRowSpan: 1,
+  msGridColumn: 1,
+  msGridColumnSpan: 1,
+  fontWeight: 1,
+  lineHeight: 1,
+  opacity: 1,
+  order: 1,
+  orphans: 1,
+  tabSize: 1,
+  widows: 1,
+  zIndex: 1,
+  zoom: 1,
+  WebkitLineClamp: 1,
+  // SVG-related properties
+  fillOpacity: 1,
+  floodOpacity: 1,
+  stopOpacity: 1,
+  strokeDasharray: 1,
+  strokeDashoffset: 1,
+  strokeMiterlimit: 1,
+  strokeOpacity: 1,
+  strokeWidth: 1
+};var hyphenateRegex = /[A-Z]|^ms/g;
+var animationRegex = /_EMO_([^_]+?)_([^]*?)_EMO_/g;
+
+var isCustomProperty = function isCustomProperty(property) {
+  return property.charCodeAt(1) === 45;
+};
+
+var isProcessableValue = function isProcessableValue(value) {
+  return value != null && typeof value !== 'boolean';
+};
+
+var processStyleName = /* #__PURE__ */memoize$1(function (styleName) {
+  return isCustomProperty(styleName) ? styleName : styleName.replace(hyphenateRegex, '-$&').toLowerCase();
+});
+
+var processStyleValue = function processStyleValue(key, value) {
+  switch (key) {
+    case 'animation':
+    case 'animationName':
+      {
+        if (typeof value === 'string') {
+          return value.replace(animationRegex, function (match, p1, p2) {
+            cursor = {
+              name: p1,
+              styles: p2,
+              next: cursor
+            };
+            return p1;
+          });
+        }
+      }
+  }
+
+  if (unitlessKeys[key] !== 1 && !isCustomProperty(key) && typeof value === 'number' && value !== 0) {
+    return value + 'px';
+  }
+
+  return value;
+};
+
+function handleInterpolation(mergedProps, registered, interpolation) {
+  if (interpolation == null) {
+    return '';
+  }
+
+  if (interpolation.__emotion_styles !== undefined) {
+
+    return interpolation;
+  }
+
+  switch (typeof interpolation) {
+    case 'boolean':
+      {
+        return '';
+      }
+
+    case 'object':
+      {
+        if (interpolation.anim === 1) {
+          cursor = {
+            name: interpolation.name,
+            styles: interpolation.styles,
+            next: cursor
+          };
+          return interpolation.name;
+        }
+
+        if (interpolation.styles !== undefined) {
+          var next = interpolation.next;
+
+          if (next !== undefined) {
+            // not the most efficient thing ever but this is a pretty rare case
+            // and there will be very few iterations of this generally
+            while (next !== undefined) {
+              cursor = {
+                name: next.name,
+                styles: next.styles,
+                next: cursor
+              };
+              next = next.next;
+            }
+          }
+
+          var styles = interpolation.styles + ";";
+
+          return styles;
+        }
+
+        return createStringFromObject(mergedProps, registered, interpolation);
+      }
+
+    case 'function':
+      {
+        if (mergedProps !== undefined) {
+          var previousCursor = cursor;
+          var result = interpolation(mergedProps);
+          cursor = previousCursor;
+          return handleInterpolation(mergedProps, registered, result);
+        }
+
+        break;
+      }
+  } // finalize string values (regular strings and functions interpolated into css calls)
+
+
+  if (registered == null) {
+    return interpolation;
+  }
+
+  var cached = registered[interpolation];
+  return cached !== undefined ? cached : interpolation;
+}
+
+function createStringFromObject(mergedProps, registered, obj) {
+  var string = '';
+
+  if (Array.isArray(obj)) {
+    for (var i = 0; i < obj.length; i++) {
+      string += handleInterpolation(mergedProps, registered, obj[i]) + ";";
+    }
+  } else {
+    for (var _key in obj) {
+      var value = obj[_key];
+
+      if (typeof value !== 'object') {
+        if (registered != null && registered[value] !== undefined) {
+          string += _key + "{" + registered[value] + "}";
+        } else if (isProcessableValue(value)) {
+          string += processStyleName(_key) + ":" + processStyleValue(_key, value) + ";";
+        }
+      } else {
+        if (_key === 'NO_COMPONENT_SELECTOR' && "production" !== 'production') {
+          throw new Error('Component selectors can only be used in conjunction with @emotion/babel-plugin.');
+        }
+
+        if (Array.isArray(value) && typeof value[0] === 'string' && (registered == null || registered[value[0]] === undefined)) {
+          for (var _i = 0; _i < value.length; _i++) {
+            if (isProcessableValue(value[_i])) {
+              string += processStyleName(_key) + ":" + processStyleValue(_key, value[_i]) + ";";
+            }
+          }
+        } else {
+          var interpolated = handleInterpolation(mergedProps, registered, value);
+
+          switch (_key) {
+            case 'animation':
+            case 'animationName':
+              {
+                string += processStyleName(_key) + ":" + interpolated + ";";
+                break;
+              }
+
+            default:
+              {
+
+                string += _key + "{" + interpolated + "}";
+              }
+          }
+        }
+      }
+    }
+  }
+
+  return string;
+}
+
+var labelPattern = /label:\s*([^\s;\n{]+)\s*;/g;
+// keyframes are stored on the SerializedStyles object as a linked list
+
+
+var cursor;
+var serializeStyles = function serializeStyles(args, registered, mergedProps) {
+  if (args.length === 1 && typeof args[0] === 'object' && args[0] !== null && args[0].styles !== undefined) {
+    return args[0];
+  }
+
+  var stringMode = true;
+  var styles = '';
+  cursor = undefined;
+  var strings = args[0];
+
+  if (strings == null || strings.raw === undefined) {
+    stringMode = false;
+    styles += handleInterpolation(mergedProps, registered, strings);
+  } else {
+
+    styles += strings[0];
+  } // we start at 1 since we've already handled the first arg
+
+
+  for (var i = 1; i < args.length; i++) {
+    styles += handleInterpolation(mergedProps, registered, args[i]);
+
+    if (stringMode) {
+
+      styles += strings[i];
+    }
+  }
+
+
+  labelPattern.lastIndex = 0;
+  var identifierName = '';
+  var match; // https://esbench.com/bench/5b809c2cf2949800a0f61fb5
+
+  while ((match = labelPattern.exec(styles)) !== null) {
+    identifierName += '-' + // $FlowFixMe we know it's not null
+    match[1];
+  }
+
+  var name = murmur2(styles) + identifierName;
+
+  return {
+    name: name,
+    styles: styles,
+    next: cursor
+  };
+};var isBrowser$1 = typeof document !== 'undefined';
+function getRegisteredStyles(registered, registeredStyles, classNames) {
+  var rawClassName = '';
+  classNames.split(' ').forEach(function (className) {
+    if (registered[className] !== undefined) {
+      registeredStyles.push(registered[className] + ";");
+    } else {
+      rawClassName += className + " ";
+    }
+  });
+  return rawClassName;
+}
+var insertStyles = function insertStyles(cache, serialized, isStringTag) {
+  var className = cache.key + "-" + serialized.name;
+
+  if ( // we only need to add the styles to the registered cache if the
+  // class name could be used further down
+  // the tree but if it's a string tag, we know it won't
+  // so we don't have to add it to registered cache.
+  // this improves memory usage since we can avoid storing the whole style string
+  (isStringTag === false || // we need to always store it if we're in compat mode and
+  // in node since emotion-server relies on whether a style is in
+  // the registered cache to know whether a style is global or not
+  // also, note that this check will be dead code eliminated in the browser
+  isBrowser$1 === false && cache.compat !== undefined) && cache.registered[className] === undefined) {
+    cache.registered[className] = serialized.styles;
+  }
+
+  if (cache.inserted[serialized.name] === undefined) {
+    var stylesForSSR = '';
+    var current = serialized;
+
+    do {
+      var maybeStyles = cache.insert(serialized === current ? "." + className : '', current, cache.sheet, true);
+
+      if (!isBrowser$1 && maybeStyles !== undefined) {
+        stylesForSSR += maybeStyles;
+      }
+
+      current = current.next;
+    } while (current !== undefined);
+
+    if (!isBrowser$1 && stylesForSSR.length !== 0) {
+      return stylesForSSR;
+    }
+  }
+};function insertWithoutScoping(cache, serialized) {
+  if (cache.inserted[serialized.name] === undefined) {
+    return cache.insert('', serialized, cache.sheet, true);
+  }
+}
+
+function merge(registered, css, className) {
+  var registeredStyles = [];
+  var rawClassName = getRegisteredStyles(registered, registeredStyles, className);
+
+  if (registeredStyles.length < 2) {
+    return className;
+  }
+
+  return rawClassName + css(registeredStyles);
+}
+
+var createEmotion = function createEmotion(options) {
+  var cache = createCache(options); // $FlowFixMe
+
+  cache.sheet.speedy = function (value) {
+
+    this.isSpeedy = value;
+  };
+
+  cache.compat = true;
+
+  var css = function css() {
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    var serialized = serializeStyles(args, cache.registered, undefined);
+    insertStyles(cache, serialized, false);
+    return cache.key + "-" + serialized.name;
+  };
+
+  var keyframes = function keyframes() {
+    for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      args[_key2] = arguments[_key2];
+    }
+
+    var serialized = serializeStyles(args, cache.registered);
+    var animation = "animation-" + serialized.name;
+    insertWithoutScoping(cache, {
+      name: serialized.name,
+      styles: "@keyframes " + animation + "{" + serialized.styles + "}"
+    });
+    return animation;
+  };
+
+  var injectGlobal = function injectGlobal() {
+    for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+      args[_key3] = arguments[_key3];
+    }
+
+    var serialized = serializeStyles(args, cache.registered);
+    insertWithoutScoping(cache, serialized);
+  };
+
+  var cx = function cx() {
+    for (var _len4 = arguments.length, args = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+      args[_key4] = arguments[_key4];
+    }
+
+    return merge(cache.registered, css, classnames(args));
+  };
+
+  return {
+    css: css,
+    cx: cx,
+    injectGlobal: injectGlobal,
+    keyframes: keyframes,
+    hydrate: function hydrate(ids) {
+      ids.forEach(function (key) {
+        cache.inserted[key] = true;
+      });
+    },
+    flush: function flush() {
+      cache.registered = {};
+      cache.inserted = {};
+      cache.sheet.flush();
+    },
+    // $FlowFixMe
+    sheet: cache.sheet,
+    cache: cache,
+    getRegisteredStyles: getRegisteredStyles.bind(null, cache.registered),
+    merge: merge.bind(null, cache.registered, css)
+  };
+};
+
+var classnames = function classnames(args) {
+  var cls = '';
+
+  for (var i = 0; i < args.length; i++) {
+    var arg = args[i];
+    if (arg == null) continue;
+    var toAdd = void 0;
+
+    switch (typeof arg) {
+      case 'boolean':
+        break;
+
+      case 'object':
+        {
+          if (Array.isArray(arg)) {
+            toAdd = classnames(arg);
+          } else {
+            toAdd = '';
+
+            for (var k in arg) {
+              if (arg[k] && k) {
+                toAdd && (toAdd += ' ');
+                toAdd += k;
+              }
+            }
+          }
+
+          break;
+        }
+
+      default:
+        {
+          toAdd = arg;
+        }
+    }
+
+    if (toAdd) {
+      cls && (cls += ' ');
+      cls += toAdd;
+    }
+  }
+
+  return cls;
+};/* globals dw, Blob */
 /*
  * init performs initialization routines that only need to be done _once_ in
  * the lifetime of a chart. This includes: Loading external data, waiting for
@@ -8877,7 +9356,11 @@ function init$1(target, _ref) {
       isPreview = _ref.isPreview,
       iframe = _ref.iframe,
       fonts = _ref.fonts;
-  // evaluate locales
+  if (!visualization.id || !target) return {
+    success: false,
+    render: function render() {}
+  }; // evaluate locales
+
   Object.keys(locales).forEach(function (vendor) {
     // eslint-disable-next-line
     locales[vendor] = eval(locales[vendor]);
@@ -8886,7 +9369,8 @@ function init$1(target, _ref) {
   __dw.params = {
     locales: locales
   };
-  var language = chartAttrs.language.substr(0, 2);
+  var chartLocale = chartAttrs.language || 'en-US';
+  var language = chartLocale.substr(0, 2);
   domReady(function () {
     var postEvent$1 = postEvent(chartAttrs.id);
     window.addEventListener('hashchange', function () {
@@ -8895,8 +9379,11 @@ function init$1(target, _ref) {
       });
     });
   });
-  console.log('init chart', chartAttrs.id);
-  var chart = dw.chart(chartAttrs).locale(chartAttrs.language).theme(dw.theme(chartAttrs.theme));
+  var chart = dw.chart(chartAttrs).locale(chartLocale).theme(dw.theme(chartAttrs.theme));
+  var emotion = createEmotion({
+    key: "datawrapper-".concat(chartAttrs.id),
+    container: target
+  });
   var vis;
   chart.load(data || '', isPreview ? undefined : chartAttrs.externalData).then(function () {
     vis = dw.visualization(visualization.id);
@@ -8907,20 +9394,22 @@ function init$1(target, _ref) {
       window.__dw.vis = vis;
     }
 
-    renderChart(target, chart, vis);
-    observeFonts(fonts, theme.typography).then(function () {
-      return renderChart(target, chart, vis);
+    renderChart(target, chart, vis, emotion);
+    observeFonts(fonts, theme.data.typography).then(function () {
+      return renderChart(target, chart, vis, emotion);
     }).catch(function () {
-      return renderChart(target, chart, vis);
+      return renderChart(target, chart, vis, emotion);
     }); // iPhone/iPad fix
 
     if (/iP(hone|od|ad)/.test(navigator.platform)) {
-      window.onload = renderChart(target, chart, vis);
+      window.onload = renderChart(target, chart, vis, emotion);
     }
   });
   return {
+    success: true,
     render: function render() {
-      renderChart(target, chart, vis);
+      if (vis) renderChart(target, chart, vis, emotion); // if vis doesn't exist yet, no need to re-render as it will
+      // be rendered when vis is created anyway
     }
   };
 }
@@ -8928,14 +9417,14 @@ function init$1(target, _ref) {
  * render calls the chart rendering function provided by the plugin.
  */
 
-function renderChart(target, chart, vis) {
+function renderChart(target, chart, vis, emotion) {
   chart.vis(vis);
   vis.reset(target); // compute chart dimensions
+  // const w = width(target);
+  // const h = getMaxChartHeight(target);
 
-  var w = width(target);
-  var h = getMaxChartHeight();
-  vis.size(w, h);
-  chart.render(target);
+  vis.size(600, 400);
+  chart.render(target, emotion);
   /*
   function getHeight(sel) {
       const el = document.querySelector(sel);
@@ -9067,6 +9556,20 @@ function renderChart(target, chart, vis) {
   return then ? value.then(then) : value;
 }
 
+function _async(f) {
+  return function () {
+    for (var args = [], i = 0; i < arguments.length; i++) {
+      args[i] = arguments[i];
+    }
+
+    try {
+      return Promise.resolve(f.apply(this, args));
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  };
+}
+
 function _call(body, then, direct) {
   if (direct) {
     return then ? then(body()) : body();
@@ -9090,38 +9593,24 @@ function _invoke(body, then) {
   return then(result);
 }
 
-function _async(f) {
-  return function () {
-    for (var args = [], i = 0; i < arguments.length; i++) {
-      args[i] = arguments[i];
-    }
-
-    try {
-      return Promise.resolve(f.apply(this, args));
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  };
-}
-
 function get_each_context$1(ctx, list, i) {
   var child_ctx = ctx.slice();
-  child_ctx[22] = list[i];
+  child_ctx[29] = list[i];
   return child_ctx;
 }
 
 function get_each_context_2(ctx, list, i) {
   var child_ctx = ctx.slice();
-  child_ctx[22] = list[i];
-  child_ctx[29] = i;
+  child_ctx[29] = list[i];
+  child_ctx[36] = i;
   return child_ctx;
 }
 
 function get_each_context_1(ctx, list, i) {
   var child_ctx = ctx.slice();
-  child_ctx[25] = list[i];
+  child_ctx[32] = list[i];
   return child_ctx;
-} // (361:0) {#if !isStylePlain}
+} // (368:0) {#if !isStylePlain}
 
 
 function create_if_block_6(ctx) {
@@ -9134,24 +9623,18 @@ function create_if_block_6(ctx) {
       name: "dw-chart-header",
       blocks:
       /*regions*/
-      ctx[3].header,
+      ctx[4].header,
       id: "header"
     }
   });
   var if_block = !
   /*isStyleStatic*/
-  ctx[2] && create_if_block_7(ctx);
+  ctx[3] && create_if_block_7(ctx);
   return {
     c: function c() {
       create_component(blocksregion.$$.fragment);
       t = space();
       if (if_block) if_block.c();
-      if_block_anchor = empty();
-    },
-    l: function l(nodes) {
-      claim_component(blocksregion.$$.fragment, nodes);
-      t = claim_space(nodes);
-      if (if_block) if_block.l(nodes);
       if_block_anchor = empty();
     },
     m: function m(target, anchor) {
@@ -9163,22 +9646,22 @@ function create_if_block_6(ctx) {
     },
     p: function p(ctx, dirty) {
       var blocksregion_changes = {};
-      if (dirty &
+      if (dirty[0] &
       /*regions*/
-      8) blocksregion_changes.blocks =
+      16) blocksregion_changes.blocks =
       /*regions*/
-      ctx[3].header;
+      ctx[4].header;
       blocksregion.$set(blocksregion_changes);
 
       if (!
       /*isStyleStatic*/
-      ctx[2]) {
+      ctx[3]) {
         if (if_block) {
           if_block.p(ctx, dirty);
 
-          if (dirty &
+          if (dirty[0] &
           /*isStyleStatic*/
-          4) {
+          8) {
             transition_in(if_block, 1);
           }
         } else {
@@ -9213,7 +9696,7 @@ function create_if_block_6(ctx) {
       if (detaching) detach(if_block_anchor);
     }
   };
-} // (364:4) {#if !isStyleStatic}
+} // (371:4) {#if !isStyleStatic}
 
 
 function create_if_block_7(ctx) {
@@ -9224,18 +9707,15 @@ function create_if_block_7(ctx) {
       name: "dw-chart-menu",
       props:
       /*menu*/
-      ctx[4],
+      ctx[5],
       blocks:
       /*regions*/
-      ctx[3].menu
+      ctx[4].menu
     }
   });
   return {
     c: function c() {
       create_component(menu_1.$$.fragment);
-    },
-    l: function l(nodes) {
-      claim_component(menu_1.$$.fragment, nodes);
     },
     m: function m(target, anchor) {
       mount_component(menu_1, target, anchor);
@@ -9243,16 +9723,16 @@ function create_if_block_7(ctx) {
     },
     p: function p(ctx, dirty) {
       var menu_1_changes = {};
-      if (dirty &
+      if (dirty[0] &
       /*menu*/
-      16) menu_1_changes.props =
+      32) menu_1_changes.props =
       /*menu*/
-      ctx[4];
-      if (dirty &
+      ctx[5];
+      if (dirty[0] &
       /*regions*/
-      8) menu_1_changes.blocks =
+      16) menu_1_changes.blocks =
       /*regions*/
-      ctx[3].menu;
+      ctx[4].menu;
       menu_1.$set(menu_1_changes);
     },
     i: function i(local) {
@@ -9268,7 +9748,7 @@ function create_if_block_7(ctx) {
       destroy_component(menu_1, detaching);
     }
   };
-} // (371:0) {#if get(theme, 'data.template.afterChart')}
+} // (378:0) {#if get(theme, 'data.template.afterChart')}
 
 
 function create_if_block_5(ctx) {
@@ -9278,19 +9758,13 @@ function create_if_block_5(ctx) {
   ctx[0].data.template.afterChart + "";
   return {
     c: function c() {
-      this.h();
-    },
-    l: function l(nodes) {
-      this.h();
-    },
-    h: function h() {
       html_tag = new HtmlTag(null);
     },
     m: function m(target, anchor) {
       html_tag.m(raw_value, target, anchor);
     },
     p: function p(ctx, dirty) {
-      if (dirty &
+      if (dirty[0] &
       /*theme*/
       1 && raw_value !== (raw_value =
       /*theme*/
@@ -9300,7 +9774,7 @@ function create_if_block_5(ctx) {
       if (detaching) html_tag.d();
     }
   };
-} // (375:0) {#if !isStylePlain}
+} // (382:0) {#if !isStylePlain}
 
 
 function create_if_block_1$6(ctx) {
@@ -9315,7 +9789,7 @@ function create_if_block_1$6(ctx) {
       name: "dw-above-footer",
       blocks:
       /*regions*/
-      ctx[3].aboveFooter
+      ctx[4].aboveFooter
     }
   });
   var each_value_1 = ["Left", "Center", "Right"];
@@ -9336,7 +9810,7 @@ function create_if_block_1$6(ctx) {
       name: "dw-below-footer",
       blocks:
       /*regions*/
-      ctx[3].belowFooter
+      ctx[4].belowFooter
     }
   });
   return {
@@ -9351,27 +9825,6 @@ function create_if_block_1$6(ctx) {
 
       t1 = space();
       create_component(blocksregion1.$$.fragment);
-      this.h();
-    },
-    l: function l(nodes) {
-      claim_component(blocksregion0.$$.fragment, nodes);
-      t0 = claim_space(nodes);
-      div = claim_element(nodes, "DIV", {
-        id: true,
-        class: true
-      });
-      var div_nodes = children(div);
-
-      for (var _i2 = 0; _i2 < 3; _i2 += 1) {
-        each_blocks[_i2].l(div_nodes);
-      }
-
-      div_nodes.forEach(detach);
-      t1 = claim_space(nodes);
-      claim_component(blocksregion1.$$.fragment, nodes);
-      this.h();
-    },
-    h: function h() {
       attr(div, "id", "footer");
       attr(div, "class", "dw-chart-footer");
     },
@@ -9380,8 +9833,8 @@ function create_if_block_1$6(ctx) {
       insert(target, t0, anchor);
       insert(target, div, anchor);
 
-      for (var _i3 = 0; _i3 < 3; _i3 += 1) {
-        each_blocks[_i3].m(div, null);
+      for (var _i2 = 0; _i2 < 3; _i2 += 1) {
+        each_blocks[_i2].m(div, null);
       }
 
       insert(target, t1, anchor);
@@ -9390,61 +9843,61 @@ function create_if_block_1$6(ctx) {
     },
     p: function p(ctx, dirty) {
       var blocksregion0_changes = {};
-      if (dirty &
+      if (dirty[0] &
       /*regions*/
-      8) blocksregion0_changes.blocks =
+      16) blocksregion0_changes.blocks =
       /*regions*/
-      ctx[3].aboveFooter;
+      ctx[4].aboveFooter;
       blocksregion0.$set(blocksregion0_changes);
 
-      if (dirty &
-      /*regions, clean*/
-      8) {
+      if (dirty[0] &
+      /*regions*/
+      16) {
         each_value_1 = ["Left", "Center", "Right"];
 
-        var _i4;
+        var _i3;
 
-        for (_i4 = 0; _i4 < 3; _i4 += 1) {
-          var child_ctx = get_each_context_1(ctx, each_value_1, _i4);
+        for (_i3 = 0; _i3 < 3; _i3 += 1) {
+          var child_ctx = get_each_context_1(ctx, each_value_1, _i3);
 
-          if (each_blocks[_i4]) {
-            each_blocks[_i4].p(child_ctx, dirty);
+          if (each_blocks[_i3]) {
+            each_blocks[_i3].p(child_ctx, dirty);
 
-            transition_in(each_blocks[_i4], 1);
+            transition_in(each_blocks[_i3], 1);
           } else {
-            each_blocks[_i4] = create_each_block_1(child_ctx);
+            each_blocks[_i3] = create_each_block_1(child_ctx);
 
-            each_blocks[_i4].c();
+            each_blocks[_i3].c();
 
-            transition_in(each_blocks[_i4], 1);
+            transition_in(each_blocks[_i3], 1);
 
-            each_blocks[_i4].m(div, null);
+            each_blocks[_i3].m(div, null);
           }
         }
 
         group_outros();
 
-        for (_i4 = 3; _i4 < 3; _i4 += 1) {
-          out(_i4);
+        for (_i3 = 3; _i3 < 3; _i3 += 1) {
+          out(_i3);
         }
 
         check_outros();
       }
 
       var blocksregion1_changes = {};
-      if (dirty &
+      if (dirty[0] &
       /*regions*/
-      8) blocksregion1_changes.blocks =
+      16) blocksregion1_changes.blocks =
       /*regions*/
-      ctx[3].belowFooter;
+      ctx[4].belowFooter;
       blocksregion1.$set(blocksregion1_changes);
     },
     i: function i(local) {
       if (current) return;
       transition_in(blocksregion0.$$.fragment, local);
 
-      for (var _i5 = 0; _i5 < 3; _i5 += 1) {
-        transition_in(each_blocks[_i5]);
+      for (var _i4 = 0; _i4 < 3; _i4 += 1) {
+        transition_in(each_blocks[_i4]);
       }
 
       transition_in(blocksregion1.$$.fragment, local);
@@ -9454,8 +9907,8 @@ function create_if_block_1$6(ctx) {
       transition_out(blocksregion0.$$.fragment, local);
       each_blocks = each_blocks.filter(Boolean);
 
-      for (var _i6 = 0; _i6 < 3; _i6 += 1) {
-        transition_out(each_blocks[_i6]);
+      for (var _i5 = 0; _i5 < 3; _i5 += 1) {
+        transition_out(each_blocks[_i5]);
       }
 
       transition_out(blocksregion1.$$.fragment, local);
@@ -9470,7 +9923,7 @@ function create_if_block_1$6(ctx) {
       destroy_component(blocksregion1, detaching);
     }
   };
-} // (382:20) {#if i}
+} // (389:20) {#if i}
 
 
 function create_if_block_4(ctx) {
@@ -9479,29 +9932,19 @@ function create_if_block_4(ctx) {
   return {
     c: function c() {
       span = element("span");
-      this.h();
-    },
-    l: function l(nodes) {
-      span = claim_element(nodes, "SPAN", {
-        class: true
-      });
-      children(span).forEach(detach);
-      this.h();
-    },
-    h: function h() {
       attr(span, "class", span_class_value = "separator separator-before-" +
       /*block*/
-      ctx[22].id);
+      ctx[29].id);
     },
     m: function m(target, anchor) {
       insert(target, span, anchor);
     },
     p: function p(ctx, dirty) {
-      if (dirty &
+      if (dirty[0] &
       /*regions*/
-      8 && span_class_value !== (span_class_value = "separator separator-before-" +
+      16 && span_class_value !== (span_class_value = "separator separator-before-" +
       /*block*/
-      ctx[22].id)) {
+      ctx[29].id)) {
         attr(span, "class", span_class_value);
       }
     },
@@ -9509,28 +9952,17 @@ function create_if_block_4(ctx) {
       if (detaching) detach(span);
     }
   };
-} // (386:24) {#if block.prepend}
+} // (393:24) {#if block.prepend}
 
 
 function create_if_block_3(ctx) {
   var span;
   var raw_value = clean(
   /*block*/
-  ctx[22].prepend) + "";
+  ctx[29].prepend) + "";
   return {
     c: function c() {
       span = element("span");
-      this.h();
-    },
-    l: function l(nodes) {
-      span = claim_element(nodes, "SPAN", {
-        class: true
-      });
-      var span_nodes = children(span);
-      span_nodes.forEach(detach);
-      this.h();
-    },
-    h: function h() {
       attr(span, "class", "prepend");
     },
     m: function m(target, anchor) {
@@ -9538,38 +9970,27 @@ function create_if_block_3(ctx) {
       span.innerHTML = raw_value;
     },
     p: function p(ctx, dirty) {
-      if (dirty &
+      if (dirty[0] &
       /*regions*/
-      8 && raw_value !== (raw_value = clean(
+      16 && raw_value !== (raw_value = clean(
       /*block*/
-      ctx[22].prepend) + "")) span.innerHTML = raw_value;
+      ctx[29].prepend) + "")) span.innerHTML = raw_value;
     },
     d: function d(detaching) {
       if (detaching) detach(span);
     }
   };
-} // (394:24) {#if block.append}
+} // (401:24) {#if block.append}
 
 
 function create_if_block_2$1(ctx) {
   var span;
   var raw_value = clean(
   /*block*/
-  ctx[22].append) + "";
+  ctx[29].append) + "";
   return {
     c: function c() {
       span = element("span");
-      this.h();
-    },
-    l: function l(nodes) {
-      span = claim_element(nodes, "SPAN", {
-        class: true
-      });
-      var span_nodes = children(span);
-      span_nodes.forEach(detach);
-      this.h();
-    },
-    h: function h() {
       attr(span, "class", "append");
     },
     m: function m(target, anchor) {
@@ -9577,17 +9998,17 @@ function create_if_block_2$1(ctx) {
       span.innerHTML = raw_value;
     },
     p: function p(ctx, dirty) {
-      if (dirty &
+      if (dirty[0] &
       /*regions*/
-      8 && raw_value !== (raw_value = clean(
+      16 && raw_value !== (raw_value = clean(
       /*block*/
-      ctx[22].append) + "")) span.innerHTML = raw_value;
+      ctx[29].append) + "")) span.innerHTML = raw_value;
     },
     d: function d(detaching) {
       if (detaching) detach(span);
     }
   };
-} // (381:16) {#each regions['footer' + orientation] as block, i}
+} // (388:16) {#each regions['footer' + orientation] as block, i}
 
 
 function create_each_block_2(ctx) {
@@ -9601,20 +10022,20 @@ function create_each_block_2(ctx) {
   var current;
   var if_block0 =
   /*i*/
-  ctx[29] && create_if_block_4(ctx);
+  ctx[36] && create_if_block_4(ctx);
   var if_block1 =
   /*block*/
-  ctx[22].prepend && create_if_block_3(ctx);
+  ctx[29].prepend && create_if_block_3(ctx);
   var switch_value =
   /*block*/
-  ctx[22].component;
+  ctx[29].component;
 
   function switch_props(ctx) {
     return {
       props: {
         props:
         /*block*/
-        ctx[22].props
+        ctx[29].props
       }
     };
   }
@@ -9625,7 +10046,7 @@ function create_each_block_2(ctx) {
 
   var if_block2 =
   /*block*/
-  ctx[22].append && create_if_block_2$1(ctx);
+  ctx[29].append && create_if_block_2$1(ctx);
   return {
     c: function c() {
       if (if_block0) if_block0.c();
@@ -9637,33 +10058,10 @@ function create_each_block_2(ctx) {
       if (switch_instance) create_component(switch_instance.$$.fragment);
       t2 = space();
       if (if_block2) if_block2.c();
-      this.h();
-    },
-    l: function l(nodes) {
-      if (if_block0) if_block0.l(nodes);
-      t0 = claim_space(nodes);
-      span1 = claim_element(nodes, "SPAN", {
-        class: true
-      });
-      var span1_nodes = children(span1);
-      if (if_block1) if_block1.l(span1_nodes);
-      t1 = claim_space(span1_nodes);
-      span0 = claim_element(span1_nodes, "SPAN", {
-        class: true
-      });
-      var span0_nodes = children(span0);
-      if (switch_instance) claim_component(switch_instance.$$.fragment, span0_nodes);
-      span0_nodes.forEach(detach);
-      t2 = claim_space(span1_nodes);
-      if (if_block2) if_block2.l(span1_nodes);
-      span1_nodes.forEach(detach);
-      this.h();
-    },
-    h: function h() {
       attr(span0, "class", "block-inner");
       attr(span1, "class", span1_class_value = "footer-block " +
       /*block*/
-      ctx[22].id + "-block");
+      ctx[29].id + "-block");
     },
     m: function m(target, anchor) {
       if (if_block0) if_block0.m(target, anchor);
@@ -9684,11 +10082,11 @@ function create_each_block_2(ctx) {
     p: function p(ctx, dirty) {
       if (
       /*i*/
-      ctx[29]) if_block0.p(ctx, dirty);
+      ctx[36]) if_block0.p(ctx, dirty);
 
       if (
       /*block*/
-      ctx[22].prepend) {
+      ctx[29].prepend) {
         if (if_block1) {
           if_block1.p(ctx, dirty);
         } else {
@@ -9702,15 +10100,15 @@ function create_each_block_2(ctx) {
       }
 
       var switch_instance_changes = {};
-      if (dirty &
+      if (dirty[0] &
       /*regions*/
-      8) switch_instance_changes.props =
+      16) switch_instance_changes.props =
       /*block*/
-      ctx[22].props;
+      ctx[29].props;
 
       if (switch_value !== (switch_value =
       /*block*/
-      ctx[22].component)) {
+      ctx[29].component)) {
         if (switch_instance) {
           group_outros();
           var old_component = switch_instance;
@@ -9734,7 +10132,7 @@ function create_each_block_2(ctx) {
 
       if (
       /*block*/
-      ctx[22].append) {
+      ctx[29].append) {
         if (if_block2) {
           if_block2.p(ctx, dirty);
         } else {
@@ -9747,11 +10145,11 @@ function create_each_block_2(ctx) {
         if_block2 = null;
       }
 
-      if (!current || dirty &
+      if (!current || dirty[0] &
       /*regions*/
-      8 && span1_class_value !== (span1_class_value = "footer-block " +
+      16 && span1_class_value !== (span1_class_value = "footer-block " +
       /*block*/
-      ctx[22].id + "-block")) {
+      ctx[29].id + "-block")) {
         attr(span1, "class", span1_class_value);
       }
     },
@@ -9773,7 +10171,7 @@ function create_each_block_2(ctx) {
       if (if_block2) if_block2.d();
     }
   };
-} // (379:8) {#each ['Left', 'Center', 'Right'] as orientation}
+} // (386:8) {#each ['Left', 'Center', 'Right'] as orientation}
 
 
 function create_each_block_1(ctx) {
@@ -9783,9 +10181,9 @@ function create_each_block_1(ctx) {
   var current;
   var each_value_2 =
   /*regions*/
-  ctx[3]["footer" +
+  ctx[4]["footer" +
   /*orientation*/
-  ctx[25]];
+  ctx[32]];
   var each_blocks = [];
 
   for (var i = 0; i < each_value_2.length; i += 1) {
@@ -9802,76 +10200,59 @@ function create_each_block_1(ctx) {
     c: function c() {
       div = element("div");
 
-      for (var _i7 = 0; _i7 < each_blocks.length; _i7 += 1) {
-        each_blocks[_i7].c();
+      for (var _i6 = 0; _i6 < each_blocks.length; _i6 += 1) {
+        each_blocks[_i6].c();
       }
 
       t = space();
-      this.h();
-    },
-    l: function l(nodes) {
-      div = claim_element(nodes, "DIV", {
-        class: true
-      });
-      var div_nodes = children(div);
-
-      for (var _i8 = 0; _i8 < each_blocks.length; _i8 += 1) {
-        each_blocks[_i8].l(div_nodes);
-      }
-
-      t = claim_space(div_nodes);
-      div_nodes.forEach(detach);
-      this.h();
-    },
-    h: function h() {
       attr(div, "class", div_class_value = "footer-" +
       /*orientation*/
-      ctx[25].toLowerCase());
+      ctx[32].toLowerCase());
     },
     m: function m(target, anchor) {
       insert(target, div, anchor);
 
-      for (var _i9 = 0; _i9 < each_blocks.length; _i9 += 1) {
-        each_blocks[_i9].m(div, null);
+      for (var _i7 = 0; _i7 < each_blocks.length; _i7 += 1) {
+        each_blocks[_i7].m(div, null);
       }
 
       append(div, t);
       current = true;
     },
     p: function p(ctx, dirty) {
-      if (dirty &
-      /*regions, clean*/
-      8) {
+      if (dirty[0] &
+      /*regions*/
+      16) {
         each_value_2 =
         /*regions*/
-        ctx[3]["footer" +
+        ctx[4]["footer" +
         /*orientation*/
-        ctx[25]];
+        ctx[32]];
 
-        var _i10;
+        var _i8;
 
-        for (_i10 = 0; _i10 < each_value_2.length; _i10 += 1) {
-          var child_ctx = get_each_context_2(ctx, each_value_2, _i10);
+        for (_i8 = 0; _i8 < each_value_2.length; _i8 += 1) {
+          var child_ctx = get_each_context_2(ctx, each_value_2, _i8);
 
-          if (each_blocks[_i10]) {
-            each_blocks[_i10].p(child_ctx, dirty);
+          if (each_blocks[_i8]) {
+            each_blocks[_i8].p(child_ctx, dirty);
 
-            transition_in(each_blocks[_i10], 1);
+            transition_in(each_blocks[_i8], 1);
           } else {
-            each_blocks[_i10] = create_each_block_2(child_ctx);
+            each_blocks[_i8] = create_each_block_2(child_ctx);
 
-            each_blocks[_i10].c();
+            each_blocks[_i8].c();
 
-            transition_in(each_blocks[_i10], 1);
+            transition_in(each_blocks[_i8], 1);
 
-            each_blocks[_i10].m(div, t);
+            each_blocks[_i8].m(div, t);
           }
         }
 
         group_outros();
 
-        for (_i10 = each_value_2.length; _i10 < each_blocks.length; _i10 += 1) {
-          out(_i10);
+        for (_i8 = each_value_2.length; _i8 < each_blocks.length; _i8 += 1) {
+          out(_i8);
         }
 
         check_outros();
@@ -9880,8 +10261,8 @@ function create_each_block_1(ctx) {
     i: function i(local) {
       if (current) return;
 
-      for (var _i11 = 0; _i11 < each_value_2.length; _i11 += 1) {
-        transition_in(each_blocks[_i11]);
+      for (var _i9 = 0; _i9 < each_value_2.length; _i9 += 1) {
+        transition_in(each_blocks[_i9]);
       }
 
       current = true;
@@ -9889,8 +10270,8 @@ function create_each_block_1(ctx) {
     o: function o(local) {
       each_blocks = each_blocks.filter(Boolean);
 
-      for (var _i12 = 0; _i12 < each_blocks.length; _i12 += 1) {
-        transition_out(each_blocks[_i12]);
+      for (var _i10 = 0; _i10 < each_blocks.length; _i10 += 1) {
+        transition_out(each_blocks[_i10]);
       }
 
       current = false;
@@ -9900,7 +10281,7 @@ function create_each_block_1(ctx) {
       destroy_each(each_blocks, detaching);
     }
   };
-} // (409:4) {#each regions.afterBody as block}
+} // (416:4) {#each regions.afterBody as block}
 
 
 function create_each_block$1(ctx) {
@@ -9909,14 +10290,14 @@ function create_each_block$1(ctx) {
   var current;
   var switch_value =
   /*block*/
-  ctx[22].component;
+  ctx[29].component;
 
   function switch_props(ctx) {
     return {
       props: {
         props:
         /*block*/
-        ctx[22].props
+        ctx[29].props
       }
     };
   }
@@ -9930,10 +10311,6 @@ function create_each_block$1(ctx) {
       if (switch_instance) create_component(switch_instance.$$.fragment);
       switch_instance_anchor = empty();
     },
-    l: function l(nodes) {
-      if (switch_instance) claim_component(switch_instance.$$.fragment, nodes);
-      switch_instance_anchor = empty();
-    },
     m: function m(target, anchor) {
       if (switch_instance) {
         mount_component(switch_instance, target, anchor);
@@ -9944,15 +10321,15 @@ function create_each_block$1(ctx) {
     },
     p: function p(ctx, dirty) {
       var switch_instance_changes = {};
-      if (dirty &
+      if (dirty[0] &
       /*regions*/
-      8) switch_instance_changes.props =
+      16) switch_instance_changes.props =
       /*block*/
-      ctx[22].props;
+      ctx[29].props;
 
       if (switch_value !== (switch_value =
       /*block*/
-      ctx[22].component)) {
+      ctx[29].component)) {
         if (switch_instance) {
           group_outros();
           var old_component = switch_instance;
@@ -9988,33 +10365,26 @@ function create_each_block$1(ctx) {
       if (switch_instance) destroy_component(switch_instance, detaching);
     }
   };
-} // (414:0) {#if publishData.chartAfterBodyHTML}
+} // (421:0) {#if chartAfterBodyHTML}
 
 
 function create_if_block$9(ctx) {
   var html_tag;
-  var raw_value =
-  /*publishData*/
-  ctx[6].chartAfterBodyHTML + "";
   return {
     c: function c() {
-      this.h();
-    },
-    l: function l(nodes) {
-      this.h();
-    },
-    h: function h() {
       html_tag = new HtmlTag(null);
     },
     m: function m(target, anchor) {
-      html_tag.m(raw_value, target, anchor);
+      html_tag.m(
+      /*chartAfterBodyHTML*/
+      ctx[1], target, anchor);
     },
     p: function p(ctx, dirty) {
-      if (dirty &
-      /*publishData*/
-      64 && raw_value !== (raw_value =
-      /*publishData*/
-      ctx[6].chartAfterBodyHTML + "")) html_tag.p(raw_value);
+      if (dirty[0] &
+      /*chartAfterBodyHTML*/
+      2) html_tag.p(
+      /*chartAfterBodyHTML*/
+      ctx[1]);
     },
     d: function d(detaching) {
       if (detaching) html_tag.d();
@@ -10037,14 +10407,14 @@ function create_fragment$g(ctx) {
   var current;
   var if_block0 = !
   /*isStylePlain*/
-  ctx[1] && create_if_block_6(ctx);
+  ctx[2] && create_if_block_6(ctx);
   var if_block1 = show_if && create_if_block_5(ctx);
   var if_block2 = !
   /*isStylePlain*/
-  ctx[1] && create_if_block_1$6(ctx);
+  ctx[2] && create_if_block_1$6(ctx);
   var each_value =
   /*regions*/
-  ctx[3].afterBody;
+  ctx[4].afterBody;
   var each_blocks = [];
 
   for (var i = 0; i < each_value.length; i += 1) {
@@ -10058,8 +10428,8 @@ function create_fragment$g(ctx) {
   };
 
   var if_block3 =
-  /*publishData*/
-  ctx[6].chartAfterBodyHTML && create_if_block$9(ctx);
+  /*chartAfterBodyHTML*/
+  ctx[1] && create_if_block$9(ctx);
   return {
     c: function c() {
       if (if_block0) if_block0.c();
@@ -10072,43 +10442,13 @@ function create_fragment$g(ctx) {
       t3 = space();
       div1 = element("div");
 
-      for (var _i13 = 0; _i13 < each_blocks.length; _i13 += 1) {
-        each_blocks[_i13].c();
+      for (var _i11 = 0; _i11 < each_blocks.length; _i11 += 1) {
+        each_blocks[_i11].c();
       }
 
       t4 = space();
       if (if_block3) if_block3.c();
       if_block3_anchor = empty();
-      this.h();
-    },
-    l: function l(nodes) {
-      if (if_block0) if_block0.l(nodes);
-      t0 = claim_space(nodes);
-      div0 = claim_element(nodes, "DIV", {
-        class: true
-      });
-      children(div0).forEach(detach);
-      t1 = claim_space(nodes);
-      if (if_block1) if_block1.l(nodes);
-      t2 = claim_space(nodes);
-      if (if_block2) if_block2.l(nodes);
-      t3 = claim_space(nodes);
-      div1 = claim_element(nodes, "DIV", {
-        class: true
-      });
-      var div1_nodes = children(div1);
-
-      for (var _i14 = 0; _i14 < each_blocks.length; _i14 += 1) {
-        each_blocks[_i14].l(div1_nodes);
-      }
-
-      div1_nodes.forEach(detach);
-      t4 = claim_space(nodes);
-      if (if_block3) if_block3.l(nodes);
-      if_block3_anchor = empty();
-      this.h();
-    },
-    h: function h() {
       attr(div0, "class", "dw-chart-body");
       attr(div1, "class", "dw-after-body");
     },
@@ -10118,7 +10458,7 @@ function create_fragment$g(ctx) {
       insert(target, div0, anchor);
       /*div0_binding*/
 
-      ctx[9](div0);
+      ctx[18](div0);
       insert(target, t1, anchor);
       if (if_block1) if_block1.m(target, anchor);
       insert(target, t2, anchor);
@@ -10126,8 +10466,8 @@ function create_fragment$g(ctx) {
       insert(target, t3, anchor);
       insert(target, div1, anchor);
 
-      for (var _i15 = 0; _i15 < each_blocks.length; _i15 += 1) {
-        each_blocks[_i15].m(div1, null);
+      for (var _i12 = 0; _i12 < each_blocks.length; _i12 += 1) {
+        each_blocks[_i12].m(div1, null);
       }
 
       insert(target, t4, anchor);
@@ -10135,19 +10475,16 @@ function create_fragment$g(ctx) {
       insert(target, if_block3_anchor, anchor);
       current = true;
     },
-    p: function p(ctx, _ref) {
-      var _ref2 = _slicedToArray(_ref, 1),
-          dirty = _ref2[0];
-
+    p: function p(ctx, dirty) {
       if (!
       /*isStylePlain*/
-      ctx[1]) {
+      ctx[2]) {
         if (if_block0) {
           if_block0.p(ctx, dirty);
 
-          if (dirty &
+          if (dirty[0] &
           /*isStylePlain*/
-          2) {
+          4) {
             transition_in(if_block0, 1);
           }
         } else {
@@ -10164,7 +10501,7 @@ function create_fragment$g(ctx) {
         check_outros();
       }
 
-      if (dirty &
+      if (dirty[0] &
       /*theme*/
       1) show_if = get(
       /*theme*/
@@ -10185,13 +10522,13 @@ function create_fragment$g(ctx) {
 
       if (!
       /*isStylePlain*/
-      ctx[1]) {
+      ctx[2]) {
         if (if_block2) {
           if_block2.p(ctx, dirty);
 
-          if (dirty &
+          if (dirty[0] &
           /*isStylePlain*/
-          2) {
+          4) {
             transition_in(if_block2, 1);
           }
         } else {
@@ -10208,45 +10545,45 @@ function create_fragment$g(ctx) {
         check_outros();
       }
 
-      if (dirty &
+      if (dirty[0] &
       /*regions*/
-      8) {
+      16) {
         each_value =
         /*regions*/
-        ctx[3].afterBody;
+        ctx[4].afterBody;
 
-        var _i16;
+        var _i13;
 
-        for (_i16 = 0; _i16 < each_value.length; _i16 += 1) {
-          var child_ctx = get_each_context$1(ctx, each_value, _i16);
+        for (_i13 = 0; _i13 < each_value.length; _i13 += 1) {
+          var child_ctx = get_each_context$1(ctx, each_value, _i13);
 
-          if (each_blocks[_i16]) {
-            each_blocks[_i16].p(child_ctx, dirty);
+          if (each_blocks[_i13]) {
+            each_blocks[_i13].p(child_ctx, dirty);
 
-            transition_in(each_blocks[_i16], 1);
+            transition_in(each_blocks[_i13], 1);
           } else {
-            each_blocks[_i16] = create_each_block$1(child_ctx);
+            each_blocks[_i13] = create_each_block$1(child_ctx);
 
-            each_blocks[_i16].c();
+            each_blocks[_i13].c();
 
-            transition_in(each_blocks[_i16], 1);
+            transition_in(each_blocks[_i13], 1);
 
-            each_blocks[_i16].m(div1, null);
+            each_blocks[_i13].m(div1, null);
           }
         }
 
         group_outros();
 
-        for (_i16 = each_value.length; _i16 < each_blocks.length; _i16 += 1) {
-          out(_i16);
+        for (_i13 = each_value.length; _i13 < each_blocks.length; _i13 += 1) {
+          out(_i13);
         }
 
         check_outros();
       }
 
       if (
-      /*publishData*/
-      ctx[6].chartAfterBodyHTML) {
+      /*chartAfterBodyHTML*/
+      ctx[1]) {
         if (if_block3) {
           if_block3.p(ctx, dirty);
         } else {
@@ -10264,8 +10601,8 @@ function create_fragment$g(ctx) {
       transition_in(if_block0);
       transition_in(if_block2);
 
-      for (var _i17 = 0; _i17 < each_value.length; _i17 += 1) {
-        transition_in(each_blocks[_i17]);
+      for (var _i14 = 0; _i14 < each_value.length; _i14 += 1) {
+        transition_in(each_blocks[_i14]);
       }
 
       current = true;
@@ -10275,8 +10612,8 @@ function create_fragment$g(ctx) {
       transition_out(if_block2);
       each_blocks = each_blocks.filter(Boolean);
 
-      for (var _i18 = 0; _i18 < each_blocks.length; _i18 += 1) {
-        transition_out(each_blocks[_i18]);
+      for (var _i15 = 0; _i15 < each_blocks.length; _i15 += 1) {
+        transition_out(each_blocks[_i15]);
       }
 
       current = false;
@@ -10287,7 +10624,7 @@ function create_fragment$g(ctx) {
       if (detaching) detach(div0);
       /*div0_binding*/
 
-      ctx[9](null);
+      ctx[18](null);
       if (detaching) detach(t1);
       if (if_block1) if_block1.d(detaching);
       if (detaching) detach(t2);
@@ -10313,16 +10650,36 @@ function getCaption(id) {
 
 function instance$g($$self, $$props, $$invalidate) {
   var _$$props$data = $$props.data,
-      data = _$$props$data === void 0 ? {} : _$$props$data;
+      data = _$$props$data === void 0 ? "" : _$$props$data;
+  var _$$props$chart = $$props.chart,
+      chart = _$$props$chart === void 0 ? {} : _$$props$chart;
+  var _$$props$visualizatio = $$props.visualization,
+      visualization = _$$props$visualizatio === void 0 ? {} : _$$props$visualizatio;
   var _$$props$theme = $$props.theme,
       theme = _$$props$theme === void 0 ? {} : _$$props$theme;
-  var iframe = $$props.iframe;
+  var _$$props$locales = $$props.locales,
+      locales = _$$props$locales === void 0 ? {} : _$$props$locales;
+  var _$$props$blocks = $$props.blocks,
+      blocks = _$$props$blocks === void 0 ? {} : _$$props$blocks;
+  var _$$props$chartAfterBo = $$props.chartAfterBodyHTML,
+      chartAfterBodyHTML = _$$props$chartAfterBo === void 0 ? "" : _$$props$chartAfterBo;
+  var isIframe = $$props.isIframe;
+  var isPreview = $$props.isPreview;
+  var basemap = $$props.basemap;
+  var minimap = $$props.minimap;
+  var highlight = $$props.highlight;
+  var _$$props$fonts = $$props.fonts,
+      fonts = _$$props$fonts === void 0 ? {} : _$$props$fonts;
+  var _$$props$isStylePlain = $$props.isStylePlain,
+      isStylePlain = _$$props$isStylePlain === void 0 ? false : _$$props$isStylePlain;
+  var _$$props$isStyleStati = $$props.isStyleStatic,
+      isStyleStatic = _$$props$isStyleStati === void 0 ? false : _$$props$isStyleStati;
 
-  if (iframe && typeof window !== "undefined") {
-    window.__dwUpdate = function (_ref3) {
-      var chart = _ref3.chart;
-      Object.assign(data.chartJSON, chart);
-      $$invalidate(7, data); // to force re-rendering
+  if (isIframe && typeof window !== "undefined") {
+    window.__dwUpdate = function (_ref) {
+      var chart = _ref.chart;
+      Object.assign(chart, chart);
+      chart = chart; // to force re-rendering
     };
   }
 
@@ -10331,8 +10688,8 @@ function instance$g($$self, $$props, $$invalidate) {
     tag: "h1",
     region: "header",
     priority: 10,
-    test: function test(_ref4) {
-      var chart = _ref4.chart;
+    test: function test(_ref2) {
+      var chart = _ref2.chart;
       return chart.title && !get(chart, "metadata.describe.hide-title");
     },
     component: Headline
@@ -10341,8 +10698,8 @@ function instance$g($$self, $$props, $$invalidate) {
     tag: "p",
     region: "header",
     priority: 20,
-    test: function test(_ref5) {
-      var chart = _ref5.chart;
+    test: function test(_ref3) {
+      var chart = _ref3.chart;
       return get(chart, "metadata.describe.intro");
     },
     component: Description
@@ -10350,16 +10707,16 @@ function instance$g($$self, $$props, $$invalidate) {
     id: "notes",
     region: "aboveFooter",
     priority: 10,
-    test: function test(_ref6) {
-      var chart = _ref6.chart;
+    test: function test(_ref4) {
+      var chart = _ref4.chart;
       return get(chart, "metadata.annotate.notes");
     },
     component: Notes
   }, {
     id: "byline",
     region: "footerLeft",
-    test: function test(_ref7) {
-      var chart = _ref7.chart;
+    test: function test(_ref5) {
+      var chart = _ref5.chart;
       return get(chart, "metadata.describe.byline", false) || chart.basedOnByline;
     },
     priority: 10,
@@ -10367,8 +10724,8 @@ function instance$g($$self, $$props, $$invalidate) {
   }, {
     id: "source",
     region: "footerLeft",
-    test: function test(_ref8) {
-      var chart = _ref8.chart;
+    test: function test(_ref6) {
+      var chart = _ref6.chart;
       return get(chart, "metadata.describe.source-name");
     },
     priority: 20,
@@ -10376,9 +10733,9 @@ function instance$g($$self, $$props, $$invalidate) {
   }, {
     id: "get-the-data",
     region: "footerLeft",
-    test: function test(_ref9) {
-      var theme = _ref9.theme,
-          isStyleStatic = _ref9.isStyleStatic;
+    test: function test(_ref7) {
+      var theme = _ref7.theme,
+          isStyleStatic = _ref7.isStyleStatic;
       return get(theme, "data.options.footer.getTheData.enabled") && !isStyleStatic;
     },
     priority: 30,
@@ -10386,9 +10743,9 @@ function instance$g($$self, $$props, $$invalidate) {
   }, {
     id: "embed",
     region: "footerLeft",
-    test: function test(_ref10) {
-      var theme = _ref10.theme,
-          isStyleStatic = _ref10.isStyleStatic;
+    test: function test(_ref8) {
+      var theme = _ref8.theme,
+          isStyleStatic = _ref8.isStyleStatic;
       return get(theme, "data.options.footer.embed.enabled") && !isStyleStatic;
     },
     priority: 40,
@@ -10396,8 +10753,8 @@ function instance$g($$self, $$props, $$invalidate) {
   }, {
     id: "logo",
     region: "footerRight",
-    test: function test(_ref11) {
-      var theme = _ref11.theme;
+    test: function test(_ref9) {
+      var theme = _ref9.theme;
       return get(theme, "data.options.footer.logo.enabled");
     },
     priority: 10,
@@ -10405,8 +10762,8 @@ function instance$g($$self, $$props, $$invalidate) {
   }, {
     id: "rectangle",
     region: "header",
-    test: function test(_ref12) {
-      var theme = _ref12.theme;
+    test: function test(_ref10) {
+      var theme = _ref10.theme;
       return !!get(theme, "data.options.blocks.rectangle");
     },
     priority: 1,
@@ -10414,8 +10771,8 @@ function instance$g($$self, $$props, $$invalidate) {
   }, {
     id: "watermark",
     region: "afterBody",
-    test: function test(_ref13) {
-      var theme = _ref13.theme;
+    test: function test(_ref11) {
+      var theme = _ref11.theme;
       var field = get(theme, "data.options.watermark.custom-field");
       return get(theme, "data.options.watermark") ? field ? get(chart, "metadata.custom.".concat(field), "") : get(theme, "data.options.watermark.text", "CONFIDENTIAL") : false;
     },
@@ -10428,8 +10785,8 @@ function instance$g($$self, $$props, $$invalidate) {
     return {
       id: id,
       region: "header",
-      test: function test(_ref14) {
-        var theme = _ref14.theme;
+      test: function test(_ref12) {
+        var theme = _ref12.theme;
         return !!get(theme, "data.options.blocks.".concat(id));
       },
       priority: 0,
@@ -10467,11 +10824,7 @@ function instance$g($$self, $$props, $$invalidate) {
 
   var regions;
   var menu;
-  var _$$props$isStylePlain = $$props.isStylePlain,
-      isStylePlain = _$$props$isStylePlain === void 0 ? false : _$$props$isStylePlain;
-  var _$$props$isStyleStati = $$props.isStyleStatic,
-      isStyleStatic = _$$props$isStyleStati === void 0 ? false : _$$props$isStyleStati;
-  var caption = getCaption(data.visJSON.id);
+  var caption = getCaption(visualization.id);
 
   function __(key) {
     for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -10484,7 +10837,7 @@ function instance$g($$self, $$props, $$invalidate) {
     }
 
     key = key.trim();
-    var translation = locale[key] || key;
+    var translation = locales[key] || key;
 
     if (args.length) {
       translation = translation.replace(/\$(\d)/g, function (m, i) {
@@ -10498,138 +10851,136 @@ function instance$g($$self, $$props, $$invalidate) {
 
   var target;
   onMount(_async(function () {
-    document.body.classList.toggle("plain", isStylePlain);
-    document.body.classList.toggle("static", isStyleStatic); // the body class "png-export" kept for backwards compatibility
+    if (isIframe) {
+      document.body.classList.toggle("plain", isStylePlain);
+      document.body.classList.toggle("static", isStyleStatic); // the body class "png-export" kept for backwards compatibility
 
-    document.body.classList.toggle("png-export", isStyleStatic);
+      document.body.classList.toggle("png-export", isStyleStatic);
 
-    if (isStyleStatic) {
-      document.body.style["pointer-events"] = "none";
-    }
-
-    dw.theme.register(theme.id, theme.data);
-    var _publishData = publishData,
-        basemap = _publishData.basemap,
-        minimap = _publishData.minimap,
-        highlight = _publishData.highlight;
-
-    if (basemap) {
-      basemap.content = JSON.parse(basemap.content);
-      $$invalidate(7, data.d3maps_basemap = _defineProperty({}, basemap.__id, basemap), data);
-    }
-
-    if (minimap || highlight) {
-      $$invalidate(7, data.locatorMap = {
-        minimapGeom: minimap,
-        highlightGeom: highlight
-      }, data);
-    }
-
-    var _init = init$1(target, {
-      data: data.chartData,
-      chart: data.chartJSON,
-      visualization: data.visJSON,
-      theme: theme.data,
-      locales: data.locales,
-      d3maps_basemap: data.d3maps_basemap,
-      locatorMap: data.locatorMap,
-      isPreview: data.isPreview,
-      iframe: iframe,
-      fonts: data.fontsJSON
-    }),
-        render = _init.render; // load & execute plugins
-
-
-    window.__dwBlocks = {};
-    return _invoke(function () {
-      if (publishData.blocks.length) {
-        return _await(Promise.all(publishData.blocks.map(function (d) {
-          return new Promise(function (resolve, reject) {
-            var p = [loadScript(d.source.js)];
-            if (d.source.css) p.push(loadStylesheet(d.source.css));
-            Promise.all(p).then(resolve).catch(function (err) {
-              // log error
-              var url = err.target ? err.target.getAttribute("src") || err.target.getAttribute("href") : null;
-              if (url) console.warn("could not load ", url);else console.error("Unknown error", err); // but resolve anyway
-
-              resolve();
-            });
-          });
-        })), function () {
-          // all plugins are loaded
-          publishData.blocks.forEach(function (d) {
-            d.blocks.forEach(function (block) {
-              if (!window.__dwBlocks[block.component]) {
-                return console.warn("component ".concat(block.component, " from chart block ").concat(block.id, " not found"));
-              }
-
-              pluginBlocks.push(_objectSpread2(_objectSpread2({}, block), {}, {
-                component: window.__dwBlocks[block.component]
-              }));
-            });
-          }); // trigger svelte update after modifying array
-
-          $$invalidate(10, pluginBlocks);
-        });
+      if (isStyleStatic) {
+        document.body.style["pointer-events"] = "none";
       }
-    }, function () {
-      return _call(tick, function () {
-        render();
-      });
-    });
+    }
+
+    return _await();
   }));
+  var initialized = false;
 
   function div0_binding($$value) {
     binding_callbacks[$$value ? "unshift" : "push"](function () {
       target = $$value;
-      $$invalidate(5, target);
+      $$invalidate(6, target);
     });
   }
 
   $$self.$set = function ($$props) {
-    if ("data" in $$props) $$invalidate(7, data = $$props.data);
+    if ("data" in $$props) $$invalidate(8, data = $$props.data);
+    if ("chart" in $$props) $$invalidate(9, chart = $$props.chart);
+    if ("visualization" in $$props) $$invalidate(10, visualization = $$props.visualization);
     if ("theme" in $$props) $$invalidate(0, theme = $$props.theme);
-    if ("iframe" in $$props) $$invalidate(8, iframe = $$props.iframe);
-    if ("isStylePlain" in $$props) $$invalidate(1, isStylePlain = $$props.isStylePlain);
-    if ("isStyleStatic" in $$props) $$invalidate(2, isStyleStatic = $$props.isStyleStatic);
+    if ("locales" in $$props) $$invalidate(11, locales = $$props.locales);
+    if ("blocks" in $$props) $$invalidate(12, blocks = $$props.blocks);
+    if ("chartAfterBodyHTML" in $$props) $$invalidate(1, chartAfterBodyHTML = $$props.chartAfterBodyHTML);
+    if ("isIframe" in $$props) $$invalidate(13, isIframe = $$props.isIframe);
+    if ("isPreview" in $$props) $$invalidate(14, isPreview = $$props.isPreview);
+    if ("basemap" in $$props) $$invalidate(7, basemap = $$props.basemap);
+    if ("minimap" in $$props) $$invalidate(15, minimap = $$props.minimap);
+    if ("highlight" in $$props) $$invalidate(16, highlight = $$props.highlight);
+    if ("fonts" in $$props) $$invalidate(17, fonts = $$props.fonts);
+    if ("isStylePlain" in $$props) $$invalidate(2, isStylePlain = $$props.isStylePlain);
+    if ("isStyleStatic" in $$props) $$invalidate(3, isStyleStatic = $$props.isStyleStatic);
   };
 
-  var chart;
-  var publishData;
-  var locale;
-  var customCSS;
   var allBlocks;
   var blockProps;
 
   $$self.$$.update = function () {
-    if ($$self.$$.dirty &
-    /*data*/
-    128) {
-       $$invalidate(11, chart = data.chartJSON);
+    if ($$self.$$.dirty[0] &
+    /*initialized, theme, basemap, minimap, highlight, target, data, chart, visualization, locales, isPreview, isIframe, fonts, blocks, pluginBlocks*/
+    1834945) {
+       {
+        var run = _async(function () {
+          if (typeof dw === "undefined") return;
+          if (initialized) return;
+          dw.theme.register(theme.id, theme.data);
+          var d3maps_basemap, locatorMap;
+
+          if (basemap) {
+            $$invalidate(7, basemap.content = JSON.parse(basemap.content), basemap);
+            d3maps_basemap = _defineProperty({}, basemap.__id, basemap);
+          }
+
+          if (minimap || highlight) {
+            locatorMap = {
+              minimapGeom: minimap,
+              highlightGeom: highlight
+            };
+          }
+
+          var _init = init$1(target, {
+            data: data,
+            chart: chart,
+            visualization: visualization,
+            theme: theme,
+            locales: locales,
+            d3maps_basemap: d3maps_basemap,
+            locatorMap: locatorMap,
+            isPreview: isPreview,
+            isIframe: isIframe,
+            fonts: fonts
+          }),
+              success = _init.success,
+              render = _init.render;
+
+          if (!success) return;else $$invalidate(20, initialized = true); // load & execute plugins
+
+          window.__dwBlocks = {};
+          return _invoke(function () {
+            if (blocks.length) {
+              return _await(Promise.all(blocks.map(function (d) {
+                return new Promise(function (resolve, reject) {
+                  var p = [loadScript(d.source.js)];
+                  if (d.source.css) p.push(loadStylesheet(d.source.css));
+                  Promise.all(p).then(resolve).catch(function (err) {
+                    // log error
+                    var url = err.target ? err.target.getAttribute("src") || err.target.getAttribute("href") : null;
+                    if (url) console.warn("could not load ", url);else console.error("Unknown error", err); // but resolve anyway
+
+                    resolve();
+                  });
+                });
+              })), function () {
+                // all plugins are loaded
+                blocks.forEach(function (d) {
+                  d.blocks.forEach(function (block) {
+                    if (!window.__dwBlocks[block.component]) {
+                      return console.warn("component ".concat(block.component, " from chart block ").concat(block.id, " not found"));
+                    }
+
+                    pluginBlocks.push(_objectSpread2(_objectSpread2({}, block), {}, {
+                      component: window.__dwBlocks[block.component]
+                    }));
+                  });
+                }); // trigger svelte update after modifying array
+
+                ((((((((((((($$invalidate(19, pluginBlocks), $$invalidate(20, initialized)), $$invalidate(0, theme)), $$invalidate(7, basemap)), $$invalidate(15, minimap)), $$invalidate(16, highlight)), $$invalidate(6, target)), $$invalidate(8, data)), $$invalidate(9, chart)), $$invalidate(10, visualization)), $$invalidate(11, locales)), $$invalidate(14, isPreview)), $$invalidate(13, isIframe)), $$invalidate(17, fonts)), $$invalidate(12, blocks);
+              });
+            }
+          }, function () {
+            return _call(tick, function () {
+              render();
+            });
+          });
+        });
+
+        run();
+      }
     }
 
-    if ($$self.$$.dirty &
-    /*data*/
-    128) {
-       $$invalidate(6, publishData = data.publishData);
-    }
-
-    if ($$self.$$.dirty &
-    /*data*/
-    128) {
-       locale = data.visJSON.locale;
-    }
-
-    if ($$self.$$.dirty &
-    /*chart*/
-    2048) {
-       customCSS = purifyHTML(get(chart, "metadata.publish.custom-css", ""), "");
-    }
-
-    if ($$self.$$.dirty &
+    if ($$self.$$.dirty[0] &
     /*theme, data, chart*/
-    2177) {
-       $$invalidate(15, blockProps = {
+    769) {
+       $$invalidate(22, blockProps = {
         __: __,
         purifyHtml: clean,
         get: get,
@@ -10640,18 +10991,18 @@ function instance$g($$self, $$props, $$invalidate) {
       });
     }
 
-    if ($$self.$$.dirty &
+    if ($$self.$$.dirty[0] &
     /*pluginBlocks, theme, blockProps*/
-    33793) {
-       $$invalidate(14, allBlocks = applyThemeBlockConfig([].concat(coreBlocks, pluginBlocks), theme, blockProps));
+    4718593) {
+       $$invalidate(21, allBlocks = applyThemeBlockConfig([].concat(coreBlocks, pluginBlocks), theme, blockProps));
     }
 
-    if ($$self.$$.dirty &
+    if ($$self.$$.dirty[0] &
     /*allBlocks, chart, data, theme, isStyleStatic*/
-    18565) {
+    2097929) {
        {
         // build all the region
-        $$invalidate(3, regions = {
+        $$invalidate(4, regions = {
           header: getBlocks(allBlocks, "header", {
             chart: chart,
             data: data,
@@ -10704,16 +11055,16 @@ function instance$g($$self, $$props, $$invalidate) {
       }
     }
 
-    if ($$self.$$.dirty &
+    if ($$self.$$.dirty[0] &
     /*theme*/
     1) {
        {
-        $$invalidate(4, menu = get(theme, "data.options.menu", {}));
+        $$invalidate(5, menu = get(theme, "data.options.menu", {}));
       }
     }
   };
 
-  return [theme, isStylePlain, isStyleStatic, regions, menu, target, publishData, data, iframe, div0_binding];
+  return [theme, chartAfterBodyHTML, isStylePlain, isStyleStatic, regions, menu, target, basemap, data, chart, visualization, locales, blocks, isIframe, isPreview, minimap, highlight, fonts, div0_binding];
 }
 
 var Chart = /*#__PURE__*/function (_SvelteComponent) {
@@ -10728,17 +11079,480 @@ var Chart = /*#__PURE__*/function (_SvelteComponent) {
 
     _this = _super.call(this);
     init(_assertThisInitialized(_this), options, instance$g, create_fragment$g, safe_not_equal, {
-      data: 7,
+      data: 8,
+      chart: 9,
+      visualization: 10,
       theme: 0,
-      iframe: 8,
-      isStylePlain: 1,
-      isStyleStatic: 2
-    });
+      locales: 11,
+      blocks: 12,
+      chartAfterBodyHTML: 1,
+      isIframe: 13,
+      isPreview: 14,
+      basemap: 7,
+      minimap: 15,
+      highlight: 16,
+      fonts: 17,
+      isStylePlain: 2,
+      isStyleStatic: 3
+    }, [-1, -1]);
     return _this;
   }
 
   return Chart;
-}(SvelteComponent);function _await$1(value, then, direct) {
+}(SvelteComponent);function create_fragment$h(ctx) {
+  var link;
+  var link_href_value;
+  var t;
+  var div;
+  var chart_1;
+  var current;
+  chart_1 = new Chart({
+    props: {
+      data:
+      /*data*/
+      ctx[0],
+      chart:
+      /*chart*/
+      ctx[1],
+      visualization:
+      /*visualization*/
+      ctx[2],
+      theme:
+      /*theme*/
+      ctx[3],
+      locales:
+      /*locales*/
+      ctx[4],
+      blocks:
+      /*blocks*/
+      ctx[5],
+      chartAfterBodyHTML:
+      /*chartAfterBodyHTML*/
+      ctx[6],
+      isIframe:
+      /*isIframe*/
+      ctx[7],
+      isPreview:
+      /*isPreview*/
+      ctx[8],
+      basemap:
+      /*basemap*/
+      ctx[9],
+      minimap:
+      /*minimap*/
+      ctx[10],
+      highlight:
+      /*highlight*/
+      ctx[11],
+      fonts:
+      /*fonts*/
+      ctx[12],
+      isStylePlain:
+      /*isStylePlain*/
+      ctx[13],
+      isStyleStatic:
+      /*isStyleStatic*/
+      ctx[14]
+    }
+  });
+  return {
+    c: function c() {
+      link = element("link");
+      t = space();
+      div = element("div");
+      create_component(chart_1.$$.fragment);
+      this.c = noop;
+      attr(link, "rel", "stylesheet");
+      attr(link, "href", link_href_value = "http://charts.datawrapper.local/" +
+      /*chart*/
+      ctx[1].id + "/styles.css");
+      attr(div, "class", "chart dw-chart");
+    },
+    m: function m(target, anchor) {
+      insert(target, link, anchor);
+      insert(target, t, anchor);
+      insert(target, div, anchor);
+      mount_component(chart_1, div, null);
+      current = true;
+    },
+    p: function p(ctx, _ref) {
+      var _ref2 = _slicedToArray(_ref, 1),
+          dirty = _ref2[0];
+
+      if (!current || dirty &
+      /*chart*/
+      2 && link_href_value !== (link_href_value = "http://charts.datawrapper.local/" +
+      /*chart*/
+      ctx[1].id + "/styles.css")) {
+        attr(link, "href", link_href_value);
+      }
+
+      var chart_1_changes = {};
+      if (dirty &
+      /*data*/
+      1) chart_1_changes.data =
+      /*data*/
+      ctx[0];
+      if (dirty &
+      /*chart*/
+      2) chart_1_changes.chart =
+      /*chart*/
+      ctx[1];
+      if (dirty &
+      /*visualization*/
+      4) chart_1_changes.visualization =
+      /*visualization*/
+      ctx[2];
+      if (dirty &
+      /*theme*/
+      8) chart_1_changes.theme =
+      /*theme*/
+      ctx[3];
+      if (dirty &
+      /*locales*/
+      16) chart_1_changes.locales =
+      /*locales*/
+      ctx[4];
+      if (dirty &
+      /*blocks*/
+      32) chart_1_changes.blocks =
+      /*blocks*/
+      ctx[5];
+      if (dirty &
+      /*chartAfterBodyHTML*/
+      64) chart_1_changes.chartAfterBodyHTML =
+      /*chartAfterBodyHTML*/
+      ctx[6];
+      if (dirty &
+      /*isIframe*/
+      128) chart_1_changes.isIframe =
+      /*isIframe*/
+      ctx[7];
+      if (dirty &
+      /*isPreview*/
+      256) chart_1_changes.isPreview =
+      /*isPreview*/
+      ctx[8];
+      if (dirty &
+      /*basemap*/
+      512) chart_1_changes.basemap =
+      /*basemap*/
+      ctx[9];
+      if (dirty &
+      /*minimap*/
+      1024) chart_1_changes.minimap =
+      /*minimap*/
+      ctx[10];
+      if (dirty &
+      /*highlight*/
+      2048) chart_1_changes.highlight =
+      /*highlight*/
+      ctx[11];
+      if (dirty &
+      /*fonts*/
+      4096) chart_1_changes.fonts =
+      /*fonts*/
+      ctx[12];
+      if (dirty &
+      /*isStylePlain*/
+      8192) chart_1_changes.isStylePlain =
+      /*isStylePlain*/
+      ctx[13];
+      if (dirty &
+      /*isStyleStatic*/
+      16384) chart_1_changes.isStyleStatic =
+      /*isStyleStatic*/
+      ctx[14];
+      chart_1.$set(chart_1_changes);
+    },
+    i: function i(local) {
+      if (current) return;
+      transition_in(chart_1.$$.fragment, local);
+      current = true;
+    },
+    o: function o(local) {
+      transition_out(chart_1.$$.fragment, local);
+      current = false;
+    },
+    d: function d(detaching) {
+      if (detaching) detach(link);
+      if (detaching) detach(t);
+      if (detaching) detach(div);
+      destroy_component(chart_1);
+    }
+  };
+}
+
+function instance$h($$self, $$props, $$invalidate) {
+  var _$$props$data = $$props.data,
+      data = _$$props$data === void 0 ? "" : _$$props$data;
+  var _$$props$chart = $$props.chart,
+      chart = _$$props$chart === void 0 ? {} : _$$props$chart;
+  var _$$props$visualizatio = $$props.visualization,
+      visualization = _$$props$visualizatio === void 0 ? {} : _$$props$visualizatio;
+  var _$$props$theme = $$props.theme,
+      theme = _$$props$theme === void 0 ? {} : _$$props$theme;
+  var _$$props$locales = $$props.locales,
+      locales = _$$props$locales === void 0 ? {} : _$$props$locales;
+  var _$$props$blocks = $$props.blocks,
+      blocks = _$$props$blocks === void 0 ? {} : _$$props$blocks;
+  var _$$props$chartAfterBo = $$props.chartAfterBodyHTML,
+      chartAfterBodyHTML = _$$props$chartAfterBo === void 0 ? "" : _$$props$chartAfterBo;
+  var isIframe = $$props.isIframe;
+  var isPreview = $$props.isPreview;
+  var basemap = $$props.basemap;
+  var minimap = $$props.minimap;
+  var highlight = $$props.highlight;
+  var _$$props$fonts = $$props.fonts,
+      fonts = _$$props$fonts === void 0 ? {} : _$$props$fonts;
+  var _$$props$isStylePlain = $$props.isStylePlain,
+      isStylePlain = _$$props$isStylePlain === void 0 ? false : _$$props$isStylePlain;
+  var _$$props$isStyleStati = $$props.isStyleStatic,
+      isStyleStatic = _$$props$isStyleStati === void 0 ? false : _$$props$isStyleStati;
+
+  $$self.$set = function ($$props) {
+    if ("data" in $$props) $$invalidate(0, data = $$props.data);
+    if ("chart" in $$props) $$invalidate(1, chart = $$props.chart);
+    if ("visualization" in $$props) $$invalidate(2, visualization = $$props.visualization);
+    if ("theme" in $$props) $$invalidate(3, theme = $$props.theme);
+    if ("locales" in $$props) $$invalidate(4, locales = $$props.locales);
+    if ("blocks" in $$props) $$invalidate(5, blocks = $$props.blocks);
+    if ("chartAfterBodyHTML" in $$props) $$invalidate(6, chartAfterBodyHTML = $$props.chartAfterBodyHTML);
+    if ("isIframe" in $$props) $$invalidate(7, isIframe = $$props.isIframe);
+    if ("isPreview" in $$props) $$invalidate(8, isPreview = $$props.isPreview);
+    if ("basemap" in $$props) $$invalidate(9, basemap = $$props.basemap);
+    if ("minimap" in $$props) $$invalidate(10, minimap = $$props.minimap);
+    if ("highlight" in $$props) $$invalidate(11, highlight = $$props.highlight);
+    if ("fonts" in $$props) $$invalidate(12, fonts = $$props.fonts);
+    if ("isStylePlain" in $$props) $$invalidate(13, isStylePlain = $$props.isStylePlain);
+    if ("isStyleStatic" in $$props) $$invalidate(14, isStyleStatic = $$props.isStyleStatic);
+  };
+
+  return [data, chart, visualization, theme, locales, blocks, chartAfterBodyHTML, isIframe, isPreview, basemap, minimap, highlight, fonts, isStylePlain, isStyleStatic];
+}
+
+var ChartWebComponent_wc = /*#__PURE__*/function (_SvelteElement) {
+  _inherits(ChartWebComponent_wc, _SvelteElement);
+
+  var _super = _createSuper(ChartWebComponent_wc);
+
+  function ChartWebComponent_wc(options) {
+    var _this;
+
+    _classCallCheck(this, ChartWebComponent_wc);
+
+    _this = _super.call(this);
+    init(_assertThisInitialized(_this), {
+      target: _this.shadowRoot
+    }, instance$h, create_fragment$h, safe_not_equal, {
+      data: 0,
+      chart: 1,
+      visualization: 2,
+      theme: 3,
+      locales: 4,
+      blocks: 5,
+      chartAfterBodyHTML: 6,
+      isIframe: 7,
+      isPreview: 8,
+      basemap: 9,
+      minimap: 10,
+      highlight: 11,
+      fonts: 12,
+      isStylePlain: 13,
+      isStyleStatic: 14
+    });
+
+    if (options) {
+      if (options.target) {
+        insert(options.target, _assertThisInitialized(_this), options.anchor);
+      }
+
+      if (options.props) {
+        _this.$set(options.props);
+
+        flush();
+      }
+    }
+
+    return _this;
+  }
+
+  _createClass(ChartWebComponent_wc, [{
+    key: "data",
+    get: function get() {
+      return this.$$.ctx[0];
+    },
+    set: function set(data) {
+      this.$set({
+        data: data
+      });
+      flush();
+    }
+  }, {
+    key: "chart",
+    get: function get() {
+      return this.$$.ctx[1];
+    },
+    set: function set(chart) {
+      this.$set({
+        chart: chart
+      });
+      flush();
+    }
+  }, {
+    key: "visualization",
+    get: function get() {
+      return this.$$.ctx[2];
+    },
+    set: function set(visualization) {
+      this.$set({
+        visualization: visualization
+      });
+      flush();
+    }
+  }, {
+    key: "theme",
+    get: function get() {
+      return this.$$.ctx[3];
+    },
+    set: function set(theme) {
+      this.$set({
+        theme: theme
+      });
+      flush();
+    }
+  }, {
+    key: "locales",
+    get: function get() {
+      return this.$$.ctx[4];
+    },
+    set: function set(locales) {
+      this.$set({
+        locales: locales
+      });
+      flush();
+    }
+  }, {
+    key: "blocks",
+    get: function get() {
+      return this.$$.ctx[5];
+    },
+    set: function set(blocks) {
+      this.$set({
+        blocks: blocks
+      });
+      flush();
+    }
+  }, {
+    key: "chartAfterBodyHTML",
+    get: function get() {
+      return this.$$.ctx[6];
+    },
+    set: function set(chartAfterBodyHTML) {
+      this.$set({
+        chartAfterBodyHTML: chartAfterBodyHTML
+      });
+      flush();
+    }
+  }, {
+    key: "isIframe",
+    get: function get() {
+      return this.$$.ctx[7];
+    },
+    set: function set(isIframe) {
+      this.$set({
+        isIframe: isIframe
+      });
+      flush();
+    }
+  }, {
+    key: "isPreview",
+    get: function get() {
+      return this.$$.ctx[8];
+    },
+    set: function set(isPreview) {
+      this.$set({
+        isPreview: isPreview
+      });
+      flush();
+    }
+  }, {
+    key: "basemap",
+    get: function get() {
+      return this.$$.ctx[9];
+    },
+    set: function set(basemap) {
+      this.$set({
+        basemap: basemap
+      });
+      flush();
+    }
+  }, {
+    key: "minimap",
+    get: function get() {
+      return this.$$.ctx[10];
+    },
+    set: function set(minimap) {
+      this.$set({
+        minimap: minimap
+      });
+      flush();
+    }
+  }, {
+    key: "highlight",
+    get: function get() {
+      return this.$$.ctx[11];
+    },
+    set: function set(highlight) {
+      this.$set({
+        highlight: highlight
+      });
+      flush();
+    }
+  }, {
+    key: "fonts",
+    get: function get() {
+      return this.$$.ctx[12];
+    },
+    set: function set(fonts) {
+      this.$set({
+        fonts: fonts
+      });
+      flush();
+    }
+  }, {
+    key: "isStylePlain",
+    get: function get() {
+      return this.$$.ctx[13];
+    },
+    set: function set(isStylePlain) {
+      this.$set({
+        isStylePlain: isStylePlain
+      });
+      flush();
+    }
+  }, {
+    key: "isStyleStatic",
+    get: function get() {
+      return this.$$.ctx[14];
+    },
+    set: function set(isStyleStatic) {
+      this.$set({
+        isStyleStatic: isStyleStatic
+      });
+      flush();
+    }
+  }], [{
+    key: "observedAttributes",
+    get: function get() {
+      return ["data", "chart", "visualization", "theme", "locales", "blocks", "chartAfterBodyHTML", "isIframe", "isPreview", "basemap", "minimap", "highlight", "fonts", "isStylePlain", "isStyleStatic"];
+    }
+  }]);
+
+  return ChartWebComponent_wc;
+}(SvelteElement);
+
+customElements.define("datawrapper-visualization", ChartWebComponent_wc);function _await$1(value, then, direct) {
   if (direct) {
     return then ? then(value) : value;
   }
@@ -10775,23 +11589,23 @@ function _invokeIgnored(body) {
 }
 
 if (typeof window.__dw === 'undefined') window.__dw = {};
-window.__dw.renderInto = _async$1(function (target, chart) {
-  var elementId = "datawrapper-chart-".concat(chart.data.chartJSON.id);
-  document.write("<div class=\"dw-chart chart\" id=\"".concat(elementId, "\"></div>"));
+window.__dw.renderInto = _async$1(function (chart) {
+  var elementId = "datawrapper-chart-".concat(chart.chart.id);
+  document.write("<div id=\"".concat(elementId, "\"></div>"));
   if (typeof __dw.dependencies === 'undefined') __dw.dependencies = {};
   var scripts = [];
 
-  for (var dep in chart.data.visJSON.dependencies) {
+  for (var dep in chart.visualization.dependencies) {
     var path = {
       jquery: 'http://app.datawrapper.local/lib/chart-core/jquery.min.js'
     }[dep];
 
-    if (chart.data.visJSON.dependencies[dep] && path) {
+    if (chart.visualization.dependencies[dep] && path) {
       scripts.push(path);
     }
   }
 
-  scripts = [].concat(_toConsumableArray(scripts), _toConsumableArray(chart.data.visJSON.libraries), ['http://app.datawrapper.local/lib/chart-core/dw-2.0.min.js', "http://api.datawrapper.local/v3/visualizations/".concat(chart.data.visJSON.id, "/script.js")]);
+  scripts = [].concat(_toConsumableArray(scripts), _toConsumableArray(chart.visualization.libraries), ['http://app.datawrapper.local/lib/chart-core/dw-2.0.min.js', "http://api.datawrapper.local/v3/visualizations/".concat(chart.visualization.id, "/script.js")]);
   var promises = [];
   scripts.forEach(function (script) {
     promises.push(new Promise(_async$1(function (resolve, reject) {
@@ -10808,13 +11622,8 @@ window.__dw.renderInto = _async$1(function (target, chart) {
     })));
   });
   return _await$1(Promise.all(promises), function () {
-    /*
-    // 2. append stylesheet
-    const styles = document.head.appendChild('style');
-    styles.innerHTML = chart.styles;
-    */
     chart.iframe = false;
-    new Chart({
+    new ChartWebComponent_wc({
       target: document.getElementById(elementId),
       props: chart,
       hydrate: false
