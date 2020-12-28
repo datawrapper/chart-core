@@ -26,7 +26,7 @@ function onwarn(warning, warn) {
 module.exports = [
     {
         /* Svelte Chart Component as web component */
-        input: path.resolve(__dirname, 'lib.js'),
+        input: path.resolve(__dirname, 'web-component.js'),
         plugins: [
             svelte({ customElement: true, include: /\.wc\.svelte$/ }),
             svelte({ customElement: false, exclude: /\.wc\.svelte$/ }),
@@ -46,7 +46,7 @@ module.exports = [
         onwarn,
         output: {
             format: 'iife',
-            entryFileNames: 'lib.js',
+            entryFileNames: 'web-component.js',
             ...output
         }
     },
