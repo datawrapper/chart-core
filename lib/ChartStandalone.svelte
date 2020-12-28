@@ -2,6 +2,7 @@
     import Chart from './Chart.svelte';
     import get from '@datawrapper/shared/get';
     import purifyHtml from '@datawrapper/shared/purifyHtml';
+    import { onMount } from 'svelte';
 
     export let data = '';
     export let chart = {};
@@ -23,6 +24,22 @@
     export let isStyleStatic = false;
 
     $: customCSS = purifyHtml(get(chart, 'metadata.publish.custom-css', ''), '');
+
+    window.__dwUpdate = ({ chart }) => {
+        Object.assign(chart, chart);
+        chart = chart; // to force re-rendering
+    };
+
+    onMount(async () => {
+        document.body.classList.toggle('plain', isStylePlain);
+        document.body.classList.toggle('static', isStyleStatic);
+        // the body class "png-export" kept for backwards compatibility
+        document.body.classList.toggle('png-export', isStyleStatic);
+
+        if (isStyleStatic) {
+            document.body.style['pointer-events'] = 'none';
+        }
+    });
 </script>
 
 <svelte:head>

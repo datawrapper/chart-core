@@ -25,7 +25,7 @@ window.__dw.renderInto = async function(chart) {
 
     scripts = [
         ...scripts,
-        ...chart.visualization.libraries,
+        ...chart.visualization.libraries.map(el => `http://app.datawrapper.local${el.uri}`),
         'http://app.datawrapper.local/lib/chart-core/dw-2.0.min.js',
         `http://api.datawrapper.local/v3/visualizations/${chart.visualization.id}/script.js`
     ];

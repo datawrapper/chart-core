@@ -55,6 +55,7 @@
             {minimap}
             {highlight}
             {fonts}
+            {styleHolder}
             {isStylePlain}
             {isStyleStatic} />
     </div>

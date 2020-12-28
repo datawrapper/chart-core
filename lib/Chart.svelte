@@ -35,18 +35,12 @@
     export let minimap;
     export let highlight;
     export let fonts = {};
+    export let styleHolder;
 
     // plain style means no header and footer
     export let isStylePlain = false;
     // static style means user can't interact (e.g. in a png version)
     export let isStyleStatic = false;
-
-    if (isIframe && typeof window !== 'undefined') {
-        window.__dwUpdate = ({ chart }) => {
-            Object.assign(chart, chart);
-            chart = chart; // to force re-rendering
-        };
-    }
 
     const coreBlocks = [
         {
@@ -282,8 +276,6 @@ Please make sure you called __(key) with a key of type "string".
             let d3maps_basemap, locatorMap;
 
             if (basemap) {
-                basemap.content = JSON.parse(basemap.content);
-
                 d3maps_basemap = {
                     [basemap.__id]: basemap
                 };
@@ -306,7 +298,8 @@ Please make sure you called __(key) with a key of type "string".
                 locatorMap,
                 isPreview,
                 isIframe,
-                fonts
+                fonts,
+                styleHolder
             });
 
             if (!success) return;
@@ -372,7 +365,7 @@ Please make sure you called __(key) with a key of type "string".
     {/if}
 {/if}
 
-<div bind:this={target} class="dw-chart-body" />
+<div id="chart" bind:this={target} class="dw-chart-body" />
 
 {#if get(theme, 'data.template.afterChart')}
     {@html theme.data.template.afterChart}

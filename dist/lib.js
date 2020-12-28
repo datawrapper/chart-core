@@ -5992,6 +5992,46 @@ var knownFormats = {
 
 function reg() {
   return new RegExp(begin + Array.prototype.slice.call(arguments).join(' *') + end, 'i');
+}function outerHeight(element) {
+  var withMargin = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+  if (!element) return null;
+  var height = element.offsetHeight;
+  if (!withMargin) return height;
+  var style = getComputedStyle(element);
+  height += parseInt(style.marginTop) + parseInt(style.marginBottom);
+  return height;
+}
+/* global getComputedStyle */
+
+function getNonChartHeight() {
+  var h = 0;
+  var chart = document.querySelector('.dw-chart');
+
+  for (var i = 0; i < chart.children.length; i++) {
+    var el = chart.children[i];
+    var tagName = el.tagName.toLowerCase();
+
+    if (tagName !== 'script' && tagName !== 'style' && el.id !== 'chart' && !el.getAttribute('aria-hidden') && !hasClass(el, 'tooltip') && !hasClass(el, 'vg-tooltip') && !hasClass(el, 'hidden') && !hasClass(el, 'qtip') && !hasClass(el, 'container') && !hasClass(el, 'noscript') && !hasClass(el, 'hidden') && !hasClass(el, 'filter-ui') && !hasClass(el, 'dw-after-body') && !hasClass(el, 'dw-chart-body')) {
+      h += Number(outerHeight(el, true));
+    }
+  }
+
+  function hasClass(el, className) {
+    return el.classList.contains(className);
+  }
+
+  function getProp(selector, property) {
+    return getComputedStyle(document.querySelector(selector))[property].replace('px', '');
+  }
+
+  var selectors = ['.dw-chart', '.dw-chart-body'];
+  var properties = ['padding-top', 'padding-bottom', 'margin-top', 'margin-bottom', 'border-top-width', 'border-bottom-width'];
+  selectors.forEach(function (sel) {
+    properties.forEach(function (prop) {
+      h += Number(getProp(sel, prop));
+    });
+  });
+  return h;
 }var TEOF = 'TEOF';
 var TOP = 'TOP';
 var TNUMBER = 'TNUMBER';
@@ -8372,7 +8412,29 @@ Parser.prototype.isOperatorEnabled = function (op) {
   var optionName = getOptionName(op);
   var operators = this.options.operators || {};
   return !(optionName in operators) || !!operators[optionName];
-};function domReady(callback) {
+};function getMaxChartHeight() {
+  if (window.innerHeight === 0) return 0;
+  var maxH = window.innerHeight - 8;
+  maxH -= getNonChartHeight();
+  return Math.max(maxH, 0);
+}
+/* globals getComputedStyle */
+
+function height(element) {
+  var h = parseFloat(getComputedStyle(element, null).height.replace('px', ''));
+  return isNaN(h) ? 0 : h;
+}
+function width(element) {
+  var w = parseFloat(getComputedStyle(element, null).width.replace('px', ''));
+  return isNaN(w) ? 0 : w;
+}
+function addClass(element, className) {
+  if (element) element.classList.add(className);
+}
+function removeClass(element, className) {
+  if (element) element.classList.remove(className);
+}
+function domReady(callback) {
   if (/complete|interactive|loaded/.test(document.readyState)) {
     // dom is already loaded
     callback();
@@ -9335,8 +9397,7 @@ var classnames = function classnames(args) {
   }
 
   return cls;
-};/* globals dw, Blob */
-/*
+};/*
  * init performs initialization routines that only need to be done _once_ in
  * the lifetime of a chart. This includes: Loading external data, waiting for
  * fonts to load, registering window-level event listeners.
@@ -9355,7 +9416,8 @@ function init$1(target, _ref) {
       locatorMap = _ref.locatorMap,
       isPreview = _ref.isPreview,
       isIframe = _ref.isIframe,
-      fonts = _ref.fonts;
+      fonts = _ref.fonts,
+      styleHolder = _ref.styleHolder;
   if (!visualization.id || !target) return {
     success: false,
     render: function render() {}
@@ -9367,7 +9429,9 @@ function init$1(target, _ref) {
   });
   if (typeof __dw === 'undefined') window.__dw = {};
   __dw.params = {
-    locales: locales
+    locales: locales,
+    d3maps_basemap: d3maps_basemap,
+    locatorMap: locatorMap
   };
   var chartLocale = chartAttrs.language || 'en-US';
   var language = chartLocale.substr(0, 2);
@@ -9382,7 +9446,7 @@ function init$1(target, _ref) {
   var chart = dw.chart(chartAttrs).locale(chartLocale).theme(dw.theme(chartAttrs.theme));
   var emotion = createEmotion({
     key: "datawrapper-".concat(chartAttrs.id),
-    container: isIframe ? document.head : target
+    container: isIframe ? document.head : styleHolder
   });
   var vis;
   chart.load(data || '', isPreview ? undefined : chartAttrs.externalData).then(function () {
@@ -9392,23 +9456,27 @@ function init$1(target, _ref) {
 
     if (isIframe) {
       window.__dw.vis = vis;
+
+      window.__dw.render = function () {
+        renderChart(target, chart, vis, isIframe, isPreview, emotion);
+      };
     }
 
-    renderChart(target, chart, vis, emotion);
+    renderChart(target, chart, vis, isIframe, isPreview, emotion);
     observeFonts(fonts, theme.data.typography).then(function () {
-      return renderChart(target, chart, vis, emotion);
+      return renderChart(target, chart, vis, isIframe, isPreview, emotion);
     }).catch(function () {
-      return renderChart(target, chart, vis, emotion);
+      return renderChart(target, chart, vis, isIframe, isPreview, emotion);
     }); // iPhone/iPad fix
 
     if (/iP(hone|od|ad)/.test(navigator.platform)) {
-      window.onload = renderChart(target, chart, vis, emotion);
+      window.onload = renderChart(target, chart, vis, isIframe, isPreview, emotion);
     }
   });
   return {
     success: true,
     render: function render() {
-      if (vis) renderChart(target, chart, vis, emotion); // if vis doesn't exist yet, no need to re-render as it will
+      if (vis) renderChart(target, chart, vis, isIframe, isPreview, emotion); // if vis doesn't exist yet, no need to re-render as it will
       // be rendered when vis is created anyway
     }
   };
@@ -9417,133 +9485,127 @@ function init$1(target, _ref) {
  * render calls the chart rendering function provided by the plugin.
  */
 
-function renderChart(target, chart, vis, emotion) {
+function renderChart(target, chart, vis, isIframe, isPreview, emotion) {
   chart.vis(vis);
   vis.reset(target); // compute chart dimensions
-  // const w = width(target);
-  // const h = getMaxChartHeight(target);
 
-  vis.size(600, 400);
-  chart.render(target, emotion);
-  /*
-  function getHeight(sel) {
-      const el = document.querySelector(sel);
-      if (!el) return 0;
-      return height(el);
+  var w = width(target);
+  var h = isIframe ? getMaxChartHeight() : chart.getMetadata('publish.chart-height');
+  vis.size(w, h); // only render if iframe has valid dimensions
+
+  if (getHeightMode(chart, vis) === 'fixed' ? w > 0 : w > 0 && h > 0) {
+    chart.render(target, emotion);
   }
-   const belowChartHeight =
-      getHeight('.dw-chart-footer') +
-      getHeight('.dw-above-footer') +
-      getHeight('.dw-below-footer');
-   if (belowChartHeight > 0) {
-      addClass(document.querySelector('.dw-chart-body'), 'content-below-chart');
+
+  var belowChartHeight = getHeight('.dw-chart-footer') + getHeight('.dw-above-footer') + getHeight('.dw-below-footer');
+
+  if (belowChartHeight > 0) {
+    addClass(document.querySelector('.dw-chart-body'), 'content-below-chart');
   } else {
-      removeClass(document.querySelector('.dw-chart-body'), 'content-below-chart');
+    removeClass(document.querySelector('.dw-chart-body'), 'content-below-chart');
   }
-    function initResizeHandler(vis, container) {
-      let reloadTimer;
-       function renderLater(chart) {
-          clearTimeout(reloadTimer);
-          reloadTimer = setTimeout(function() {
-              renderChart(target, chart, vis);
-          }, 100);
-      }
-       const resize = getHeightMode() === 'fixed' ? resizeFixed : renderLater;
-      let curWidth = width(container);
-       // IE continuosly reloads the chart for some strange reasons
-      if (navigator.userAgent.match(/msie/i) === null) {
-          window.onresize = resize;
-      }
-       function resizeFixed() {
-          const w = width(container);
-          if (curWidth !== w) {
-              curWidth = w;
-              renderLater();
-          }
-      }
+
+  initDataLink();
+  isIframe && initResizeHandler(target, vis);
+  isIframe && postMessage(target, chart, vis, isPreview);
+
+  function getHeight(sel) {
+    var el = target.parentNode.querySelector(sel);
+    if (!el) return 0;
+    return height(el);
   }
-   // initResizeHandler(vis, target);
-   // update data link to point to edited dataset
-  const csv = chart.dataset().toCSV && chart.dataset().toCSV();
-  if (!csv || (csv && csv.trim && csv.trim() === 'X.1')) {
+
+  function initResizeHandler(container, vis) {
+    var resize = getHeightMode(chart, vis) === 'fixed' ? resizeFixed : renderLater;
+    var curWidth = width(container); // IE continuosly reloads the chart for some strange reasons
+
+    if (navigator.userAgent.match(/msie/i) === null) {
+      window.onresize = resize;
+    }
+
+    function resizeFixed() {
+      var w = width(container);
+
+      if (curWidth !== w) {
+        curWidth = w;
+        renderLater();
+      }
+    }
+
+    var reloadTimer;
+
+    function renderLater() {
+      clearTimeout(reloadTimer);
+      reloadTimer = setTimeout(function () {
+        renderChart(target, chart, vis, isIframe, isPreview, emotion);
+      }, 100);
+    }
+  }
+
+  function initDataLink() {
+    // update data link to point to edited dataset
+    var csv = chart.dataset().toCSV && chart.dataset().toCSV();
+
+    if (!csv || csv && csv.trim && csv.trim() === 'X.1') {
       // hide get the data link
       addClass(document.querySelector('.chart-action-data'), 'hidden');
-  } else {
-      const dataLink = document.querySelector('a.dw-data-link');
+    } else {
+      var dataLink = document.querySelector('a.dw-data-link');
+
       if (dataLink) {
-          if (window.navigator.msSaveOrOpenBlob) {
-              const blobObject = new Blob([csv]);
-              dataLink.addEventListener('click', event => {
-                  window.navigator.msSaveOrOpenBlob(
-                      blobObject,
-                      'data-' + chart.get('id') + '.csv'
-                  );
-                  event.preventDefault();
-                  return false;
-              });
-          } else {
-              dataLink.setAttribute('download', 'data-' + chart.get('id') + '.csv');
-              dataLink.setAttribute(
-                  'href',
-                  'data:application/octet-stream;charset=utf-8,' +
-                      encodeURIComponent('\uFEFF' + csv)
-              );
-          }
+        if (window.navigator.msSaveOrOpenBlob) {
+          var blobObject = new Blob([csv]);
+          dataLink.addEventListener('click', function (event) {
+            window.navigator.msSaveOrOpenBlob(blobObject, 'data-' + chart.get('id') + '.csv');
+            event.preventDefault();
+            return false;
+          });
+        } else {
+          dataLink.setAttribute('download', 'data-' + chart.get('id') + '.csv');
+          dataLink.setAttribute('href', 'data:application/octet-stream;charset=utf-8,' + encodeURIComponent("\uFEFF" + csv));
+        }
       }
+    }
   }
-    // only render if iframe has valid dimensions
-  if (getHeightMode() === 'fixed' ? w > 0 : w > 0 && h > 0) {
-  }
-   function getHeightMode() {
-      const theme = dw.theme(chart.get().theme);
-      const themeFitChart =
-          get(theme, 'vis.d3-pies.fitchart', false) &&
-          ['d3-pies', 'd3-donuts', 'd3-multiple-pies', 'd3-multiple-donuts'].indexOf(vis.meta.id) > -1;
-      const urlParams = new URLSearchParams(window.location.search);
-      const urlFitChart = !!urlParams.get('fitchart');
-       return themeFitChart || urlFitChart || vis.meta.height !== 'fixed' ? 'fit' : 'fixed';
-  }
-   let desiredHeight;
-  if (getHeightMode() === 'fixed') {
+
+  function postMessage(target, chart, vis, isPreview) {
+    var desiredHeight;
+
+    if (getHeightMode(chart, vis) === 'fit') {
+      if (isPreview || !chart.getMetadata('publish.chart-height')) return;
+      desiredHeight = getNonChartHeight() + chart.getMetadata('publish.chart-height');
+    } else {
       desiredHeight = outerHeight(document.querySelector('html'), true);
-  } else {
-      if (params.preview || !__dw.vis.chart().get('metadata.publish.chart-height')) {
-          return;
-      }
-       desiredHeight =
-          getNonChartHeight() + __dw.vis.chart().get('metadata.publish.chart-height');
-  }
-   // datawrapper responsive embed
-  window.parent.postMessage(
-      {
-          'datawrapper-height': {
-              [chart.get().id]: desiredHeight
-          }
-      },
-      '*'
-  );
-   // Google AMP
-  window.parent.postMessage(
-      {
-          sentinel: 'amp',
-          type: 'embed-size',
-          height: desiredHeight
-      },
-      '*'
-  );
-   // Medium
-  window.parent.postMessage(
-      JSON.stringify({
-          src: window.location.toString(),
-          context: 'iframe.resize',
-          height: desiredHeight
-      }),
-      '*'
-  );
-   if (typeof window.datawrapperHeightCallback === 'function') {
+    } // datawrapper responsive embed
+
+
+    window.parent.postMessage({
+      'datawrapper-height': _defineProperty({}, chart.get().id, desiredHeight)
+    }, '*'); // Google AMP
+
+    window.parent.postMessage({
+      sentinel: 'amp',
+      type: 'embed-size',
+      height: desiredHeight
+    }, '*'); // Medium
+
+    window.parent.postMessage(JSON.stringify({
+      src: window.location.toString(),
+      context: 'iframe.resize',
+      height: desiredHeight
+    }), '*');
+
+    if (typeof window.datawrapperHeightCallback === 'function') {
       window.datawrapperHeightCallback(desiredHeight);
+    }
   }
-  */
+
+  function getHeightMode(chart, vis) {
+    var themeFitChart = get(vis.theme(), 'vis.d3-pies.fitchart', false) && ['d3-pies', 'd3-donuts', 'd3-multiple-pies', 'd3-multiple-donuts'].indexOf(vis.meta.id) > -1;
+    var urlParams = new URLSearchParams(window.location.search);
+    var urlFitChart = !!urlParams.get('fitchart');
+    return themeFitChart || urlFitChart || vis.meta.height !== 'fixed' ? 'fit' : 'fixed';
+  }
 }function _await(value, then, direct) {
   if (direct) {
     return then ? then(value) : value;
@@ -9595,22 +9657,22 @@ function _invoke(body, then) {
 
 function get_each_context$1(ctx, list, i) {
   var child_ctx = ctx.slice();
-  child_ctx[29] = list[i];
+  child_ctx[30] = list[i];
   return child_ctx;
 }
 
 function get_each_context_2(ctx, list, i) {
   var child_ctx = ctx.slice();
-  child_ctx[29] = list[i];
-  child_ctx[36] = i;
+  child_ctx[30] = list[i];
+  child_ctx[37] = i;
   return child_ctx;
 }
 
 function get_each_context_1(ctx, list, i) {
   var child_ctx = ctx.slice();
-  child_ctx[32] = list[i];
+  child_ctx[33] = list[i];
   return child_ctx;
-} // (367:0) {#if !isStylePlain}
+} // (360:0) {#if !isStylePlain}
 
 
 function create_if_block_6(ctx) {
@@ -9696,7 +9758,7 @@ function create_if_block_6(ctx) {
       if (detaching) detach(if_block_anchor);
     }
   };
-} // (370:4) {#if !isStyleStatic}
+} // (363:4) {#if !isStyleStatic}
 
 
 function create_if_block_7(ctx) {
@@ -9748,7 +9810,7 @@ function create_if_block_7(ctx) {
       destroy_component(menu_1, detaching);
     }
   };
-} // (377:0) {#if get(theme, 'data.template.afterChart')}
+} // (370:0) {#if get(theme, 'data.template.afterChart')}
 
 
 function create_if_block_5(ctx) {
@@ -9774,7 +9836,7 @@ function create_if_block_5(ctx) {
       if (detaching) html_tag.d();
     }
   };
-} // (381:0) {#if !isStylePlain}
+} // (374:0) {#if !isStylePlain}
 
 
 function create_if_block_1$6(ctx) {
@@ -9923,7 +9985,7 @@ function create_if_block_1$6(ctx) {
       destroy_component(blocksregion1, detaching);
     }
   };
-} // (388:20) {#if i}
+} // (381:20) {#if i}
 
 
 function create_if_block_4(ctx) {
@@ -9934,7 +9996,7 @@ function create_if_block_4(ctx) {
       span = element("span");
       attr(span, "class", span_class_value = "separator separator-before-" +
       /*block*/
-      ctx[29].id);
+      ctx[30].id);
     },
     m: function m(target, anchor) {
       insert(target, span, anchor);
@@ -9944,7 +10006,7 @@ function create_if_block_4(ctx) {
       /*regions*/
       16 && span_class_value !== (span_class_value = "separator separator-before-" +
       /*block*/
-      ctx[29].id)) {
+      ctx[30].id)) {
         attr(span, "class", span_class_value);
       }
     },
@@ -9952,14 +10014,14 @@ function create_if_block_4(ctx) {
       if (detaching) detach(span);
     }
   };
-} // (392:24) {#if block.prepend}
+} // (385:24) {#if block.prepend}
 
 
 function create_if_block_3(ctx) {
   var span;
   var raw_value = clean(
   /*block*/
-  ctx[29].prepend) + "";
+  ctx[30].prepend) + "";
   return {
     c: function c() {
       span = element("span");
@@ -9974,20 +10036,20 @@ function create_if_block_3(ctx) {
       /*regions*/
       16 && raw_value !== (raw_value = clean(
       /*block*/
-      ctx[29].prepend) + "")) span.innerHTML = raw_value;
+      ctx[30].prepend) + "")) span.innerHTML = raw_value;
     },
     d: function d(detaching) {
       if (detaching) detach(span);
     }
   };
-} // (400:24) {#if block.append}
+} // (393:24) {#if block.append}
 
 
 function create_if_block_2$1(ctx) {
   var span;
   var raw_value = clean(
   /*block*/
-  ctx[29].append) + "";
+  ctx[30].append) + "";
   return {
     c: function c() {
       span = element("span");
@@ -10002,13 +10064,13 @@ function create_if_block_2$1(ctx) {
       /*regions*/
       16 && raw_value !== (raw_value = clean(
       /*block*/
-      ctx[29].append) + "")) span.innerHTML = raw_value;
+      ctx[30].append) + "")) span.innerHTML = raw_value;
     },
     d: function d(detaching) {
       if (detaching) detach(span);
     }
   };
-} // (387:16) {#each regions['footer' + orientation] as block, i}
+} // (380:16) {#each regions['footer' + orientation] as block, i}
 
 
 function create_each_block_2(ctx) {
@@ -10022,20 +10084,20 @@ function create_each_block_2(ctx) {
   var current;
   var if_block0 =
   /*i*/
-  ctx[36] && create_if_block_4(ctx);
+  ctx[37] && create_if_block_4(ctx);
   var if_block1 =
   /*block*/
-  ctx[29].prepend && create_if_block_3(ctx);
+  ctx[30].prepend && create_if_block_3(ctx);
   var switch_value =
   /*block*/
-  ctx[29].component;
+  ctx[30].component;
 
   function switch_props(ctx) {
     return {
       props: {
         props:
         /*block*/
-        ctx[29].props
+        ctx[30].props
       }
     };
   }
@@ -10046,7 +10108,7 @@ function create_each_block_2(ctx) {
 
   var if_block2 =
   /*block*/
-  ctx[29].append && create_if_block_2$1(ctx);
+  ctx[30].append && create_if_block_2$1(ctx);
   return {
     c: function c() {
       if (if_block0) if_block0.c();
@@ -10061,7 +10123,7 @@ function create_each_block_2(ctx) {
       attr(span0, "class", "block-inner");
       attr(span1, "class", span1_class_value = "footer-block " +
       /*block*/
-      ctx[29].id + "-block");
+      ctx[30].id + "-block");
     },
     m: function m(target, anchor) {
       if (if_block0) if_block0.m(target, anchor);
@@ -10082,11 +10144,11 @@ function create_each_block_2(ctx) {
     p: function p(ctx, dirty) {
       if (
       /*i*/
-      ctx[36]) if_block0.p(ctx, dirty);
+      ctx[37]) if_block0.p(ctx, dirty);
 
       if (
       /*block*/
-      ctx[29].prepend) {
+      ctx[30].prepend) {
         if (if_block1) {
           if_block1.p(ctx, dirty);
         } else {
@@ -10104,11 +10166,11 @@ function create_each_block_2(ctx) {
       /*regions*/
       16) switch_instance_changes.props =
       /*block*/
-      ctx[29].props;
+      ctx[30].props;
 
       if (switch_value !== (switch_value =
       /*block*/
-      ctx[29].component)) {
+      ctx[30].component)) {
         if (switch_instance) {
           group_outros();
           var old_component = switch_instance;
@@ -10132,7 +10194,7 @@ function create_each_block_2(ctx) {
 
       if (
       /*block*/
-      ctx[29].append) {
+      ctx[30].append) {
         if (if_block2) {
           if_block2.p(ctx, dirty);
         } else {
@@ -10149,7 +10211,7 @@ function create_each_block_2(ctx) {
       /*regions*/
       16 && span1_class_value !== (span1_class_value = "footer-block " +
       /*block*/
-      ctx[29].id + "-block")) {
+      ctx[30].id + "-block")) {
         attr(span1, "class", span1_class_value);
       }
     },
@@ -10171,7 +10233,7 @@ function create_each_block_2(ctx) {
       if (if_block2) if_block2.d();
     }
   };
-} // (385:8) {#each ['Left', 'Center', 'Right'] as orientation}
+} // (378:8) {#each ['Left', 'Center', 'Right'] as orientation}
 
 
 function create_each_block_1(ctx) {
@@ -10183,7 +10245,7 @@ function create_each_block_1(ctx) {
   /*regions*/
   ctx[4]["footer" +
   /*orientation*/
-  ctx[32]];
+  ctx[33]];
   var each_blocks = [];
 
   for (var i = 0; i < each_value_2.length; i += 1) {
@@ -10207,7 +10269,7 @@ function create_each_block_1(ctx) {
       t = space();
       attr(div, "class", div_class_value = "footer-" +
       /*orientation*/
-      ctx[32].toLowerCase());
+      ctx[33].toLowerCase());
     },
     m: function m(target, anchor) {
       insert(target, div, anchor);
@@ -10227,7 +10289,7 @@ function create_each_block_1(ctx) {
         /*regions*/
         ctx[4]["footer" +
         /*orientation*/
-        ctx[32]];
+        ctx[33]];
 
         var _i8;
 
@@ -10281,7 +10343,7 @@ function create_each_block_1(ctx) {
       destroy_each(each_blocks, detaching);
     }
   };
-} // (415:4) {#each regions.afterBody as block}
+} // (408:4) {#each regions.afterBody as block}
 
 
 function create_each_block$1(ctx) {
@@ -10290,14 +10352,14 @@ function create_each_block$1(ctx) {
   var current;
   var switch_value =
   /*block*/
-  ctx[29].component;
+  ctx[30].component;
 
   function switch_props(ctx) {
     return {
       props: {
         props:
         /*block*/
-        ctx[29].props
+        ctx[30].props
       }
     };
   }
@@ -10325,11 +10387,11 @@ function create_each_block$1(ctx) {
       /*regions*/
       16) switch_instance_changes.props =
       /*block*/
-      ctx[29].props;
+      ctx[30].props;
 
       if (switch_value !== (switch_value =
       /*block*/
-      ctx[29].component)) {
+      ctx[30].component)) {
         if (switch_instance) {
           group_outros();
           var old_component = switch_instance;
@@ -10365,7 +10427,7 @@ function create_each_block$1(ctx) {
       if (switch_instance) destroy_component(switch_instance, detaching);
     }
   };
-} // (420:0) {#if chartAfterBodyHTML}
+} // (413:0) {#if chartAfterBodyHTML}
 
 
 function create_if_block$9(ctx) {
@@ -10449,6 +10511,7 @@ function create_fragment$g(ctx) {
       t4 = space();
       if (if_block3) if_block3.c();
       if_block3_anchor = empty();
+      attr(div0, "id", "chart");
       attr(div0, "class", "dw-chart-body");
       attr(div1, "class", "dw-after-body");
     },
@@ -10458,7 +10521,7 @@ function create_fragment$g(ctx) {
       insert(target, div0, anchor);
       /*div0_binding*/
 
-      ctx[18](div0);
+      ctx[19](div0);
       insert(target, t1, anchor);
       if (if_block1) if_block1.m(target, anchor);
       insert(target, t2, anchor);
@@ -10624,7 +10687,7 @@ function create_fragment$g(ctx) {
       if (detaching) detach(div0);
       /*div0_binding*/
 
-      ctx[18](null);
+      ctx[19](null);
       if (detaching) detach(t1);
       if (if_block1) if_block1.d(detaching);
       if (detaching) detach(t2);
@@ -10670,26 +10733,18 @@ function instance$g($$self, $$props, $$invalidate) {
   var highlight = $$props.highlight;
   var _$$props$fonts = $$props.fonts,
       fonts = _$$props$fonts === void 0 ? {} : _$$props$fonts;
+  var styleHolder = $$props.styleHolder;
   var _$$props$isStylePlain = $$props.isStylePlain,
       isStylePlain = _$$props$isStylePlain === void 0 ? false : _$$props$isStylePlain;
   var _$$props$isStyleStati = $$props.isStyleStatic,
       isStyleStatic = _$$props$isStyleStati === void 0 ? false : _$$props$isStyleStati;
-
-  if (isIframe && typeof window !== "undefined") {
-    window.__dwUpdate = function (_ref) {
-      var chart = _ref.chart;
-      Object.assign(chart, chart);
-      chart = chart; // to force re-rendering
-    };
-  }
-
   var coreBlocks = [{
     id: "headline",
     tag: "h1",
     region: "header",
     priority: 10,
-    test: function test(_ref2) {
-      var chart = _ref2.chart;
+    test: function test(_ref) {
+      var chart = _ref.chart;
       return chart.title && !get(chart, "metadata.describe.hide-title");
     },
     component: Headline
@@ -10698,8 +10753,8 @@ function instance$g($$self, $$props, $$invalidate) {
     tag: "p",
     region: "header",
     priority: 20,
-    test: function test(_ref3) {
-      var chart = _ref3.chart;
+    test: function test(_ref2) {
+      var chart = _ref2.chart;
       return get(chart, "metadata.describe.intro");
     },
     component: Description
@@ -10707,16 +10762,16 @@ function instance$g($$self, $$props, $$invalidate) {
     id: "notes",
     region: "aboveFooter",
     priority: 10,
-    test: function test(_ref4) {
-      var chart = _ref4.chart;
+    test: function test(_ref3) {
+      var chart = _ref3.chart;
       return get(chart, "metadata.annotate.notes");
     },
     component: Notes
   }, {
     id: "byline",
     region: "footerLeft",
-    test: function test(_ref5) {
-      var chart = _ref5.chart;
+    test: function test(_ref4) {
+      var chart = _ref4.chart;
       return get(chart, "metadata.describe.byline", false) || chart.basedOnByline;
     },
     priority: 10,
@@ -10724,8 +10779,8 @@ function instance$g($$self, $$props, $$invalidate) {
   }, {
     id: "source",
     region: "footerLeft",
-    test: function test(_ref6) {
-      var chart = _ref6.chart;
+    test: function test(_ref5) {
+      var chart = _ref5.chart;
       return get(chart, "metadata.describe.source-name");
     },
     priority: 20,
@@ -10733,9 +10788,9 @@ function instance$g($$self, $$props, $$invalidate) {
   }, {
     id: "get-the-data",
     region: "footerLeft",
-    test: function test(_ref7) {
-      var theme = _ref7.theme,
-          isStyleStatic = _ref7.isStyleStatic;
+    test: function test(_ref6) {
+      var theme = _ref6.theme,
+          isStyleStatic = _ref6.isStyleStatic;
       return get(theme, "data.options.footer.getTheData.enabled") && !isStyleStatic;
     },
     priority: 30,
@@ -10743,9 +10798,9 @@ function instance$g($$self, $$props, $$invalidate) {
   }, {
     id: "embed",
     region: "footerLeft",
-    test: function test(_ref8) {
-      var theme = _ref8.theme,
-          isStyleStatic = _ref8.isStyleStatic;
+    test: function test(_ref7) {
+      var theme = _ref7.theme,
+          isStyleStatic = _ref7.isStyleStatic;
       return get(theme, "data.options.footer.embed.enabled") && !isStyleStatic;
     },
     priority: 40,
@@ -10753,8 +10808,8 @@ function instance$g($$self, $$props, $$invalidate) {
   }, {
     id: "logo",
     region: "footerRight",
-    test: function test(_ref9) {
-      var theme = _ref9.theme;
+    test: function test(_ref8) {
+      var theme = _ref8.theme;
       return get(theme, "data.options.footer.logo.enabled");
     },
     priority: 10,
@@ -10762,8 +10817,8 @@ function instance$g($$self, $$props, $$invalidate) {
   }, {
     id: "rectangle",
     region: "header",
-    test: function test(_ref10) {
-      var theme = _ref10.theme;
+    test: function test(_ref9) {
+      var theme = _ref9.theme;
       return !!get(theme, "data.options.blocks.rectangle");
     },
     priority: 1,
@@ -10771,8 +10826,8 @@ function instance$g($$self, $$props, $$invalidate) {
   }, {
     id: "watermark",
     region: "afterBody",
-    test: function test(_ref11) {
-      var theme = _ref11.theme;
+    test: function test(_ref10) {
+      var theme = _ref10.theme;
       var field = get(theme, "data.options.watermark.custom-field");
       return get(theme, "data.options.watermark") ? field ? get(chart, "metadata.custom.".concat(field), "") : get(theme, "data.options.watermark.text", "CONFIDENTIAL") : false;
     },
@@ -10785,8 +10840,8 @@ function instance$g($$self, $$props, $$invalidate) {
     return {
       id: id,
       region: "header",
-      test: function test(_ref12) {
-        var theme = _ref12.theme;
+      test: function test(_ref11) {
+        var theme = _ref11.theme;
         return !!get(theme, "data.options.blocks.".concat(id));
       },
       priority: 0,
@@ -10874,19 +10929,20 @@ function instance$g($$self, $$props, $$invalidate) {
   }
 
   $$self.$set = function ($$props) {
-    if ("data" in $$props) $$invalidate(8, data = $$props.data);
-    if ("chart" in $$props) $$invalidate(9, chart = $$props.chart);
-    if ("visualization" in $$props) $$invalidate(10, visualization = $$props.visualization);
+    if ("data" in $$props) $$invalidate(7, data = $$props.data);
+    if ("chart" in $$props) $$invalidate(8, chart = $$props.chart);
+    if ("visualization" in $$props) $$invalidate(9, visualization = $$props.visualization);
     if ("theme" in $$props) $$invalidate(0, theme = $$props.theme);
-    if ("locales" in $$props) $$invalidate(11, locales = $$props.locales);
-    if ("blocks" in $$props) $$invalidate(12, blocks = $$props.blocks);
+    if ("locales" in $$props) $$invalidate(10, locales = $$props.locales);
+    if ("blocks" in $$props) $$invalidate(11, blocks = $$props.blocks);
     if ("chartAfterBodyHTML" in $$props) $$invalidate(1, chartAfterBodyHTML = $$props.chartAfterBodyHTML);
-    if ("isIframe" in $$props) $$invalidate(13, isIframe = $$props.isIframe);
-    if ("isPreview" in $$props) $$invalidate(14, isPreview = $$props.isPreview);
-    if ("basemap" in $$props) $$invalidate(7, basemap = $$props.basemap);
+    if ("isIframe" in $$props) $$invalidate(12, isIframe = $$props.isIframe);
+    if ("isPreview" in $$props) $$invalidate(13, isPreview = $$props.isPreview);
+    if ("basemap" in $$props) $$invalidate(14, basemap = $$props.basemap);
     if ("minimap" in $$props) $$invalidate(15, minimap = $$props.minimap);
     if ("highlight" in $$props) $$invalidate(16, highlight = $$props.highlight);
     if ("fonts" in $$props) $$invalidate(17, fonts = $$props.fonts);
+    if ("styleHolder" in $$props) $$invalidate(18, styleHolder = $$props.styleHolder);
     if ("isStylePlain" in $$props) $$invalidate(2, isStylePlain = $$props.isStylePlain);
     if ("isStyleStatic" in $$props) $$invalidate(3, isStyleStatic = $$props.isStyleStatic);
   };
@@ -10896,8 +10952,8 @@ function instance$g($$self, $$props, $$invalidate) {
 
   $$self.$$.update = function () {
     if ($$self.$$.dirty[0] &
-    /*initialized, theme, basemap, minimap, highlight, target, data, chart, visualization, locales, isPreview, isIframe, fonts, blocks, pluginBlocks*/
-    1834945) {
+    /*initialized, theme, basemap, minimap, highlight, target, data, chart, visualization, locales, isPreview, isIframe, fonts, styleHolder, blocks, pluginBlocks*/
+    3669953) {
        {
         var run = _async(function () {
           if (typeof dw === "undefined") return;
@@ -10906,7 +10962,6 @@ function instance$g($$self, $$props, $$invalidate) {
           var d3maps_basemap, locatorMap;
 
           if (basemap) {
-            $$invalidate(7, basemap.content = JSON.parse(basemap.content), basemap);
             d3maps_basemap = _defineProperty({}, basemap.__id, basemap);
           }
 
@@ -10927,12 +10982,13 @@ function instance$g($$self, $$props, $$invalidate) {
             locatorMap: locatorMap,
             isPreview: isPreview,
             isIframe: isIframe,
-            fonts: fonts
+            fonts: fonts,
+            styleHolder: styleHolder
           }),
               success = _init.success,
               render = _init.render;
 
-          if (!success) return;else $$invalidate(20, initialized = true); // load & execute plugins
+          if (!success) return;else $$invalidate(21, initialized = true); // load & execute plugins
 
           window.__dwBlocks = {};
           return _invoke(function () {
@@ -10963,7 +11019,7 @@ function instance$g($$self, $$props, $$invalidate) {
                   });
                 }); // trigger svelte update after modifying array
 
-                ((((((((((((($$invalidate(19, pluginBlocks), $$invalidate(20, initialized)), $$invalidate(0, theme)), $$invalidate(7, basemap)), $$invalidate(15, minimap)), $$invalidate(16, highlight)), $$invalidate(6, target)), $$invalidate(8, data)), $$invalidate(9, chart)), $$invalidate(10, visualization)), $$invalidate(11, locales)), $$invalidate(14, isPreview)), $$invalidate(13, isIframe)), $$invalidate(17, fonts)), $$invalidate(12, blocks);
+                (((((((((((((($$invalidate(20, pluginBlocks), $$invalidate(21, initialized)), $$invalidate(0, theme)), $$invalidate(14, basemap)), $$invalidate(15, minimap)), $$invalidate(16, highlight)), $$invalidate(6, target)), $$invalidate(7, data)), $$invalidate(8, chart)), $$invalidate(9, visualization)), $$invalidate(10, locales)), $$invalidate(13, isPreview)), $$invalidate(12, isIframe)), $$invalidate(17, fonts)), $$invalidate(18, styleHolder)), $$invalidate(11, blocks);
               });
             }
           }, function () {
@@ -10979,8 +11035,8 @@ function instance$g($$self, $$props, $$invalidate) {
 
     if ($$self.$$.dirty[0] &
     /*theme, data, chart*/
-    769) {
-       $$invalidate(22, blockProps = {
+    385) {
+       $$invalidate(23, blockProps = {
         __: __,
         purifyHtml: clean,
         get: get,
@@ -10993,13 +11049,13 @@ function instance$g($$self, $$props, $$invalidate) {
 
     if ($$self.$$.dirty[0] &
     /*pluginBlocks, theme, blockProps*/
-    4718593) {
-       $$invalidate(21, allBlocks = applyThemeBlockConfig([].concat(coreBlocks, pluginBlocks), theme, blockProps));
+    9437185) {
+       $$invalidate(22, allBlocks = applyThemeBlockConfig([].concat(coreBlocks, pluginBlocks), theme, blockProps));
     }
 
     if ($$self.$$.dirty[0] &
     /*allBlocks, chart, data, theme, isStyleStatic*/
-    2097929) {
+    4194697) {
        {
         // build all the region
         $$invalidate(4, regions = {
@@ -11064,7 +11120,7 @@ function instance$g($$self, $$props, $$invalidate) {
     }
   };
 
-  return [theme, chartAfterBodyHTML, isStylePlain, isStyleStatic, regions, menu, target, basemap, data, chart, visualization, locales, blocks, isIframe, isPreview, minimap, highlight, fonts, div0_binding];
+  return [theme, chartAfterBodyHTML, isStylePlain, isStyleStatic, regions, menu, target, data, chart, visualization, locales, blocks, isIframe, isPreview, basemap, minimap, highlight, fonts, styleHolder, div0_binding];
 }
 
 var Chart = /*#__PURE__*/function (_SvelteComponent) {
@@ -11079,19 +11135,20 @@ var Chart = /*#__PURE__*/function (_SvelteComponent) {
 
     _this = _super.call(this);
     init(_assertThisInitialized(_this), options, instance$g, create_fragment$g, safe_not_equal, {
-      data: 8,
-      chart: 9,
-      visualization: 10,
+      data: 7,
+      chart: 8,
+      visualization: 9,
       theme: 0,
-      locales: 11,
-      blocks: 12,
+      locales: 10,
+      blocks: 11,
       chartAfterBodyHTML: 1,
-      isIframe: 13,
-      isPreview: 14,
-      basemap: 7,
+      isIframe: 12,
+      isPreview: 13,
+      basemap: 14,
       minimap: 15,
       highlight: 16,
       fonts: 17,
+      styleHolder: 18,
       isStylePlain: 2,
       isStyleStatic: 3
     }, [-1, -1]);
@@ -11142,6 +11199,9 @@ var Chart = /*#__PURE__*/function (_SvelteComponent) {
       fonts:
       /*fonts*/
       ctx[11],
+      styleHolder:
+      /*styleHolder*/
+      ctx[15],
       isStylePlain:
       /*isStylePlain*/
       ctx[12],
@@ -11223,6 +11283,11 @@ var Chart = /*#__PURE__*/function (_SvelteComponent) {
       2048) chart_1_changes.fonts =
       /*fonts*/
       ctx[11];
+      if (dirty &
+      /*styleHolder*/
+      32768) chart_1_changes.styleHolder =
+      /*styleHolder*/
+      ctx[15];
       if (dirty &
       /*isStylePlain*/
       4096) chart_1_changes.isStylePlain =
@@ -11675,7 +11740,9 @@ window.__dw.renderInto = _async$1(function (chart) {
     }
   }
 
-  scripts = [].concat(_toConsumableArray(scripts), _toConsumableArray(chart.visualization.libraries), ['http://app.datawrapper.local/lib/chart-core/dw-2.0.min.js', "http://api.datawrapper.local/v3/visualizations/".concat(chart.visualization.id, "/script.js")]);
+  scripts = [].concat(_toConsumableArray(scripts), _toConsumableArray(chart.visualization.libraries.map(function (el) {
+    return "http://app.datawrapper.local".concat(el.uri);
+  })), ['http://app.datawrapper.local/lib/chart-core/dw-2.0.min.js', "http://api.datawrapper.local/v3/visualizations/".concat(chart.visualization.id, "/script.js")]);
   var promises = [];
   scripts.forEach(function (script) {
     promises.push(new Promise(_async$1(function (resolve, reject) {
