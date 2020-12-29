@@ -1,5 +1,5 @@
 <script>
-    import { onMount, afterUpdate, tick } from 'svelte';
+    import { onMount, beforeUpdate, afterUpdate, tick } from 'svelte';
     import BlocksRegion from './BlocksRegion.svelte';
     import Menu from './Menu.svelte';
     import Headline from './blocks/Headline.svelte';
@@ -265,6 +265,7 @@ Please make sure you called __(key) with a key of type "string".
     });
 
     let initialized = false;
+    let render;
 
     $: {
         async function run() {
@@ -288,7 +289,7 @@ Please make sure you called __(key) with a key of type "string".
                 };
             }
 
-            const { success, render } = init(target, {
+            const res = init(target, {
                 data,
                 chart,
                 visualization,
@@ -302,8 +303,10 @@ Please make sure you called __(key) with a key of type "string".
                 styleHolder
             });
 
-            if (!success) return;
-            else initialized = true;
+            if (!res.success) return;
+
+            initialized = true;
+            render = res.render;
 
             // load & execute plugins
             window.__dwBlocks = {};
@@ -354,7 +357,15 @@ Please make sure you called __(key) with a key of type "string".
         run();
     }
 
-    // afterUpdate(checkHeightAndRender);
+    let currentHeight = document.body.offsetHeight;
+
+    afterUpdate(() => {
+        const newHeight = document.body.offsetHeight;
+        if (currentHeight !== newHeight && typeof render === 'function') {
+            render();
+            currentHeight = newHeight;
+        }
+    });
 </script>
 
 {#if !isStylePlain}

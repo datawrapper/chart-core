@@ -25,8 +25,8 @@
 
     $: customCSS = purifyHtml(get(chart, 'metadata.publish.custom-css', ''), '');
 
-    window.__dwUpdate = ({ chart }) => {
-        Object.assign(chart, chart);
+    window.__dwUpdate = chartAttrs => {
+        Object.assign(chart, chartAttrs.chart);
         chart = chart; // to force re-rendering
     };
 

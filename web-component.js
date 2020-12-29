@@ -18,8 +18,8 @@ if (typeof window.__dw === 'undefined') {
     };
 }
 
-window.__dw.renderInto = async function(chart) {
-    const elementId = `datawrapper-chart-${chart.chart.id}`;
+window.__dw.renderInto = async function(data) {
+    const elementId = `datawrapper-chart-${data.chart.id}`;
     document.write(`<div id="${elementId}"></div>`);
 
     if (typeof __dw.dependencies === 'undefined') __dw.dependencies = {};
@@ -31,14 +31,14 @@ window.__dw.renderInto = async function(chart) {
     const awaitLibraries = () => {
         let loaded = true;
 
-        for (let dep of chart.dependencies) {
+        for (let dep of data.dependencies) {
             if (__dw.dependencies[dep] !== 'finished') loaded = false;
         }
 
         if (loaded && !rendered) {
             const props = {
                 target: document.getElementById(elementId),
-                props: chart,
+                props: data,
                 hydrate: false
             };
 
@@ -54,6 +54,17 @@ window.__dw.renderInto = async function(chart) {
         }
     };
 
+    const styleId = `datawrapper-${data.chart.theme}`;
+
+    if (!document.head.querySelector(`#${styleId}`)) {
+        // fonts need to be appended globally, and can then be used in every WebComponent
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.type = 'text/css';
+        style.innerHTML = data.styles.fonts;
+        document.head.appendChild(style);
+    }
+
     __dw.onDependencyCompleted(awaitLibraries);
 
     // slightly hacky way to determine the script origin
@@ -64,7 +75,7 @@ window.__dw.renderInto = async function(chart) {
         .slice(0, -1)
         .join('/');
 
-    for (let script of chart.dependencies) {
+    for (let script of data.dependencies) {
         if (__dw.dependencies[script]) continue;
         __dw.dependencies[script] = 'loading';
         await loadScript(`${src}/${script}`);

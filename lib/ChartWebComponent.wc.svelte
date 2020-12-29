@@ -28,7 +28,7 @@
         if (!stylesLoaded && styleHolder && styles) {
             const style = document.createElement('style');
             style.type = 'text/css';
-            style.innerText = styles;
+            style.innerHTML = styles.css;
             styleHolder.appendChild(style);
             stylesLoaded = true;
         }
