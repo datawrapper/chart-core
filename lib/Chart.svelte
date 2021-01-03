@@ -357,15 +357,17 @@ Please make sure you called __(key) with a key of type "string".
         run();
     }
 
-    let currentHeight = document.body.offsetHeight;
+    if (typeof document !== 'undefined') {
+        let currentHeight = document.body.offsetHeight;
 
-    afterUpdate(() => {
-        const newHeight = document.body.offsetHeight;
-        if (currentHeight !== newHeight && typeof render === 'function') {
-            render();
-            currentHeight = newHeight;
-        }
-    });
+        afterUpdate(() => {
+            const newHeight = document.body.offsetHeight;
+            if (currentHeight !== newHeight && typeof render === 'function') {
+                render();
+                currentHeight = newHeight;
+            }
+        });
+    }
 </script>
 
 {#if !isStylePlain}
