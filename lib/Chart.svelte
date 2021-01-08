@@ -344,7 +344,7 @@ Please make sure you called __(key) with a key of type "string".
 </script>
 
 <svelte:head>
-    <title>{chart.title}</title>
+    <title>{purifyHtml(chart.title, '')}</title>
     <meta name="description" content={get(chart, 'metadata.describe.intro')} />
     {@html `<${'style'}>${customCSS}</style>`}
     {#if publishData.chartAfterHeadHTML}
