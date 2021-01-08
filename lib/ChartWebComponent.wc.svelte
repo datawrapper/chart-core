@@ -13,6 +13,7 @@
     export let minimap;
     export let highlight;
     export let styles;
+    export let origin;
     export let fonts = {};
 
     // plain style means no header and footer
@@ -54,6 +55,7 @@
             {basemap}
             {minimap}
             {highlight}
+            {origin}
             {fonts}
             {styleHolder}
             {isStylePlain}

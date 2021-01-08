@@ -18,6 +18,14 @@ if (typeof window.__dw === 'undefined') {
         render: async function(data) {
             const elementId = `datawrapper-chart-${data.chart.id}`;
             document.write(`<div id="${elementId}"></div>`);
+            //
+            // slightly hacky way to determine the script origin
+            const scripts = document.getElementsByTagName('script');
+            const src = scripts[scripts.length - 1]
+                .getAttribute('src')
+                .split('/')
+                .slice(0, -1)
+                .join('/');
 
             if (typeof __dw.dependencies === 'undefined') __dw.dependencies = {};
 
@@ -33,6 +41,8 @@ if (typeof window.__dw === 'undefined') {
                 }
 
                 if (loaded && !rendered) {
+                    data.origin = src;
+
                     const props = {
                         target: document.getElementById(elementId),
                         props: data,
@@ -64,18 +74,17 @@ if (typeof window.__dw === 'undefined') {
 
             __dw.onDependencyCompleted(awaitLibraries);
 
-            // slightly hacky way to determine the script origin
-            const scripts = document.getElementsByTagName('script');
-            const src = scripts[scripts.length - 1]
-                .getAttribute('src')
-                .split('/')
-                .slice(0, -1)
-                .join('/');
-
             for (let script of data.dependencies) {
                 if (__dw.dependencies[script] === 'finished') continue;
                 __dw.dependencies[script] = 'loading';
-                await loadScript(`${src}/${script}`);
+
+                if (
+                    script.toLowerCase().indexOf('underscore') === -1 &&
+                    script.toLowerCase().indexOf('globalize') === -1
+                ) {
+                    await loadScript(`${src}/${script}`);
+                }
+
                 __dw.dependencies[script] = 'finished';
                 __dw.dependencyCompleted();
             }
