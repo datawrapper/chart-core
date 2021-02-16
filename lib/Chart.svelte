@@ -16,6 +16,7 @@
     import svgRule from './blocks/svgRule.svelte';
 
     import get from '@datawrapper/shared/get';
+    import set from '@datawrapper/shared/set';
     import purifyHtml from '@datawrapper/shared/purifyHtml';
     import { clean } from './shared';
     import { loadScript, loadStylesheet } from '@datawrapper/shared/fetch';
@@ -255,6 +256,18 @@ Please make sure you called __(key) with a key of type "string".
         document.body.classList.toggle('static', isStyleStatic);
         // the body class "png-export" kept for backwards compatibility
         document.body.classList.toggle('png-export', isStyleStatic);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const scheme = urlParams.get('scheme');
+        if (scheme) {
+            const schemeData = get(theme.data, `colors.schemes.${scheme}`);
+            if (schemeData) {
+                document.body.classList.add(`scheme-${scheme}`);
+                Object.keys(schemeData).forEach(key => {
+                    set(theme.data, key, schemeData[key]);
+                });
+            }
+        }
 
         if (isStyleStatic) {
             document.body.style['pointer-events'] = 'none';
