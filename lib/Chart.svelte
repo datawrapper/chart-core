@@ -208,6 +208,11 @@
         };
     }
 
+    let menu;
+    $: {
+        menu = get(theme, 'data.options.menu', {});
+    }
+
     // plain style means no header and footer
     export let isStylePlain = false;
     // static style means user can't interact (e.g. in a png version)
@@ -339,7 +344,7 @@ Please make sure you called __(key) with a key of type "string".
 </script>
 
 <svelte:head>
-    <title>{chart.title}</title>
+    <title>{purifyHtml(chart.title, '')}</title>
     <meta name="description" content={get(chart, 'metadata.describe.intro')} />
     {@html `<${'style'}>${customCSS}</style>`}
     {#if publishData.chartAfterHeadHTML}
@@ -351,7 +356,7 @@ Please make sure you called __(key) with a key of type "string".
     <BlocksRegion name="dw-chart-header" blocks={regions.header} id="header" />
 
     {#if !isStyleStatic}
-        <Menu name="dw-chart-menu" blocks={regions.menu} />
+        <Menu name="dw-chart-menu" props={menu} blocks={regions.menu} />
     {/if}
 {/if}
 
