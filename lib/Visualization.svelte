@@ -315,10 +315,25 @@ Please make sure you called __(key) with a key of type "string".
                 await Promise.all(
                     blocks.map(d => {
                         return new Promise((resolve, reject) => {
-                            const p = [loadScript(`${origin ? `${origin}/` : ''}${d.source.js}`)];
+                            const p = [
+                                loadScript(
+                                    `${
+                                        origin && d.source.js.indexOf('http') !== 0
+                                            ? `${origin}/`
+                                            : ''
+                                    }${d.source.js}`
+                                )
+                            ];
                             if (d.source.css)
                                 p.push(
-                                    loadStylesheet(`${origin ? `${origin}/` : ''}${d.source.css}`)
+                                    loadStylesheet({
+                                        src: `${
+                                            origin && d.source.js.indexOf('http') !== 0
+                                                ? `${origin}/`
+                                                : ''
+                                        }${d.source.css}`,
+                                        parentElement: styleHolder
+                                    })
                                 );
                             Promise.all(p)
                                 .then(resolve)

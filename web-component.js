@@ -85,7 +85,7 @@ if (typeof window.__dw === 'undefined') {
                     script.toLowerCase().indexOf('underscore') === -1 &&
                     script.toLowerCase().indexOf('globalize') === -1
                 ) {
-                    await loadScript(`${src}/${script}`);
+                    await loadScript(script.indexOf('http') === 0 ? script : `${src}/${script}`);
                 }
 
                 __dw.dependencies[script] = 'finished';

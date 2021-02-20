@@ -30,8 +30,17 @@ module.exports = [
         /* Svelte Visualization Component as web component */
         input: path.resolve(__dirname, 'web-component.js'),
         plugins: [
-            svelte({ customElement: true, include: /\.wc\.svelte$/ }),
-            svelte({ customElement: false, exclude: /\.wc\.svelte$/ }),
+            svelte({
+                customElement: true,
+                include: /\.wc\.svelte$/
+            }),
+            svelte({
+                customElement: false,
+                exclude: /\.wc\.svelte$/,
+                css: css => {
+                    css.write(path.resolve(__dirname, 'dist', 'web-component.css'));
+                }
+            }),
             // for @emotion/css
             replace({
                 'process.env.NODE_ENV': JSON.stringify('production')
