@@ -43,7 +43,7 @@
 </script>
 
 <svelte:head>
-    <title>{chart.title}</title>
+    <title>{purifyHtml(chart.title, '')}</title>
     <meta name="description" content={get(chart, 'metadata.describe.intro')} />
     {@html `<${'style'}>${customCSS}</style>`}
     {#if chartAfterHeadHTML}
