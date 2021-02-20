@@ -15,6 +15,6 @@ module.exports = {
     },
     svelte: require(path.join(__dirname, '/dist', 'Visualization_SSR.js')),
     less: path.join(__dirname, '/lib/styles.less'),
-    css: path.join(__dirname, '/dist', 'web-component-content.css'),
+    css: path.join(__dirname, '/dist', 'web-component.css'),
     polyfills: fs.readdirSync(polyfillDirectory).map(file => path.join(polyfillDirectory, file))
 };
