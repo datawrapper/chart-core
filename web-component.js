@@ -1,4 +1,4 @@
-import ChartWebComponent from './lib/ChartWebComponent.wc.svelte';
+import VisualizationWebComponent from './lib/VisualizationWebComponent.wc.svelte';
 import { loadScript } from '@datawrapper/shared/fetch';
 
 // initialize the library
@@ -50,8 +50,11 @@ if (typeof window.__dw === 'undefined') {
                     };
 
                     if (!customElements.get('datawrapper-visualization')) {
-                        customElements.define('datawrapper-visualization', ChartWebComponent);
-                        new ChartWebComponent(props);
+                        customElements.define(
+                            'datawrapper-visualization',
+                            VisualizationWebComponent
+                        );
+                        new VisualizationWebComponent(props);
                     } else {
                         const WebComponent = customElements.get('datawrapper-visualization');
                         new WebComponent(props);

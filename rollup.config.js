@@ -27,7 +27,7 @@ function onwarn(warning, warn) {
 
 module.exports = [
     {
-        /* Svelte Chart Component as web component */
+        /* Svelte Visualization Component as web component */
         input: path.resolve(__dirname, 'web-component.js'),
         plugins: [
             svelte({ customElement: true, include: /\.wc\.svelte$/ }),
@@ -59,7 +59,7 @@ module.exports = [
         }
     },
     {
-        /* Client side Svelte Chart Component */
+        /* Client side Svelte Visualization Component */
         input: path.resolve(__dirname, 'main.js'),
         plugins: [
             svelte({ hydratable: true }),
@@ -85,8 +85,8 @@ module.exports = [
         }
     },
     {
-        /* Server side rendered Svelte Chart Component */
-        input: path.resolve(__dirname, 'lib/Chart.svelte'),
+        /* Server side rendered Svelte Visualization Component */
+        input: path.resolve(__dirname, 'lib/Visualization.svelte'),
         plugins: [
             svelte({ generate: 'ssr', hydratable: true }),
             // for @emotion/css
@@ -103,7 +103,7 @@ module.exports = [
         onwarn,
         output: {
             format: 'umd',
-            entryFileNames: 'Chart_SSR.js',
+            entryFileNames: 'Visualization_SSR.js',
             ...output
         }
     },

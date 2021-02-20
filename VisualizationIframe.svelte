@@ -1,5 +1,5 @@
 <script>
-    import Chart from './Chart.svelte';
+    import Visualization from './Visualization.svelte';
     import get from '@datawrapper/shared/get';
     import purifyHtml from '@datawrapper/shared/purifyHtml';
     import { onMount } from 'svelte';
@@ -51,7 +51,7 @@
     {/if}
 </svelte:head>
 
-<Chart
+<Visualization
     {data}
     {chart}
     {visualization}

@@ -1,5 +1,5 @@
 <script>
-    import Chart from './Chart.svelte';
+    import Visualization from './Visualization.svelte';
 
     export let data = '';
     export let chart = {};
@@ -42,7 +42,7 @@
 
 {#if stylesLoaded}
     <div class="chart dw-chart">
-        <Chart
+        <Visualization
             {data}
             {chart}
             {visualization}
