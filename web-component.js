@@ -1,8 +1,6 @@
 import VisualizationWebComponent from './lib/VisualizationWebComponent.wc.svelte';
 import { loadScript } from '@datawrapper/shared/fetch';
 
-// initialize the library
-
 if (typeof window.__dw === 'undefined') {
     const callbacks = [];
 

@@ -53,7 +53,8 @@ module.exports = [
                     presets: [
                         [
                             '@babel/env',
-                            { targets: ['> 1%', 'not IE 11'], corejs: 3, useBuiltIns: 'entry' }
+                            // needs to at least not throw syntax errors in IE
+                            { targets: ['> 1%'], corejs: 3, useBuiltIns: 'entry' }
                         ]
                     ],
                     plugins: ['babel-plugin-transform-async-to-promises']
