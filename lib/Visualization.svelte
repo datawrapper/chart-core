@@ -387,6 +387,15 @@ Please make sure you called __(key) with a key of type "string".
             }
         });
     }
+
+    let contentBelowChart;
+    $: contentBelowChart =
+        regions.aboveFooter.length ||
+        regions.footerLeft.length ||
+        regions.footerCenter.length ||
+        regions.footerRight.length ||
+        regions.belowFooter.length ||
+        regions.afterBody.length;
 </script>
 
 {#if !isStylePlain}
@@ -397,7 +406,11 @@ Please make sure you called __(key) with a key of type "string".
     {/if}
 {/if}
 
-<div id="chart" bind:this={target} class="dw-chart-body" />
+<div
+    id="chart"
+    bind:this={target}
+    class:content-below-chart={contentBelowChart}
+    class="dw-chart-body" />
 
 {#if get(theme, 'data.template.afterChart')}
     {@html theme.data.template.afterChart}
