@@ -6,6 +6,8 @@ import svelte from 'rollup-plugin-svelte';
 import babel from 'rollup-plugin-babel';
 import { terser } from 'rollup-plugin-terser';
 
+const production = !process.env.ROLLUP_WATCH;
+
 const output = {
     name: 'chart',
     dir: path.resolve(__dirname, 'dist'),
@@ -36,12 +38,18 @@ module.exports = [
             }),
             resolve(),
             commonjs(),
-            babel({
-                ...babelConfig,
-                presets: [['@babel/env', { targets: '> 1%', corejs: 3, useBuiltIns: 'entry' }]],
-                plugins: ['babel-plugin-transform-async-to-promises']
-            }),
-            terser()
+            production &&
+                babel({
+                    ...babelConfig,
+                    presets: [
+                        [
+                            '@babel/env',
+                            { targets: ['> 1%', 'not IE 11'], corejs: 3, useBuiltIns: 'entry' }
+                        ]
+                    ],
+                    plugins: ['babel-plugin-transform-async-to-promises']
+                }),
+            production && terser()
         ],
         onwarn,
         output: {
@@ -61,12 +69,13 @@ module.exports = [
             }),
             resolve(),
             commonjs(),
-            babel({
-                ...babelConfig,
-                presets: [['@babel/env', { targets: '> 1%', corejs: 3, useBuiltIns: 'entry' }]],
-                plugins: ['babel-plugin-transform-async-to-promises']
-            })
-            // terser()
+            production &&
+                babel({
+                    ...babelConfig,
+                    presets: [['@babel/env', { targets: '> 1%', corejs: 3, useBuiltIns: 'entry' }]],
+                    plugins: ['babel-plugin-transform-async-to-promises']
+                }),
+            production && terser()
         ],
         onwarn,
         output: {
