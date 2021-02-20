@@ -3082,7 +3082,7 @@ function loadScript(src, callback = null) {
 function loadStylesheet(opts, callback = null) {
     if (typeof opts === 'string') {
         opts = {
-            src: opts,
+            src: opts
         };
     }
 

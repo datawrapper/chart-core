@@ -65,6 +65,7 @@ dist/main.js
 dist/embed.js
 dist/Visualization_SSR.js
 dist/dw-2.0.min.js
+dist/web-component.js
 dist/locale
 token.json
 
