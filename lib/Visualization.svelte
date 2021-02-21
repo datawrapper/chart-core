@@ -1,5 +1,5 @@
 <script>
-    import { onMount, beforeUpdate, afterUpdate, tick } from 'svelte';
+    import { onMount, afterUpdate, tick } from 'svelte';
     import BlocksRegion from './BlocksRegion.svelte';
     import Menu from './Menu.svelte';
     import Headline from './blocks/Headline.svelte';
