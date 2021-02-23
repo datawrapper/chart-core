@@ -56,7 +56,7 @@
         right: 4px;
         background: white;
         border: 1px solid #ccc;
-        z-index: 1;
+        z-index: 100;
         box-shadow: 0px 0px 4px 1px rgba(0, 0, 0, 0.1);
     }
 
