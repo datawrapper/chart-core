@@ -5,12 +5,7 @@ body {
 
     background: @style_body_background;
 
-    // Hide the vertical scrollbar that can visible during resizing (depending on browser & OS)
-    // This reduces the 'bouncing' that may occur when resizing the chart
-    // TODO: Figure out how to deal with this in a web components context
     overflow-y: hidden;
-    min-height: 100px;
-    min-width: 100px;
 }
 
 .chart {
@@ -26,12 +21,7 @@ body {
     margin: 0;
     margin: @style_body_margin;
 
-    // Make chart use full container size:
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    height: 100%;
 
     &.vis-height-fit {
         overflow: hidden;
