@@ -14,7 +14,7 @@ if (typeof window.__dw === 'undefined') {
             }
         },
         render: async function(data) {
-            const elementId = `datawrapper-chart-${data.chart.id}`;
+            const elementId = `datawrapper-chart-${data.chartAttrs.id}`;
             document.write(`<div id="${elementId}"></div>`);
             //
             // slightly hacky way to determine the script origin
@@ -62,7 +62,7 @@ if (typeof window.__dw === 'undefined') {
                 }
             };
 
-            const styleId = `datawrapper-${data.chart.theme}`;
+            const styleId = `datawrapper-${data.chartAttrs.theme}`;
 
             if (!document.head.querySelector(`#${styleId}`)) {
                 // fonts need to be appended globally, and can then be used in every WebComponent

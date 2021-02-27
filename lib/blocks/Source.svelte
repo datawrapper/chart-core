@@ -2,12 +2,12 @@
     // external props
     export let props;
     const { __, get, purifyHtml } = props;
-    $: ({ chart, theme } = props);
+    $: ({ chartAttrs, theme } = props);
 
     // internal props
     $: footer = get(theme, 'data.options.footer');
-    $: sourceName = purifyHtml(get(chart, 'metadata.describe.source-name'));
-    $: sourceUrl = get(chart, 'metadata.describe.source-url');
+    $: sourceName = purifyHtml(get(chartAttrs, 'metadata.describe.source-name'));
+    $: sourceUrl = get(chartAttrs, 'metadata.describe.source-url');
 </script>
 
 {#if sourceName}

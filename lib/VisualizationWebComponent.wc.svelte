@@ -2,16 +2,14 @@
     import Visualization from './Visualization.svelte';
 
     export let data = '';
-    export let chart = {};
+    export let chartAttrs = {};
     export let visualization = {};
     export let theme = {};
     export let locales = {};
     export let blocks = {};
     export let chartAfterBodyHTML = '';
     export let isPreview;
-    export let basemap;
-    export let minimap;
-    export let highlight;
+    export let assets;
     export let styles;
     export let origin;
     export let fonts = {};
@@ -44,7 +42,7 @@
     <div class="chart dw-chart">
         <Visualization
             {data}
-            {chart}
+            {chartAttrs}
             {visualization}
             {theme}
             {locales}
@@ -52,9 +50,7 @@
             {chartAfterBodyHTML}
             isIframe={false}
             {isPreview}
-            {basemap}
-            {minimap}
-            {highlight}
+            {assets}
             {origin}
             {fonts}
             {styleHolder}

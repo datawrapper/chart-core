@@ -5,7 +5,7 @@
     import { onMount } from 'svelte';
 
     export let data = '';
-    export let chart = {};
+    export let chartAttrs = {};
     export let visualization = {};
     export let theme = {};
     export let locales = {};
@@ -13,9 +13,7 @@
     export let chartAfterHeadHTML = '';
     export let chartAfterBodyHTML = '';
     export let isPreview;
-    export let basemap;
-    export let minimap;
-    export let highlight;
+    export let assets;
     export let fonts = {};
 
     // plain style means no header and footer
@@ -23,11 +21,11 @@
     // static style means user can't interact (e.g. in a png version)
     export let isStyleStatic = false;
 
-    $: customCSS = purifyHtml(get(chart, 'metadata.publish.custom-css', ''), '');
+    $: customCSS = purifyHtml(get(chartAttrs, 'metadata.publish.custom-css', ''), '');
 
-    window.__dwUpdate = chartAttrs => {
-        Object.assign(chart, chartAttrs.chart);
-        chart = chart; // to force re-rendering
+    window.__dwUpdate = newAttrs => {
+        Object.assign(chartAttrs, newAttrs.chart);
+        chartAttrs = chartAttrs; // to force re-rendering
     };
 
     onMount(async () => {
@@ -43,8 +41,8 @@
 </script>
 
 <svelte:head>
-    <title>{purifyHtml(chart.title, '')}</title>
-    <meta name="description" content={get(chart, 'metadata.describe.intro')} />
+    <title>{purifyHtml(chartAttrs.title, '')}</title>
+    <meta name="description" content={get(chartAttrs, 'metadata.describe.intro')} />
     {@html `<${'style'}>${customCSS}</style>`}
     {#if chartAfterHeadHTML}
         {@html chartAfterHeadHTML}
@@ -53,7 +51,7 @@
 
 <Visualization
     {data}
-    {chart}
+    {chartAttrs}
     {visualization}
     {theme}
     {locales}
@@ -61,9 +59,7 @@
     {chartAfterBodyHTML}
     isIframe={true}
     {isPreview}
-    {basemap}
-    {minimap}
-    {highlight}
+    {assets}
     {fonts}
     {isStylePlain}
     {isStyleStatic} />

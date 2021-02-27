@@ -2,7 +2,7 @@
     // external props
     export let props;
     const { get, purifyHtml } = props;
-    $: chart = props.chart;
+    $: chartAttrs = props.chartAttrs;
 </script>
 
-{@html purifyHtml(get(chart, 'metadata.annotate.notes'))}
+{@html purifyHtml(get(chartAttrs, 'metadata.annotate.notes'))}
