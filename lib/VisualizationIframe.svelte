@@ -9,6 +9,7 @@
     export let visualization = {};
     export let theme = {};
     export let locales = {};
+    export let translations;
     export let blocks = {};
     export let chartAfterHeadHTML = '';
     export let chartAfterBodyHTML = '';
@@ -55,6 +56,7 @@
     {visualization}
     {theme}
     {locales}
+    {translations}
     {blocks}
     {chartAfterBodyHTML}
     isIframe={true}

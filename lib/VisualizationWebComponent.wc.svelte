@@ -6,6 +6,7 @@
     export let visualization = {};
     export let theme = {};
     export let locales = {};
+    export let translations;
     export let blocks = {};
     export let chartAfterBodyHTML = '';
     export let isPreview;
@@ -46,6 +47,7 @@
             {visualization}
             {theme}
             {locales}
+            {translations}
             {blocks}
             {chartAfterBodyHTML}
             isIframe={false}

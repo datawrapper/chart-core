@@ -13,59 +13,22 @@ if (typeof window.__dw === 'undefined') {
                 cb();
             }
         },
+        dependencies: {},
         render: async function(data) {
             const elementId = `datawrapper-chart-${data.chartAttrs.id}`;
             document.write(`<div id="${elementId}"></div>`);
-            //
+
             // slightly hacky way to determine the script origin
             const scripts = document.getElementsByTagName('script');
-            const src = scripts[scripts.length - 1]
+            data.origin = scripts[scripts.length - 1]
                 .getAttribute('src')
                 .split('/')
                 .slice(0, -1)
                 .join('/');
 
-            if (typeof __dw.dependencies === 'undefined') __dw.dependencies = {};
-
-            const promises = [];
-
-            let rendered = false;
-
-            const awaitLibraries = () => {
-                let loaded = true;
-
-                for (let dep of data.dependencies) {
-                    if (__dw.dependencies[dep] !== 'finished') loaded = false;
-                }
-
-                if (loaded && !rendered) {
-                    data.origin = src;
-
-                    const props = {
-                        target: document.getElementById(elementId),
-                        props: data,
-                        hydrate: false
-                    };
-
-                    if (!customElements.get('datawrapper-visualization')) {
-                        customElements.define(
-                            'datawrapper-visualization',
-                            VisualizationWebComponent
-                        );
-                        new VisualizationWebComponent(props);
-                    } else {
-                        const WebComponent = customElements.get('datawrapper-visualization');
-                        new WebComponent(props);
-                    }
-
-                    rendered = true;
-                }
-            };
-
+            // fonts need to be appended globally, and can then be used in every WebComponent
             const styleId = `datawrapper-${data.chartAttrs.theme}`;
-
             if (!document.head.querySelector(`#${styleId}`)) {
-                // fonts need to be appended globally, and can then be used in every WebComponent
                 const style = document.createElement('style');
                 style.id = styleId;
                 style.type = 'text/css';
@@ -73,21 +36,55 @@ if (typeof window.__dw === 'undefined') {
                 document.head.appendChild(style);
             }
 
-            __dw.onDependencyCompleted(awaitLibraries);
+            loadDependency(data.dependencies[0]);
 
-            for (let script of data.dependencies) {
-                if (__dw.dependencies[script] === 'finished') continue;
-                __dw.dependencies[script] = 'loading';
-
-                if (
-                    script.toLowerCase().indexOf('underscore') === -1 &&
-                    script.toLowerCase().indexOf('globalize') === -1
-                ) {
-                    await loadScript(script.indexOf('http') === 0 ? script : `${src}/${script}`);
+            async function loadDependency(script) {
+                if (!__dw.dependencies[script]) {
+                    __dw.dependencies[script] = 'loading';
+                    await loadScript(
+                        script.indexOf('http') === 0 ? script : `${data.origin}/${script}`
+                    );
+                    __dw.dependencies[script] = 'finished';
                 }
 
-                __dw.dependencies[script] = 'finished';
-                __dw.dependencyCompleted();
+                if (__dw.dependencies[script] === 'finished') {
+                    __dw.dependencyCompleted();
+                }
+            }
+
+            __dw.onDependencyCompleted(function() {
+                for (let script of data.dependencies) {
+                    if (__dw.dependencies[script] !== 'finished') {
+                        if (!__dw.dependencies[script]) {
+                            loadDependency(script);
+                        }
+
+                        return;
+                    }
+                }
+
+                render();
+            });
+
+            let rendered = false;
+            function render() {
+                if (rendered) return;
+
+                const props = {
+                    target: document.getElementById(elementId),
+                    props: data,
+                    hydrate: false
+                };
+
+                if (!customElements.get('datawrapper-visualization')) {
+                    customElements.define('datawrapper-visualization', VisualizationWebComponent);
+                    new VisualizationWebComponent(props);
+                } else {
+                    const WebComponent = customElements.get('datawrapper-visualization');
+                    new WebComponent(props);
+                }
+
+                rendered = true;
             }
         }
     };

@@ -29,6 +29,7 @@
     export let visualization = {};
     export let theme = {};
     export let locales = {};
+    export let translations;
     export let blocks = {};
     export let chartAfterBodyHTML = '';
     export let isIframe;
@@ -357,6 +358,7 @@ Please make sure you called __(key) with a key of type "string".
         chart = dw
             .chart(chartAttrs)
             .locale((chartAttrs.language || 'en-US').substr(0, 2))
+            .translations(translations)
             .theme(dw.theme(chartAttrs.theme));
 
         // register chart assets
@@ -371,6 +373,8 @@ Please make sure you called __(key) with a key of type "string".
 
         // load chart data
         await chart.load(data || '', isPreview ? undefined : chartAttrs.externalData);
+
+        chart.locales = locales;
 
         chart.vis(vis);
 
@@ -387,16 +391,16 @@ Please make sure you called __(key) with a key of type "string".
         }
 
         // render chart
-        chart.render(target, isIframe, isPreview);
+        chart.render(target, vis, isIframe, isPreview);
 
         // await necessary reload triggers
         observeFonts(fonts, theme.data.typography)
-            .then(() => chart.render(target, isIframe, isPreview))
-            .catch(() => chart.render(target, isIframe, isPreview));
+            .then(() => chart.render(target, vis, isIframe, isPreview))
+            .catch(() => chart.render(target, vis, isIframe, isPreview));
 
         // iPhone/iPad fix
         if (/iP(hone|od|ad)/.test(navigator.platform)) {
-            window.onload = chart.render(target, isIframe, isPreview);
+            window.onload = chart.render(target, vis, isIframe, isPreview);
         }
     }
 
@@ -438,7 +442,7 @@ Please make sure you called __(key) with a key of type "string".
                 window.__dw.params = { data };
                 window.__dw.vis = vis;
                 window.__dw.render = () => {
-                    chart.render(target, isIframe, isPreview);
+                    chart.render(target, vis, isIframe, isPreview);
                 };
             }
         }
