@@ -2,6 +2,7 @@
     import Visualization from './Visualization.svelte';
     import get from '@datawrapper/shared/get';
     import purifyHtml from '@datawrapper/shared/purifyHtml';
+    import { domReady } from './dw/utils';
     import { onMount } from 'svelte';
 
     export let data = '';
@@ -16,6 +17,7 @@
     export let isPreview;
     export let assets;
     export let fonts = {};
+    let dwChart;
 
     // plain style means no header and footer
     export let isStylePlain = false;
@@ -38,6 +40,32 @@
         if (isStyleStatic) {
             document.body.style['pointer-events'] = 'none';
         }
+
+        // fire events on hashchange
+        domReady(() => {
+            const postEvent = PostEvent(chart.id);
+            window.addEventListener('hashchange', () => {
+                postEvent('hash.change', { hash: window.location.hash });
+            });
+        });
+
+        // watch for height changes - still needed?
+        let currentHeight = document.body.offsetHeight;
+
+        afterUpdate(() => {
+            const newHeight = document.body.offsetHeight;
+            if (currentHeight !== newHeight && typeof render === 'function') {
+                render();
+                currentHeight = newHeight;
+            }
+        });
+
+        window.__dw = window.__dw || {};
+        window.__dw.params = { data };
+        window.__dw.vis = vis;
+        window.__dw.render = () => {
+            dwChart.render(isIframe, isPreview);
+        };
     });
 </script>
 
@@ -51,6 +79,7 @@
 </svelte:head>
 
 <Visualization
+    bind:dwChart
     {data}
     {chart}
     {visualization}

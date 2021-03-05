@@ -15,7 +15,6 @@
     import HorizontalRule from './blocks/HorizontalRule.svelte';
     import svgRule from './blocks/svgRule.svelte';
 
-    import { domReady } from './dw/utils';
     import get from '@datawrapper/shared/get';
     import purifyHtml from '@datawrapper/shared/purifyHtml';
     import PostEvent from '@datawrapper/shared/postEvent';
@@ -405,46 +404,6 @@ Please make sure you called __(key) with a key of type "string".
 
     onMount(async () => {
         run();
-
-        if (isIframe) {
-            // set some classes - still needed?
-            document.body.classList.toggle('plain', isStylePlain);
-            document.body.classList.toggle('static', isStyleStatic);
-            document.body.classList.toggle('png-export', isStyleStatic);
-
-            if (isStyleStatic) {
-                document.body.style['pointer-events'] = 'none';
-            }
-
-            // fire events on hashchange
-            domReady(() => {
-                const postEvent = PostEvent(chart.id);
-                window.addEventListener('hashchange', () => {
-                    postEvent('hash.change', { hash: window.location.hash });
-                });
-            });
-
-            // watch for height changes - still needed?
-            let currentHeight = document.body.offsetHeight;
-
-            afterUpdate(() => {
-                const newHeight = document.body.offsetHeight;
-                if (currentHeight !== newHeight && typeof render === 'function') {
-                    render();
-                    currentHeight = newHeight;
-                }
-            });
-
-            // provide external APIs
-            if (isIframe) {
-                window.__dw = window.__dw || {};
-                window.__dw.params = { data };
-                window.__dw.vis = vis;
-                window.__dw.render = () => {
-                    dwChart.render(isIframe, isPreview);
-                };
-            }
-        }
     });
 
     let contentBelowChart;
