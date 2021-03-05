@@ -2,7 +2,7 @@
     // external props
     export let props;
     const { get, purifyHtml, __ } = props;
-    $: chartAttrs = props.chartAttrs;
+    $: chart = props.chart;
     $: theme = props.theme;
     $: caption = props.caption;
 
@@ -14,17 +14,17 @@
             ? get(theme, 'data.options.footer.tableCaption', 'Table:')
             : get(theme, 'data.options.footer.chartCaption', 'Chart:');
 
-    $: byline = get(chartAttrs, 'metadata.describe.byline', false);
+    $: byline = get(chart, 'metadata.describe.byline', false);
 
     $: forkCaption = get(theme, 'data.options.footer.forkCaption', 'footer / based-on');
 
-    $: needBrackets = chartAttrs.basedOnByline && byline;
+    $: needBrackets = chart.basedOnByline && byline;
 
     $: basedOnByline =
         (needBrackets ? '(' : '') +
         __(forkCaption) +
         ' ' +
-        purifyHtml(chartAttrs.basedOnByline) +
+        purifyHtml(chart.basedOnByline) +
         (needBrackets ? ')' : '');
 
     function capitalize(str) {
@@ -35,6 +35,6 @@
 
 <span class="byline-caption">{__(bylineCaption)}</span>
 {byline}
-{#if chartAttrs.basedOnByline}
+{#if chart.basedOnByline}
     {@html purifyHtml(basedOnByline)}
 {/if}

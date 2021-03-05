@@ -2,9 +2,9 @@
     // external props
     export let props;
     const { purifyHtml } = props;
-    $: chartAttrs = props.chartAttrs;
+    $: chart = props.chart;
 
-    $: headline = purifyHtml(chartAttrs.title);
+    $: headline = purifyHtml(chart.title);
 </script>
 
 {@html headline}

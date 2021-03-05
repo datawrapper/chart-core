@@ -25,7 +25,7 @@
     import createEmotion from '@emotion/css/create-instance';
 
     export let data = '';
-    export let chartAttrs;
+    export let chart;
     export let visualization = {};
     export let theme = {};
     export let locales = {};
@@ -45,7 +45,7 @@
     export let isStyleStatic = false;
 
     // .dw-chart-body
-    let target, chart, vis;
+    let target, dwChart, vis;
 
     const coreBlocks = [
         {
@@ -53,8 +53,7 @@
             tag: 'h1',
             region: 'header',
             priority: 10,
-            test: ({ chartAttrs }) =>
-                chartAttrs.title && !get(chartAttrs, 'metadata.describe.hide-title'),
+            test: ({ chart }) => chart.title && !get(chart, 'metadata.describe.hide-title'),
             component: Headline
         },
         {
@@ -62,28 +61,28 @@
             tag: 'p',
             region: 'header',
             priority: 20,
-            test: ({ chartAttrs }) => get(chartAttrs, 'metadata.describe.intro'),
+            test: ({ chart }) => get(chart, 'metadata.describe.intro'),
             component: Description
         },
         {
             id: 'notes',
             region: 'aboveFooter',
             priority: 10,
-            test: ({ chartAttrs }) => get(chartAttrs, 'metadata.annotate.notes'),
+            test: ({ chart }) => get(chart, 'metadata.annotate.notes'),
             component: Notes
         },
         {
             id: 'byline',
             region: 'footerLeft',
-            test: ({ chartAttrs }) =>
-                get(chartAttrs, 'metadata.describe.byline', false) || chartAttrs.basedOnByline,
+            test: ({ chart }) =>
+                get(chart, 'metadata.describe.byline', false) || chart.basedOnByline,
             priority: 10,
             component: Byline
         },
         {
             id: 'source',
             region: 'footerLeft',
-            test: ({ chartAttrs }) => get(chartAttrs, 'metadata.describe.source-name'),
+            test: ({ chart }) => get(chart, 'metadata.describe.source-name'),
             priority: 20,
             component: Source
         },
@@ -124,7 +123,7 @@
                 const field = get(theme, 'data.options.watermark.custom-field');
                 return get(theme, 'data.options.watermark')
                     ? field
-                        ? get(chartAttrs, `metadata.custom.${field}`, '')
+                        ? get(chart, `metadata.custom.${field}`, '')
                         : get(theme, 'data.options.watermark.text', 'CONFIDENTIAL')
                     : false;
             },
@@ -160,8 +159,8 @@
         get,
         theme,
         data,
-        chartAttrs,
         chart,
+        dwChart,
         vis,
         caption
     };
@@ -261,44 +260,44 @@
     $: {
         // build all the region
         regions = {
-            header: getBlocks(allBlocks, 'header', { chartAttrs, data, theme, isStyleStatic }),
+            header: getBlocks(allBlocks, 'header', { chart, data, theme, isStyleStatic }),
             aboveFooter: getBlocks(allBlocks, 'aboveFooter', {
-                chartAttrs,
+                chart,
                 data,
                 theme,
                 isStyleStatic
             }),
             footerLeft: getBlocks(allBlocks, 'footerLeft', {
-                chartAttrs,
+                chart,
                 data,
                 theme,
                 isStyleStatic
             }),
             footerCenter: getBlocks(allBlocks, 'footerCenter', {
-                chartAttrs,
+                chart,
                 data,
                 theme,
                 isStyleStatic
             }),
             footerRight: getBlocks(allBlocks, 'footerRight', {
-                chartAttrs,
+                chart,
                 data,
                 theme,
                 isStyleStatic
             }),
             belowFooter: getBlocks(allBlocks, 'belowFooter', {
-                chartAttrs,
+                chart,
                 data,
                 theme,
                 isStyleStatic
             }),
             afterBody: getBlocks(allBlocks, 'afterBody', {
-                chartAttrs,
+                chart,
                 data,
                 theme,
                 isStyleStatic
             }),
-            menu: getBlocks(allBlocks, 'menu', { chartAttrs, data, theme, isStyleStatic })
+            menu: getBlocks(allBlocks, 'menu', { chart, data, theme, isStyleStatic })
         };
     }
 
@@ -355,52 +354,52 @@ Please make sure you called __(key) with a key of type "string".
         });
 
         // initialize dw.chart object
-        chart = dw
-            .chart(chartAttrs)
-            .locale((chartAttrs.language || 'en-US').substr(0, 2))
+        dwChart = dw
+            .chart(chart)
+            .locale((chart.language || 'en-US').substr(0, 2))
             .translations(translations)
-            .theme(dw.theme(chartAttrs.theme));
+            .theme(dw.theme(chart.theme));
 
         // register chart assets
         for (var id in assets) {
-            chart.asset(id, assets[id]);
+            dwChart.asset(id, assets[id]);
         }
 
         // initialize dw.vis object
         vis = dw.visualization(visualization.id, target);
         vis.meta = visualization;
-        vis.lang = chartAttrs.language || 'en-US';
+        vis.lang = chart.language || 'en-US';
 
         // load chart data
-        await chart.load(data || '', isPreview ? undefined : chartAttrs.externalData);
+        await dwChart.load(data || '', isPreview ? undefined : chart.externalData);
 
-        chart.locales = locales;
+        dwChart.locales = locales;
 
-        chart.vis(vis);
+        dwChart.vis(vis);
 
         // load & register blocks (but don't await them, because they
         // are not needed for initial chart rendering
         loadBlocks(blocks);
 
         // initialize emotion instance
-        if (!chart.emotion) {
-            chart.emotion = createEmotion({
-                key: `datawrapper-${chartAttrs.id}`,
+        if (!dwChart.emotion) {
+            dwChart.emotion = createEmotion({
+                key: `datawrapper-${chart.id}`,
                 container: isIframe ? document.head : styleHolder
             });
         }
 
         // render chart
-        chart.render(isIframe, isPreview);
+        dwChart.render(isIframe, isPreview);
 
         // await necessary reload triggers
         observeFonts(fonts, theme.data.typography)
-            .then(() => chart.render(isIframe, isPreview))
-            .catch(() => chart.render(isIframe, isPreview));
+            .then(() => dwChart.render(isIframe, isPreview))
+            .catch(() => dwChart.render(isIframe, isPreview));
 
         // iPhone/iPad fix
         if (/iP(hone|od|ad)/.test(navigator.platform)) {
-            window.onload = chart.render(isIframe, isPreview);
+            window.onload = dwChart.render(isIframe, isPreview);
         }
     }
 
@@ -419,7 +418,7 @@ Please make sure you called __(key) with a key of type "string".
 
             // fire events on hashchange
             domReady(() => {
-                const postEvent = PostEvent(chartAttrs.id);
+                const postEvent = PostEvent(chart.id);
                 window.addEventListener('hashchange', () => {
                     postEvent('hash.change', { hash: window.location.hash });
                 });
@@ -442,7 +441,7 @@ Please make sure you called __(key) with a key of type "string".
                 window.__dw.params = { data };
                 window.__dw.vis = vis;
                 window.__dw.render = () => {
-                    chart.render(isIframe, isPreview);
+                    dwChart.render(isIframe, isPreview);
                 };
             }
         }
