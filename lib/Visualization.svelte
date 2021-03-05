@@ -38,11 +38,6 @@
     export let styleHolder;
     export let origin;
 
-    // plain style means no header and footer
-    export let isStylePlain = false;
-    // static style means user can't interact (e.g. in a png version)
-    export let isStyleStatic = false;
-
     // .dw-chart-body
     let target, dwChart, vis;
 
@@ -260,42 +255,17 @@
         // build all the region
         regions = {
             header: getBlocks(allBlocks, 'header', { chart, data, theme, isStyleStatic }),
-            aboveFooter: getBlocks(allBlocks, 'aboveFooter', {
-                chart,
-                data,
-                theme,
-                isStyleStatic
-            }),
-            footerLeft: getBlocks(allBlocks, 'footerLeft', {
-                chart,
-                data,
-                theme,
-                isStyleStatic
-            }),
+            aboveFooter: getBlocks(allBlocks, 'aboveFooter', { chart, data, theme, isStyleStatic }),
+            footerLeft: getBlocks(allBlocks, 'footerLeft', { chart, data, theme, isStyleStatic }),
             footerCenter: getBlocks(allBlocks, 'footerCenter', {
                 chart,
                 data,
                 theme,
                 isStyleStatic
             }),
-            footerRight: getBlocks(allBlocks, 'footerRight', {
-                chart,
-                data,
-                theme,
-                isStyleStatic
-            }),
-            belowFooter: getBlocks(allBlocks, 'belowFooter', {
-                chart,
-                data,
-                theme,
-                isStyleStatic
-            }),
-            afterBody: getBlocks(allBlocks, 'afterBody', {
-                chart,
-                data,
-                theme,
-                isStyleStatic
-            }),
+            footerRight: getBlocks(allBlocks, 'footerRight', { chart, data, theme, isStyleStatic }),
+            belowFooter: getBlocks(allBlocks, 'belowFooter', { chart, data, theme, isStyleStatic }),
+            afterBody: getBlocks(allBlocks, 'afterBody', { chart, data, theme, isStyleStatic }),
             menu: getBlocks(allBlocks, 'menu', { chart, data, theme, isStyleStatic })
         };
     }
@@ -304,6 +274,11 @@
     $: {
         menu = get(theme, 'data.options.menu', {});
     }
+
+    // plain style means no header and footer
+    export let isStylePlain = false;
+    // static style means user can't interact (e.g. in a png version)
+    export let isStyleStatic = false;
 
     function getCaption(id) {
         if (id === 'd3-maps-choropleth' || id === 'd3-maps-symbols' || id === 'locator-map')
@@ -339,7 +314,16 @@ Please make sure you called __(key) with a key of type "string".
 
     let initialized = false;
 
-    async function run() {
+    let contentBelowChart;
+    $: contentBelowChart =
+        regions.aboveFooter.length ||
+        regions.footerLeft.length ||
+        regions.footerCenter.length ||
+        regions.footerRight.length ||
+        regions.belowFooter.length ||
+        regions.afterBody.length;
+
+    onMount(async () => {
         if (typeof dw === 'undefined') return;
         if (initialized) return;
 
@@ -400,20 +384,7 @@ Please make sure you called __(key) with a key of type "string".
         if (/iP(hone|od|ad)/.test(navigator.platform)) {
             window.onload = dwChart.render(isIframe, isPreview);
         }
-    }
-
-    onMount(async () => {
-        run();
     });
-
-    let contentBelowChart;
-    $: contentBelowChart =
-        regions.aboveFooter.length ||
-        regions.footerLeft.length ||
-        regions.footerCenter.length ||
-        regions.footerRight.length ||
-        regions.belowFooter.length ||
-        regions.afterBody.length;
 </script>
 
 {#if !isStylePlain}
