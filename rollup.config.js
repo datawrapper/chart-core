@@ -27,48 +27,6 @@ function onwarn(warning, warn) {
 
 module.exports = [
     {
-        /* Svelte Visualization Component as web component */
-        input: path.resolve(__dirname, 'web-component.js'),
-        plugins: [
-            svelte({
-                customElement: true,
-                include: /\.wc\.svelte$/
-            }),
-            svelte({
-                customElement: false,
-                exclude: /\.wc\.svelte$/,
-                css: css => {
-                    css.write(path.resolve(__dirname, 'dist', 'web-component.css'));
-                }
-            }),
-            // for @emotion/css
-            replace({
-                'process.env.NODE_ENV': JSON.stringify('production')
-            }),
-            resolve(),
-            commonjs(),
-            production &&
-                babel({
-                    ...babelConfig,
-                    presets: [
-                        [
-                            '@babel/env',
-                            // needs to at least not throw syntax errors in IE
-                            { targets: ['> 1%'], corejs: 3, useBuiltIns: 'entry' }
-                        ]
-                    ],
-                    plugins: ['babel-plugin-transform-async-to-promises']
-                }),
-            production && terser()
-        ],
-        onwarn,
-        output: {
-            format: 'iife',
-            entryFileNames: 'web-component.js',
-            ...output
-        }
-    },
-    {
         /* Client side Svelte Visualization Component */
         input: path.resolve(__dirname, 'main.js'),
         plugins: [
