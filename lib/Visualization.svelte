@@ -367,7 +367,7 @@ Please make sure you called __(key) with a key of type "string".
         }
 
         // initialize dw.vis object
-        vis = dw.visualization(visualization.id);
+        vis = dw.visualization(visualization.id, target);
         vis.meta = visualization;
         vis.lang = chartAttrs.language || 'en-US';
 
@@ -391,16 +391,16 @@ Please make sure you called __(key) with a key of type "string".
         }
 
         // render chart
-        chart.render(target, vis, isIframe, isPreview);
+        chart.render(isIframe, isPreview);
 
         // await necessary reload triggers
         observeFonts(fonts, theme.data.typography)
-            .then(() => chart.render(target, vis, isIframe, isPreview))
-            .catch(() => chart.render(target, vis, isIframe, isPreview));
+            .then(() => chart.render(isIframe, isPreview))
+            .catch(() => chart.render(isIframe, isPreview));
 
         // iPhone/iPad fix
         if (/iP(hone|od|ad)/.test(navigator.platform)) {
-            window.onload = chart.render(target, vis, isIframe, isPreview);
+            window.onload = chart.render(isIframe, isPreview);
         }
     }
 
@@ -442,7 +442,7 @@ Please make sure you called __(key) with a key of type "string".
                 window.__dw.params = { data };
                 window.__dw.vis = vis;
                 window.__dw.render = () => {
-                    chart.render(target, vis, isIframe, isPreview);
+                    chart.render(isIframe, isPreview);
                 };
             }
         }
