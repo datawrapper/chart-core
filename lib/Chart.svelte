@@ -81,7 +81,7 @@
             id: 'get-the-data',
             region: 'footerLeft',
             test: ({ chart, isStyleStatic }) =>
-                get(chart, 'metadata.publish.options.get-the-data') && !isStyleStatic,
+                get(chart, 'metadata.publish.blocks.get-the-data') && !isStyleStatic,
             priority: 30,
             component: GetTheData
         },
@@ -89,14 +89,14 @@
             id: 'embed',
             region: 'footerLeft',
             test: ({ chart, isStyleStatic }) =>
-                get(chart, 'metadata.publish.options.embed') && !isStyleStatic,
+                get(chart, 'metadata.publish.blocks.embed') && !isStyleStatic,
             priority: 40,
             component: Embed
         },
         {
             id: 'logo',
             region: 'footerRight',
-            test: ({ chart }) => get(chart, 'metadata.publish.options.logo'),
+            test: ({ chart }) => get(chart, 'metadata.publish.blocks.logo'),
             priority: 10,
             component: Logo
         },
