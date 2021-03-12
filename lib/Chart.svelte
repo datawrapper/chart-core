@@ -37,11 +37,8 @@
     $: locale = data.visJSON.locale;
 
     $: ariaDescription = purifyHtml(
-        get(
-            chart,
-            'metadata.describe.aria-description',
-            '<a><span><b><br><br/><i><strong><sup><sub><strike><u><em><tt><table><thead><tbody><tfoot><caption><colgroup><col><tr><td><th>'
-        )
+        get(chart, 'metadata.describe.aria-description', ''),
+        '<a><span><b><br><br/><i><strong><sup><sub><strike><u><em><tt><table><thead><tbody><tfoot><caption><colgroup><col><tr><td><th>'
     );
 
     $: customCSS = purifyHtml(get(chart, 'metadata.publish.custom-css', ''), '');
