@@ -24,6 +24,7 @@
         position: absolute;
         top: 0px;
         right: 0px;
+        z-index: 1;
     }
 
     .ha-menu {
@@ -79,7 +80,7 @@
 <svelte:window on:click={hide} />
 
 {#if blocks.length}
-    <div class:ha-menu={!props.icon} class="menu tooltip" on:click|stopPropagation={toggle}>
+    <div class:ha-menu={!props.icon} class="menu container" on:click|stopPropagation={toggle}>
         {#if props.icon}
             {@html props.icon}
         {:else}
@@ -87,7 +88,7 @@
         {/if}
     </div>
 
-    <div class="menu-content tooltip" on:click|stopPropagation class:hidden={!open}>
+    <div class="menu-content container" on:click|stopPropagation class:hidden={!open}>
         <BlocksRegion {id} {name} {blocks} />
     </div>
 {/if}
