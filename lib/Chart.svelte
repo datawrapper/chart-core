@@ -81,7 +81,9 @@
             id: 'get-the-data',
             region: 'footerLeft',
             test: ({ chart, isStyleStatic }) =>
-                get(chart, 'metadata.publish.blocks.get-the-data') && !isStyleStatic,
+                get(chart, 'metadata.publish.blocks.get-the-data') &&
+                !isStyleStatic &&
+                chart.type !== 'locator-map',
             priority: 30,
             component: GetTheData
         },
