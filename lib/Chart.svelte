@@ -366,7 +366,9 @@ Please make sure you called __(key) with a key of type "string".
 {/if}
 
 {#if ariaDescription}
-    <div class="sr-only">{ariaDescription}</div>
+    <div class="sr-only">
+        {@html ariaDescription}
+    </div>
 {/if}
 <div id="chart" class="dw-chart-body" aria-hidden={!!ariaDescription} />
 
