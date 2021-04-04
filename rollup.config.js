@@ -27,10 +27,14 @@ function onwarn(warning, warn) {
 
 module.exports = [
     {
-        /* Client side Svelte Chart Component */
+        /* Client side Svelte Visualization Component */
         input: path.resolve(__dirname, 'main.js'),
         plugins: [
             svelte({ hydratable: true }),
+            // for @emotion/css
+            replace({
+                'process.env.NODE_ENV': JSON.stringify('production')
+            }),
             resolve(),
             commonjs(),
             production &&
@@ -49,10 +53,14 @@ module.exports = [
         }
     },
     {
-        /* Server side rendered Svelte Chart Component */
+        /* Server side rendered Svelte Visualization Component */
         input: path.resolve(__dirname, 'lib/Visualization.svelte'),
         plugins: [
             svelte({ generate: 'ssr', hydratable: true }),
+            // for @emotion/css
+            replace({
+                'process.env.NODE_ENV': JSON.stringify('production')
+            }),
             resolve(),
             commonjs(),
             babel({
