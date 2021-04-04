@@ -19,6 +19,7 @@
 
     // plain style means no header and footer
     export let isStylePlain = false;
+
     // static style means user can't interact (e.g. in a png version)
     export let isStyleStatic = false;
 
