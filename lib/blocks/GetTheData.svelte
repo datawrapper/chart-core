@@ -41,6 +41,8 @@
             }
         }
     }
+
+    $: externalData = get(chart, 'externalData');
 </script>
 
 {#if getTheData.enabled && !hidden}
@@ -49,7 +51,8 @@
         class="dw-data-link"
         aria-label="{__(getTheData.caption)}: {purifyHtml(chartAttrs.title, '')}"
         {download}
-        {href}>
+        target={externalData ? '_blank' : '_self'}
+        href={externalData || 'data'}>
         {__(getTheData.caption)}
     </a>
 {/if}

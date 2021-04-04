@@ -47,6 +47,13 @@
     // .dw-chart-body
     let target, chart, vis;
 
+    $: ariaDescription = purifyHtml(
+        get(chart, 'metadata.describe.aria-description', ''),
+        '<a><span><b><br><br/><i><strong><sup><sub><strike><u><em><tt><table><thead><tbody><tfoot><caption><colgroup><col><tr><td><th>'
+    );
+
+    $: customCSS = purifyHtml(get(chart, 'metadata.publish.custom-css', ''), '');
+
     const coreBlocks = [
         {
             id: 'headline',
@@ -344,44 +351,34 @@ Please make sure you called __(key) with a key of type "string".
     async function run() {
         if (typeof dw === 'undefined') return;
         if (initialized) return;
-
         // register theme
         dw.theme.register(theme.id, theme.data);
-
         // register locales
         Object.keys(locales).forEach(vendor => {
             // eslint-disable-next-line
             locales[vendor] = eval(locales[vendor]);
         });
-
         // initialize dw.chart object
         chart = dw
             .chart(chartAttrs)
             .locale((chartAttrs.language || 'en-US').substr(0, 2))
             .translations(translations)
             .theme(dw.theme(chartAttrs.theme));
-
         // register chart assets
         for (var id in assets) {
             chart.asset(id, assets[id]);
         }
-
         // initialize dw.vis object
         vis = dw.visualization(visualization.id, target);
         vis.meta = visualization;
         vis.lang = chartAttrs.language || 'en-US';
-
         // load chart data
         await chart.load(data || '', isPreview ? undefined : chartAttrs.externalData);
-
         chart.locales = locales;
-
         chart.vis(vis);
-
         // load & register blocks (but don't await them, because they
         // are not needed for initial chart rendering
         loadBlocks(blocks);
-
         // initialize emotion instance
         if (!chart.emotion) {
             chart.emotion = createEmotion({
@@ -389,34 +386,27 @@ Please make sure you called __(key) with a key of type "string".
                 container: isIframe ? document.head : styleHolder
             });
         }
-
         // render chart
         chart.render(isIframe, isPreview);
-
         // await necessary reload triggers
         observeFonts(fonts, theme.data.typography)
             .then(() => chart.render(isIframe, isPreview))
             .catch(() => chart.render(isIframe, isPreview));
-
         // iPhone/iPad fix
         if (/iP(hone|od|ad)/.test(navigator.platform)) {
             window.onload = chart.render(isIframe, isPreview);
         }
     }
-
     onMount(async () => {
         run();
-
         if (isIframe) {
             // set some classes - still needed?
             document.body.classList.toggle('plain', isStylePlain);
             document.body.classList.toggle('static', isStyleStatic);
             document.body.classList.toggle('png-export', isStyleStatic);
-
             if (isStyleStatic) {
                 document.body.style['pointer-events'] = 'none';
             }
-
             // fire events on hashchange
             domReady(() => {
                 const postEvent = PostEvent(chartAttrs.id);
@@ -424,10 +414,8 @@ Please make sure you called __(key) with a key of type "string".
                     postEvent('hash.change', { hash: window.location.hash });
                 });
             });
-
             // watch for height changes - still needed?
             let currentHeight = document.body.offsetHeight;
-
             afterUpdate(() => {
                 const newHeight = document.body.offsetHeight;
                 if (currentHeight !== newHeight && typeof render === 'function') {
@@ -435,7 +423,6 @@ Please make sure you called __(key) with a key of type "string".
                     currentHeight = newHeight;
                 }
             });
-
             // provide external APIs
             if (isIframe) {
                 window.__dw = window.__dw || {};
@@ -466,10 +453,17 @@ Please make sure you called __(key) with a key of type "string".
     {/if}
 {/if}
 
+{#if ariaDescription}
+    <div class="sr-only">
+        {@html ariaDescription}
+    </div>
+{/if}
+
 <div
     id="chart"
     bind:this={target}
     class:content-below-chart={contentBelowChart}
+    aria-hidden={!!ariaDescription}
     class="dw-chart-body" />
 
 {#if get(theme, 'data.template.afterChart')}
