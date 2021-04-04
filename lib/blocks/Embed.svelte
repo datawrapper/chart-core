@@ -2,12 +2,12 @@
     // external props
     export let props;
     const { get, __ } = props;
-    $: ({ chartAttrs, theme } = props);
+    $: ({ chart, theme } = props);
 
     // internal props
     $: embed = get(theme, 'data.options.footer.embed', { enabled: false });
     $: embedCode = get(
-        chartAttrs,
+        chart,
         'metadata.publish.embed-codes.embed-method-iframe',
         '<!-- embed code will be here after publishing -->'
     );
