@@ -287,7 +287,6 @@ Please make sure you called __(key) with a key of type "string".
         render(data);
 
         // load & execute plugins
-        window.__dwBlocks = {};
         if (publishData.blocks.length) {
             await Promise.all(
                 publishData.blocks.map(d => {
@@ -313,14 +312,14 @@ Please make sure you called __(key) with a key of type "string".
             // all plugins are loaded
             publishData.blocks.forEach(d => {
                 d.blocks.forEach(block => {
-                    if (!window.__dwBlocks[block.component]) {
+                    if (!dw.block.has(block.component)) {
                         return console.warn(
                             `component ${block.component} from chart block ${block.id} not found`
                         );
                     }
                     pluginBlocks.push({
                         ...block,
-                        component: window.__dwBlocks[block.component]
+                        component: dw.block(block.component)
                     });
                 });
             });
