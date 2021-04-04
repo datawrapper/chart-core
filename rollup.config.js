@@ -123,7 +123,7 @@ module.exports = [
                 presets: [['@babel/env', { targets: '> 1%', corejs: 3, useBuiltIns: 'entry' }]],
                 plugins: ['babel-plugin-transform-async-to-promises']
             }),
-            terser()
+            production && terser()
         ],
         external: ['underscore'],
         onwarn,
