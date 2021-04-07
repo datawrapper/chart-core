@@ -12,11 +12,11 @@
 
 ```
 ├── main.js
-│     - Entry point for rollup to bundle `Chart.svelte`
+│     - Entry point for rollup to bundle `Visualization.svelte`
 │     - (used by datawrapper/api)
 │
 ├── lib
-│     - Directory of source files like `Chart.svelte`
+│     - Directory of source files like `Visualization.svelte`
 │     - (used by datawrapper/frontend)
 │
 ├── dist
