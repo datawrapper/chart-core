@@ -11,9 +11,6 @@ const production = !process.env.ROLLUP_WATCH;
 const output = {
     name: 'chart',
     dir: path.resolve(__dirname, 'dist'),
-    globals: {
-        underscore: '_'
-    },
     compact: true
 };
 
@@ -44,7 +41,6 @@ module.exports = [
                 }),
             production && terser()
         ],
-        external: ['underscore'],
         onwarn,
         output: {
             format: 'iife',
@@ -64,7 +60,6 @@ module.exports = [
                 presets: [['@babel/env', { targets: { node: true } }]]
             })
         ],
-        external: ['underscore'],
         onwarn,
         output: {
             format: 'umd',
@@ -84,7 +79,6 @@ module.exports = [
             }),
             production && terser()
         ],
-        external: ['underscore'],
         onwarn,
         output: {
             format: 'iife',
@@ -125,15 +119,11 @@ module.exports = [
             }),
             production && terser()
         ],
-        external: ['underscore'],
         onwarn,
         output: {
             sourcemap: true,
             file: path.resolve(__dirname, 'dist/dw-2.0.min.js'),
-            format: 'iife',
-            globals: {
-                underscore: '_'
-            }
+            format: 'iife'
         }
     }
 ];

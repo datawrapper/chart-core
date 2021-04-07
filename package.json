@@ -29,13 +29,13 @@
     "dependencies": {
         "@datawrapper/expr-eval": "^2.0.2-datawrapper.1",
         "@datawrapper/polyfills": "2.1.1",
-        "@datawrapper/shared": "^0.28.6",
+        "@datawrapper/shared": "^0.30.4",
         "core-js": "3.6.5",
         "deepmerge": "^4.2.2",
         "fontfaceobserver": "2.1.0",
         "svelte-extras": "^2.0.2",
         "svelte2": "npm:svelte@^2.16.1",
-        "underscore": "^1.11.0"
+        "underscore": "^1.12.1"
     },
     "devDependencies": {
         "@babel/core": "7.9.0",
