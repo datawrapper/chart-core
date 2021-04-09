@@ -2,7 +2,7 @@
     import Visualization from './Visualization.svelte';
 
     export let data = '';
-    export let chartAttrs = {};
+    export let chart = {};
     export let visualization = {};
     export let theme = {};
     export let locales = {};
@@ -43,7 +43,7 @@
     <div class="chart dw-chart">
         <Visualization
             {data}
-            {chartAttrs}
+            {chart}
             {visualization}
             {theme}
             {locales}

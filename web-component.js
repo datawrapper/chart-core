@@ -15,7 +15,7 @@ if (typeof window.__dw === 'undefined') {
         },
         dependencies: {},
         render: async function(data) {
-            const elementId = `datawrapper-chart-${data.chartAttrs.id}`;
+            const elementId = `datawrapper-chart-${data.chart.id}`;
             document.write(`<div id="${elementId}"></div>`);
 
             // slightly hacky way to determine the script origin
@@ -27,7 +27,7 @@ if (typeof window.__dw === 'undefined') {
                 .join('/');
 
             // fonts need to be appended globally, and can then be used in every WebComponent
-            const styleId = `datawrapper-${data.chartAttrs.theme}`;
+            const styleId = `datawrapper-${data.chart.theme}`;
             if (!document.head.querySelector(`#${styleId}`)) {
                 const style = document.createElement('style');
                 style.id = styleId;
