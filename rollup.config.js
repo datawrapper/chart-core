@@ -6,12 +6,11 @@ import svelte from 'rollup-plugin-svelte';
 import babel from 'rollup-plugin-babel';
 import { terser } from 'rollup-plugin-terser';
 
+const production = !process.env.ROLLUP_WATCH;
+
 const output = {
     name: 'chart',
     dir: path.resolve(__dirname, 'dist'),
-    globals: {
-        underscore: '_'
-    },
     compact: true
 };
 
@@ -34,14 +33,14 @@ module.exports = [
             svelte({ hydratable: true }),
             resolve(),
             commonjs(),
-            babel({
-                ...babelConfig,
-                presets: [['@babel/env', { targets: '> 1%', corejs: 3, useBuiltIns: 'entry' }]],
-                plugins: ['babel-plugin-transform-async-to-promises']
-            }),
-            terser()
+            production &&
+                babel({
+                    ...babelConfig,
+                    presets: [['@babel/env', { targets: '> 1%', corejs: 3, useBuiltIns: 'entry' }]],
+                    plugins: ['babel-plugin-transform-async-to-promises']
+                }),
+            production && terser()
         ],
-        external: ['underscore'],
         onwarn,
         output: {
             format: 'iife',
@@ -51,7 +50,7 @@ module.exports = [
     },
     {
         /* Server side rendered Svelte Chart Component */
-        input: path.resolve(__dirname, 'lib/Chart.svelte'),
+        input: path.resolve(__dirname, 'lib/Visualization.svelte'),
         plugins: [
             svelte({ generate: 'ssr', hydratable: true }),
             resolve(),
@@ -61,11 +60,10 @@ module.exports = [
                 presets: [['@babel/env', { targets: { node: true } }]]
             })
         ],
-        external: ['underscore'],
         onwarn,
         output: {
             format: 'umd',
-            entryFileNames: 'Chart_SSR.js',
+            entryFileNames: 'Visualization_SSR.js',
             ...output
         }
     },
@@ -79,9 +77,8 @@ module.exports = [
                 presets: [['@babel/env', { targets: '> 1%', corejs: 3, useBuiltIns: 'entry' }]],
                 plugins: ['babel-plugin-transform-async-to-promises']
             }),
-            terser()
+            production && terser()
         ],
-        external: ['underscore'],
         onwarn,
         output: {
             format: 'iife',
@@ -99,7 +96,7 @@ module.exports = [
                 presets: [['@babel/env', { targets: '> 1%', corejs: 3, useBuiltIns: 'entry' }]],
                 plugins: ['babel-plugin-transform-async-to-promises']
             }),
-            terser()
+            production && terser()
         ],
         output: {
             name: 'embed',
@@ -120,17 +117,13 @@ module.exports = [
                 presets: [['@babel/env', { targets: '> 1%', corejs: 3, useBuiltIns: 'entry' }]],
                 plugins: ['babel-plugin-transform-async-to-promises']
             }),
-            terser()
+            production && terser()
         ],
-        external: ['underscore'],
         onwarn,
         output: {
             sourcemap: true,
             file: path.resolve(__dirname, 'dist/dw-2.0.min.js'),
-            format: 'iife',
-            globals: {
-                underscore: '_'
-            }
+            format: 'iife'
         }
     }
 ];

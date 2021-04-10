@@ -6,11 +6,13 @@
 
     // internal props
     $: getTheData = get(theme, 'data.options.footer.getTheData', { enabled: false });
+    $: externalData = get(chart, 'externalData');
 </script>
 
 <a
     class="dw-data-link"
     aria-label="{__(getTheData.caption)}: {purifyHtml(chart.title, '')}"
-    href="data">
+    target={externalData ? '_blank' : '_self'}
+    href={externalData || 'data'}>
     {__(getTheData.caption)}
 </a>

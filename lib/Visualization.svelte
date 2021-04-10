@@ -36,6 +36,11 @@
     $: publishData = data.publishData;
     $: locale = data.visJSON.locale;
 
+    $: ariaDescription = purifyHtml(
+        get(chart, 'metadata.describe.aria-description', ''),
+        '<a><span><b><br><br/><i><strong><sup><sub><strike><u><em><tt><table><thead><tbody><tfoot><caption><colgroup><col><tr><td><th>'
+    );
+
     $: customCSS = purifyHtml(get(chart, 'metadata.publish.custom-css', ''), '');
 
     const coreBlocks = [
@@ -284,7 +289,6 @@ Please make sure you called __(key) with a key of type "string".
         render(data);
 
         // load & execute plugins
-        window.__dwBlocks = {};
         if (publishData.blocks.length) {
             await Promise.all(
                 publishData.blocks.map(d => {
@@ -310,14 +314,14 @@ Please make sure you called __(key) with a key of type "string".
             // all plugins are loaded
             publishData.blocks.forEach(d => {
                 d.blocks.forEach(block => {
-                    if (!window.__dwBlocks[block.component]) {
+                    if (!dw.block.has(block.component)) {
                         return console.warn(
                             `component ${block.component} from chart block ${block.id} not found`
                         );
                     }
                     pluginBlocks.push({
                         ...block,
-                        component: window.__dwBlocks[block.component]
+                        component: dw.block(block.component)
                     });
                 });
             });
@@ -362,7 +366,12 @@ Please make sure you called __(key) with a key of type "string".
     {/if}
 {/if}
 
-<div id="chart" class="dw-chart-body" />
+{#if ariaDescription}
+    <div class="sr-only">
+        {@html ariaDescription}
+    </div>
+{/if}
+<div id="chart" class="dw-chart-body" aria-hidden={!!ariaDescription} />
 
 {#if get(theme, 'data.template.afterChart')}
     {@html theme.data.template.afterChart}
