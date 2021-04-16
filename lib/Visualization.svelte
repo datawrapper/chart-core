@@ -23,6 +23,7 @@
     import { clean } from './shared';
     import { loadScript, loadStylesheet } from '@datawrapper/shared/fetch';
     import createEmotion from '@emotion/css/create-instance';
+    import deepmerge from 'deepmerge';
 
     export let data = '';
     export let chart;
@@ -356,8 +357,13 @@ Please make sure you called __(key) with a key of type "string".
 
         // register locales
         Object.keys(locales).forEach(vendor => {
-            // eslint-disable-next-line
-            locales[vendor] = eval(locales[vendor]);
+            if (locales[vendor] === 'null') {
+                locales[vendor] = null;
+            } else if (locales[vendor].base) {
+                // eslint-disable-next-line
+                const localeBase = eval(locales[vendor].base);
+                locales[vendor] = deepmerge(localeBase, locales[vendor].custom);
+            }
         });
 
         // initialize dw.chart object
