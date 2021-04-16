@@ -376,7 +376,7 @@ Please make sure you called __(key) with a key of type "string".
         // register chart assets
         const assetPromises = [];
         for (var name in assets) {
-            if (assets[name].cached) {
+            if (assets[name].shared) {
                 assetPromises.push(
                     new Promise(async (resolve, reject) => {
                         const res = await fetch(assets[name].url);
