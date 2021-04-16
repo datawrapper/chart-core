@@ -374,16 +374,29 @@ Please make sure you called __(key) with a key of type "string".
             .theme(dw.theme(chart.theme));
 
         // register chart assets
-        for (var id in assets) {
-            dwChart.asset(id, assets[id]);
+        const assetPromises = [];
+        for (var name in assets) {
+            if (assets[name].cached) {
+                assetPromises.push(
+                    new Promise(async (resolve, reject) => {
+                        const res = await fetch(assets[name].url);
+                        const text = await res.text();
+                        dwChart.asset(name, text);
+                        resolve();
+                    })
+                );
+            } else {
+                dwChart.asset(name, assets[name].value);
+            }
         }
+        await Promise.all(assetPromises);
 
         // initialize dw.vis object
         vis = dw.visualization(visualization.id, target);
         vis.meta = visualization;
         vis.lang = chart.language || 'en-US';
 
-        // load chart data
+        // load chart data and assets
         await dwChart.load(data || '', isPreview ? undefined : chart.externalData);
         dwChart.locales = locales;
         dwChart.vis(vis);
