@@ -103,7 +103,10 @@
         {
             id: 'logo',
             region: 'footerRight',
-            test: ({ chart }) => get(chart, 'metadata.publish.blocks.logo'),
+            test: ({ chart, theme }) =>
+                get(chart, 'metadata.publish.blocks.logo') &&
+                (!!get(theme, 'data.options.footer.logo.url') ||
+                    !!get(theme, 'data.options.footer.logo.text')),
             priority: 10,
             component: Logo
         },
