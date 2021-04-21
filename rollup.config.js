@@ -31,6 +31,10 @@ module.exports = [
         input: path.resolve(__dirname, 'main.js'),
         plugins: [
             svelte({ hydratable: true }),
+            // for @emotion/css
+            replace({
+                'process.env.NODE_ENV': JSON.stringify('production')
+            }),
             resolve(),
             commonjs(),
             production &&
@@ -53,6 +57,10 @@ module.exports = [
         input: path.resolve(__dirname, 'lib/Visualization.svelte'),
         plugins: [
             svelte({ generate: 'ssr', hydratable: true }),
+            // for @emotion/css
+            replace({
+                'process.env.NODE_ENV': JSON.stringify('production')
+            }),
             resolve(),
             commonjs(),
             babel({
