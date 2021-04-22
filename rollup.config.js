@@ -33,10 +33,6 @@ module.exports = [
             svelte({ hydratable: true }),
             resolve(),
             commonjs(),
-            // for @emotion/css
-            replace({
-                'process.env.NODE_ENV': JSON.stringify('production')
-            }),
             production &&
                 babel({
                     ...babelConfig,
@@ -59,10 +55,6 @@ module.exports = [
             svelte({ generate: 'ssr', hydratable: true }),
             resolve(),
             commonjs(),
-            // for @emotion/css
-            replace({
-                'process.env.NODE_ENV': JSON.stringify('production')
-            }),
             babel({
                 ...babelConfig,
                 presets: [['@babel/env', { targets: { node: true } }]]
