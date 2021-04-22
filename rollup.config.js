@@ -31,12 +31,12 @@ module.exports = [
         input: path.resolve(__dirname, 'main.js'),
         plugins: [
             svelte({ hydratable: true }),
+            resolve(),
+            commonjs(),
             // for @emotion/css
             replace({
                 'process.env.NODE_ENV': JSON.stringify('production')
             }),
-            resolve(),
-            commonjs(),
             production &&
                 babel({
                     ...babelConfig,
@@ -57,12 +57,12 @@ module.exports = [
         input: path.resolve(__dirname, 'lib/Visualization.svelte'),
         plugins: [
             svelte({ generate: 'ssr', hydratable: true }),
+            resolve(),
+            commonjs(),
             // for @emotion/css
             replace({
                 'process.env.NODE_ENV': JSON.stringify('production')
             }),
-            resolve(),
-            commonjs(),
             babel({
                 ...babelConfig,
                 presets: [['@babel/env', { targets: { node: true } }]]
@@ -118,7 +118,8 @@ module.exports = [
             resolve(),
             commonjs(),
             replace({
-                __chartCoreVersion__: require('./package.json').version
+                __chartCoreVersion__: require('./package.json').version,
+                'process.env.NODE_ENV': JSON.stringify('production')
             }),
             babel({
                 ...babelConfig,
