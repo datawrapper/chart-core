@@ -110,7 +110,8 @@ module.exports = [
             resolve(),
             commonjs(),
             replace({
-                __chartCoreVersion__: require('./package.json').version
+                __chartCoreVersion__: require('./package.json').version,
+                'process.env.NODE_ENV': JSON.stringify('production')
             }),
             babel({
                 ...babelConfig,
