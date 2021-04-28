@@ -255,6 +255,13 @@ Please make sure you called __(key) with a key of type "string".
         return translation;
     }
 
+    let target;
+    let isMobile = false;
+    const checkBreakpoint = () => {
+        const breakpoint = get(theme, 'data.vis.${chart.type}.mobileBreakpoint', 450);
+        isMobile = target.clientWidth <= breakpoint;
+    };
+
     onMount(async () => {
         document.body.classList.toggle('plain', isStylePlain);
         document.body.classList.toggle('static', isStyleStatic);
@@ -283,6 +290,9 @@ Please make sure you called __(key) with a key of type "string".
                 highlightGeom: highlight
             };
         }
+
+        // check mobile breakpoint upon initialization
+        checkBreakpoint();
 
         render(data);
 
@@ -356,6 +366,8 @@ Please make sure you called __(key) with a key of type "string".
     {/if}
 </svelte:head>
 
+<svelte:window on:resize={checkBreakpoint} />
+
 {#if !isStylePlain}
     <BlocksRegion name="dw-chart-header" blocks={regions.header} id="header" />
 
@@ -369,7 +381,13 @@ Please make sure you called __(key) with a key of type "string".
         {@html ariaDescription}
     </div>
 {/if}
-<div id="chart" class="dw-chart-body" aria-hidden={!!ariaDescription} />
+
+<div
+    id="chart"
+    bind:this={target}
+    class:is-mobile={isMobile}
+    aria-hidden={!!ariaDescription}
+    class="dw-chart-body" />
 
 {#if get(theme, 'data.template.afterChart')}
     {@html theme.data.template.afterChart}
