@@ -190,6 +190,7 @@
             block.props = {
                 ...(block.data || {}),
                 ...blockProps,
+                config: { frontendDomain },
                 id: block.id
             };
             if (block.component.test) {
@@ -206,23 +207,20 @@
 
     let regions;
     $: {
-        const config = { frontendDomain };
         // build all the region
         regions = {
-            header: getBlocks(allBlocks, 'header', { chart, data, theme, isStyleStatic, config }),
+            header: getBlocks(allBlocks, 'header', { chart, data, theme, isStyleStatic }),
             aboveFooter: getBlocks(allBlocks, 'aboveFooter', {
                 chart,
                 data,
                 theme,
-                isStyleStatic,
-                config
+                isStyleStatic
             }),
             footerLeft: getBlocks(allBlocks, 'footerLeft', {
                 chart,
                 data,
                 theme,
-                isStyleStatic,
-                config
+                isStyleStatic
             }),
             footerCenter: getBlocks(allBlocks, 'footerCenter', {
                 chart,
@@ -234,24 +232,21 @@
                 chart,
                 data,
                 theme,
-                isStyleStatic,
-                config
+                isStyleStatic
             }),
             belowFooter: getBlocks(allBlocks, 'belowFooter', {
                 chart,
                 data,
                 theme,
-                isStyleStatic,
-                config
+                isStyleStatic
             }),
             afterBody: getBlocks(allBlocks, 'afterBody', {
                 chart,
                 data,
                 theme,
-                isStyleStatic,
-                config
+                isStyleStatic
             }),
-            menu: getBlocks(allBlocks, 'menu', { chart, data, theme, isStyleStatic, config })
+            menu: getBlocks(allBlocks, 'menu', { chart, data, theme, isStyleStatic })
         };
     }
 
