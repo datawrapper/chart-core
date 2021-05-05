@@ -8,6 +8,8 @@
     $: forkable = get(chart, 'forkable', false);
     $: showEditInDatawrapperLink = get(chart, 'metadata.publish.edit-in-datawrapper', false);
 
+    $: caption = get(theme, 'data.options.blocks.edit.data.caption', 'edit-in-datawrapper');
+
     function editInDatawrapper() {
         const form = document.createElement('form');
         form.setAttribute('method', 'post');
@@ -25,7 +27,5 @@
 </script>
 
 {#if forkable && showEditInDatawrapperLink}
-    <a href="#/edit-in-datawrapper" on:click|preventDefault={editInDatawrapper}>
-        Edit in Datawrapper
-    </a>
+    <a href="#/edit-in-datawrapper" on:click|preventDefault={editInDatawrapper}>{__(caption)}</a>
 {/if}
