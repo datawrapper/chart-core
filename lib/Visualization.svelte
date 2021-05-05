@@ -92,10 +92,10 @@
             component: GetTheData
         },
         {
-            id: 'edit-in-datawrapper',
+            id: 'edit',
             region: 'footerLeft',
             test: ({ chart, isStyleStatic }) =>
-                get(theme, 'data.options.footer.getTheData.enabled') &&
+                get(chart, 'forkable') &&
                 get(chart, 'metadata.publish.edit-in-datawrapper', false) &&
                 !isStyleStatic,
             priority: 31,
