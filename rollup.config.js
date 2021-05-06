@@ -126,5 +126,23 @@ module.exports = [
             file: path.resolve(__dirname, 'dist/dw-2.0.min.js'),
             format: 'iife'
         }
+    },
+    {
+        input: path.resolve(__dirname, 'lib/dw/index.js'),
+        plugins: [
+            resolve({
+                modulesOnly: true
+            }),
+            commonjs(),
+            replace({
+                __chartCoreVersion__: require('./package.json').version
+            })
+        ],
+        onwarn,
+        output: {
+            sourcemap: true,
+            file: path.resolve(__dirname, 'dist/dw-2.0.cjs.js'),
+            format: 'cjs'
+        }
     }
 ];
