@@ -16,6 +16,7 @@
     import svgRule from './blocks/svgRule.svelte';
 
     import get from '@datawrapper/shared/get';
+    import set from '@datawrapper/shared/set';
     import purifyHtml from '@datawrapper/shared/purifyHtml';
     import { clean } from './shared';
     import { loadScript, loadStylesheet } from '@datawrapper/shared/fetch';
@@ -35,6 +36,13 @@
     $: chart = data.chartJSON;
     $: publishData = data.publishData;
     $: locale = data.visJSON.locale;
+
+    $: {
+        if (!get(chart, 'metadata.publish.blocks')) {
+            // no footer settings found in metadata, apply theme defaults
+            set(chart, 'metadata.publish.blocks', get(theme.data, 'metadata.publish.blocks'));
+        }
+    }
 
     $: ariaDescription = purifyHtml(
         get(chart, 'metadata.describe.aria-description', ''),
