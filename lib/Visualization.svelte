@@ -16,6 +16,7 @@
     import svgRule from './blocks/svgRule.svelte';
 
     import get from '@datawrapper/shared/get';
+    import set from '@datawrapper/shared/set';
     import purifyHtml from '@datawrapper/shared/purifyHtml';
     import { clean } from './shared';
     import { loadScript, loadStylesheet } from '@datawrapper/shared/fetch';
@@ -35,6 +36,13 @@
     $: chart = data.chartJSON;
     $: publishData = data.publishData;
     $: locale = data.visJSON.locale;
+
+    $: {
+        if (!get(chart, 'metadata.publish.blocks')) {
+            // no footer settings found in metadata, apply theme defaults
+            set(chart, 'metadata.publish.blocks', get(theme.data, 'metadata.publish.blocks'));
+        }
+    }
 
     $: ariaDescription = purifyHtml(
         get(chart, 'metadata.describe.aria-description', ''),
@@ -85,23 +93,28 @@
         {
             id: 'get-the-data',
             region: 'footerLeft',
-            test: ({ theme, isStyleStatic }) =>
-                get(theme, 'data.options.footer.getTheData.enabled') && !isStyleStatic,
+            test: ({ chart, isStyleStatic }) =>
+                get(chart, 'metadata.publish.blocks.get-the-data') &&
+                !isStyleStatic &&
+                chart.type !== 'locator-map',
             priority: 30,
             component: GetTheData
         },
         {
             id: 'embed',
             region: 'footerLeft',
-            test: ({ theme, isStyleStatic }) =>
-                get(theme, 'data.options.footer.embed.enabled') && !isStyleStatic,
+            test: ({ chart, isStyleStatic }) =>
+                get(chart, 'metadata.publish.blocks.embed') && !isStyleStatic,
             priority: 40,
             component: Embed
         },
         {
             id: 'logo',
             region: 'footerRight',
-            test: ({ theme }) => get(theme, 'data.options.footer.logo.enabled'),
+            test: ({ chart, theme }) =>
+                get(chart, 'metadata.publish.blocks.logo') &&
+                (!!get(theme, 'data.options.footer.logo.url') ||
+                    !!get(theme, 'data.options.footer.logo.text')),
             priority: 10,
             component: Logo
         },
