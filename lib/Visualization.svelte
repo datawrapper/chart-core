@@ -37,6 +37,18 @@
     $: publishData = data.publishData;
     $: locale = data.visJSON.locale;
 
+    $: {
+        if (!get(chart, 'metadata.publish.blocks')) {
+            // no footer settings found in metadata, apply theme defaults
+            set(chart, 'metadata.publish.blocks', get(theme.data, 'metadata.publish.blocks'));
+        }
+    }
+
+    $: ariaDescription = purifyHtml(
+        get(chart, 'metadata.describe.aria-description', ''),
+        '<a><span><b><br><br/><i><strong><sup><sub><strike><u><em><tt><table><thead><tbody><tfoot><caption><colgroup><col><tr><td><th>'
+    );
+
     $: customCSS = purifyHtml(get(chart, 'metadata.publish.custom-css', ''), '');
 
     const coreBlocks = [
@@ -81,23 +93,28 @@
         {
             id: 'get-the-data',
             region: 'footerLeft',
-            test: ({ theme, isStyleStatic }) =>
-                get(theme, 'data.options.footer.getTheData.enabled') && !isStyleStatic,
+            test: ({ chart, isStyleStatic }) =>
+                get(chart, 'metadata.publish.blocks.get-the-data') &&
+                !isStyleStatic &&
+                chart.type !== 'locator-map',
             priority: 30,
             component: GetTheData
         },
         {
             id: 'embed',
             region: 'footerLeft',
-            test: ({ theme, isStyleStatic }) =>
-                get(theme, 'data.options.footer.embed.enabled') && !isStyleStatic,
+            test: ({ chart, isStyleStatic }) =>
+                get(chart, 'metadata.publish.blocks.embed') && !isStyleStatic,
             priority: 40,
             component: Embed
         },
         {
             id: 'logo',
             region: 'footerRight',
-            test: ({ theme }) => get(theme, 'data.options.footer.logo.enabled'),
+            test: ({ chart, theme }) =>
+                get(chart, 'metadata.publish.blocks.logo') &&
+                (!!get(theme, 'data.options.footer.logo.url') ||
+                    !!get(theme, 'data.options.footer.logo.text')),
             priority: 10,
             component: Logo
         },
@@ -251,6 +268,13 @@ Please make sure you called __(key) with a key of type "string".
         return translation;
     }
 
+    let target;
+    let isMobile = false;
+    const checkBreakpoint = () => {
+        const breakpoint = get(theme, `data.vis.${chart.type}.mobileBreakpoint`, 450);
+        isMobile = target.clientWidth <= breakpoint;
+    };
+
     onMount(async () => {
         document.body.classList.toggle('plain', isStylePlain);
         document.body.classList.toggle('static', isStyleStatic);
@@ -292,10 +316,12 @@ Please make sure you called __(key) with a key of type "string".
             };
         }
 
+        // check mobile breakpoint upon initialization
+        checkBreakpoint();
+
         render(data);
 
         // load & execute plugins
-        window.__dwBlocks = {};
         if (publishData.blocks.length) {
             await Promise.all(
                 publishData.blocks.map(d => {
@@ -321,14 +347,14 @@ Please make sure you called __(key) with a key of type "string".
             // all plugins are loaded
             publishData.blocks.forEach(d => {
                 d.blocks.forEach(block => {
-                    if (!window.__dwBlocks[block.component]) {
+                    if (!dw.block.has(block.component)) {
                         return console.warn(
                             `component ${block.component} from chart block ${block.id} not found`
                         );
                     }
                     pluginBlocks.push({
                         ...block,
-                        component: window.__dwBlocks[block.component]
+                        component: dw.block(block.component)
                     });
                 });
             });
@@ -365,6 +391,8 @@ Please make sure you called __(key) with a key of type "string".
     {/if}
 </svelte:head>
 
+<svelte:window on:resize={checkBreakpoint} />
+
 {#if !isStylePlain}
     <BlocksRegion name="dw-chart-header" blocks={regions.header} id="header" />
 
@@ -373,7 +401,18 @@ Please make sure you called __(key) with a key of type "string".
     {/if}
 {/if}
 
-<div id="chart" class="dw-chart-body" />
+{#if ariaDescription}
+    <div class="sr-only">
+        {@html ariaDescription}
+    </div>
+{/if}
+
+<div
+    id="chart"
+    bind:this={target}
+    class:is-mobile={isMobile}
+    aria-hidden={!!ariaDescription}
+    class="dw-chart-body" />
 
 {#if get(theme, 'data.template.afterChart')}
     {@html theme.data.template.afterChart}

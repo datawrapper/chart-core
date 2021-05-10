@@ -1,4 +1,4 @@
-import Chart from './lib/Chart.svelte';
+import Chart from './lib/Visualization.svelte';
 
 function render() {
     new Chart({

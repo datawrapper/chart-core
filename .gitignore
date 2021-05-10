@@ -63,9 +63,10 @@ typings/
 dw.js/dw-2.0.js
 dist/main.js
 dist/embed.js
-dist/Chart_SSR.js
+dist/Visualization_SSR.js
 dist/dw-2.0.min.js
 dist/locale
+dist/dw-2.0.cjs.js
 token.json
 
 # Source maps
