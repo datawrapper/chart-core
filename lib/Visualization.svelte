@@ -106,7 +106,7 @@
             region: 'footerLeft',
             test: ({ chart, isStyleStatic }) =>
                 get(chart, 'forkable') &&
-                get(chart, 'metadata.publish.edit-in-datawrapper', false) &&
+                get(chart, 'metadata.publish.blocks.edit-in-datawrapper', false) &&
                 !isStyleStatic,
             priority: 31,
             component: EditInDatawrapper
