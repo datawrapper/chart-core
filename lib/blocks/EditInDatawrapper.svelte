@@ -6,7 +6,7 @@
 
     // internal props
     $: forkable = get(chart, 'forkable', false);
-    $: showEditInDatawrapperLink = get(chart, 'metadata.publish.edit-in-datawrapper', false);
+    $: showEditInDatawrapperLink = get(chart, 'metadata.publish.blocks.edit-in-datawrapper', false);
 
     $: caption = get(theme, 'data.options.blocks.edit.data.caption', 'edit-in-datawrapper');
 
