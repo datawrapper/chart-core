@@ -109,7 +109,7 @@
 {#if !modalIsHidden}
     <div class="embed-code">
         <div class="close" on:click={handleClick}>
-            <svg viewBox="0 0 30" xmlns="http://www.w3.org/2000/svg">
+            <svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
                 <path
                     d="M7 4a.995.995 0 0 0-.707.293l-2 2a.999.999 0 0 0 0 1.414L11.586 15l-7.293
                     7.293a.999.999 0 0 0 0 1.414l2 2a.999.999 0 0 0 1.414 0L15 18.414l7.293
@@ -125,7 +125,7 @@
         <div class="actions">
             <input bind:this={inputRef} type="text" readonly value={embedCode} />
             <button on:click={copy}>
-                <svg viewBox="0 0 30" xmlns="http://www.w3.org/2000/svg">
+                <svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
                     <path
                         d="M15 0c-1.645 0-3 1.355-3 3H8C6.346 3 5 4.346 5 6v17c0 1.654 1.346 3 3
                         3h14c1.654 0 3-1.346 3-3V6c0-1.654-1.346-3-3-3h-4c0-1.645-1.355-3-3-3zm0
