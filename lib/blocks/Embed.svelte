@@ -31,37 +31,48 @@
 <style>
     .embed-code {
         position: absolute;
-        bottom: 40px;
-        left: 7px;
+        bottom: 35px;
+        left: 8px;
         max-width: 350px;
-
         border: 1px solid #e5e5e5;
         background: #fff;
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, .15);
         border-radius: 4px;
-        padding: 16px 18px;
+        padding: 15px 20px;
         font-size: 14px;
     }
 
     .embed-code .close {
-        transform: scale(0.6);
-        right: 5px;
-        top: 5px;
+        width: 15px;
+        height: 15px;
+        right: 10px;
+        top: 10px;
         position: absolute;
         fill: #4f4f4f;
+    }
+    .embed-code .close:hover
+    .embed-code .close:focus {
+        fill: #111;
     }
 
     .embed-code button {
         cursor: pointer;
-        border: 1px solid #dddddd;
+        border: 1px solid #ccc;
+        border-bottom-color: #b3b3b3;
         box-shadow: none;
         border-radius: 4px;
         width: 40px;
         height: 30px;
+        box-shadow: 0px 1px 2px rgba(0, 0, 0, .05), inset 0px 1px 0px rgba(255, 255, 255, .05);
+    }
+    .embed-code button:hover,
+    .embed-code button:active {
+        background-color: #ededed;
     }
 
     .embed-code button svg {
-        transform: translate(-4px, -4px) scale(0.6);
+        width: 20px;
+        height: 20px;
     }
 
     .embed-code button path {
@@ -70,7 +81,7 @@
 
     .embed-code p {
         margin: 0px 0px 12px 0px;
-        width: calc(100% - 20px);
+        width: calc(100% - 30px);
         font-size: 14px;
         line-height: 20px;
     }
@@ -90,7 +101,7 @@
         font-size: 14px;
         line-height: 14px;
         color: #4f4f4f;
-        margin-right: 8px;
+        margin-right: 10px;
     }
 </style>
 
@@ -98,7 +109,7 @@
 {#if !modalIsHidden}
     <div class="embed-code">
         <div class="close" on:click={handleClick}>
-            <svg width="30" height="30" xmlns="http://www.w3.org/2000/svg">
+            <svg viewBox="0 0 30" xmlns="http://www.w3.org/2000/svg">
                 <path
                     d="M7 4a.995.995 0 0 0-.707.293l-2 2a.999.999 0 0 0 0 1.414L11.586 15l-7.293
                     7.293a.999.999 0 0 0 0 1.414l2 2a.999.999 0 0 0 1.414 0L15 18.414l7.293
@@ -114,7 +125,7 @@
         <div class="actions">
             <input bind:this={inputRef} type="text" readonly value={embedCode} />
             <button on:click={copy}>
-                <svg width="30" height="30" xmlns="http://www.w3.org/2000/svg">
+                <svg viewBox="0 0 30" xmlns="http://www.w3.org/2000/svg">
                     <path
                         d="M15 0c-1.645 0-3 1.355-3 3H8C6.346 3 5 4.346 5 6v17c0 1.654 1.346 3 3
                         3h14c1.654 0 3-1.346 3-3V6c0-1.654-1.346-3-3-3h-4c0-1.645-1.355-3-3-3zm0
