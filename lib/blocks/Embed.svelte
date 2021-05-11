@@ -50,7 +50,7 @@
         position: absolute;
         fill: #4f4f4f;
     }
-    .embed-code .close:hover
+    .embed-code .close:hover,
     .embed-code .close:focus {
         fill: #111;
     }
