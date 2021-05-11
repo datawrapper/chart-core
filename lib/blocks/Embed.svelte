@@ -36,7 +36,7 @@
         max-width: 350px;
         border: 1px solid #e5e5e5;
         background: #fff;
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, .15);
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
         border-radius: 4px;
         padding: 15px 20px;
         font-size: 14px;
@@ -63,7 +63,7 @@
         border-radius: 4px;
         width: 40px;
         height: 30px;
-        box-shadow: 0px 1px 2px rgba(0, 0, 0, .05), inset 0px 1px 0px rgba(255, 255, 255, .05);
+        box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05), inset 0px 1px 0px rgba(255, 255, 255, 0.05);
     }
     .embed-code button:hover,
     .embed-code button:active {
