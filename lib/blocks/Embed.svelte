@@ -67,7 +67,7 @@
     }
     .embed-code button:hover,
     .embed-code button:active {
-        background-color: #ededed;
+        background-color: #e6e6e6;
     }
 
     .embed-code button svg {
