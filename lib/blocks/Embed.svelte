@@ -8,7 +8,7 @@
     $: embed = get(theme, 'data.options.footer.embed', { enabled: false });
     $: embedCode = get(
         chart,
-        'metadata.publish.embed-codes.embed-method-iframe',
+        'metadata.publish.embed-codes.embed-method-responsive',
         '<!-- embed code will be here after publishing -->'
     );
 
