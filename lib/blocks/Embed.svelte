@@ -49,6 +49,7 @@
         top: 10px;
         position: absolute;
         fill: #4f4f4f;
+        cursor: pointer;
     }
     .embed-code .close:hover,
     .embed-code .close:focus {
