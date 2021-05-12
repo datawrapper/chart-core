@@ -8,6 +8,7 @@
     import Byline from './blocks/Byline.svelte';
     import Notes from './blocks/Notes.svelte';
     import GetTheData from './blocks/GetTheData.svelte';
+    import EditInDatawrapper from './blocks/EditInDatawrapper.svelte';
     import Embed from './blocks/Embed.svelte';
     import Logo from './blocks/Logo.svelte';
     import Rectangle from './blocks/Rectangle.svelte';
@@ -17,6 +18,7 @@
 
     import { domReady } from './dw/utils';
     import get from '@datawrapper/shared/get';
+    import set from '@datawrapper/shared/set';
     import purifyHtml from '@datawrapper/shared/purifyHtml';
     import PostEvent from '@datawrapper/shared/postEvent';
     import observeFonts from '@datawrapper/shared/observeFonts';
@@ -44,9 +46,17 @@
     export let isStylePlain = false;
     // static style means user can't interact (e.g. in a png version)
     export let isStyleStatic = false;
+    export let frontendDomain = 'app.datawrapper.de';
 
     // .dw-chart-body
     let target, dwChart, vis;
+
+    $: {
+        if (!get(chart, 'metadata.publish.blocks')) {
+            // no footer settings found in metadata, apply theme defaults
+            set(chart, 'metadata.publish.blocks', get(theme.data, 'metadata.publish.blocks'));
+        }
+    }
 
     $: ariaDescription = purifyHtml(
         get(chart, 'metadata.describe.aria-description', ''),
@@ -97,23 +107,38 @@
         {
             id: 'get-the-data',
             region: 'footerLeft',
-            test: ({ theme, isStyleStatic }) =>
-                get(theme, 'data.options.footer.getTheData.enabled') && !isStyleStatic,
+            test: ({ chart, isStyleStatic }) =>
+                get(chart, 'metadata.publish.blocks.get-the-data') &&
+                !isStyleStatic &&
+                chart.type !== 'locator-map',
             priority: 30,
             component: GetTheData
         },
         {
+            id: 'edit',
+            region: 'footerLeft',
+            test: ({ chart, isStyleStatic }) =>
+                get(chart, 'forkable') &&
+                get(chart, 'metadata.publish.blocks.edit-in-datawrapper', false) &&
+                !isStyleStatic,
+            priority: 31,
+            component: EditInDatawrapper
+        },
+        {
             id: 'embed',
             region: 'footerLeft',
-            test: ({ theme, isStyleStatic }) =>
-                get(theme, 'data.options.footer.embed.enabled') && !isStyleStatic,
+            test: ({ chart, isStyleStatic }) =>
+                get(chart, 'metadata.publish.blocks.embed') && !isStyleStatic,
             priority: 40,
             component: Embed
         },
         {
             id: 'logo',
             region: 'footerRight',
-            test: ({ theme }) => get(theme, 'data.options.footer.logo.enabled'),
+            test: ({ chart, theme }) =>
+                get(chart, 'metadata.publish.blocks.logo') &&
+                (!!get(theme, 'data.options.footer.logo.url') ||
+                    !!get(theme, 'data.options.footer.logo.text')),
             priority: 10,
             component: Logo
         },
@@ -250,6 +275,7 @@
             block.props = {
                 ...(block.data || {}),
                 ...blockProps,
+                config: { frontendDomain },
                 id: block.id
             };
             if (block.component.test) {
@@ -347,6 +373,11 @@ Please make sure you called __(key) with a key of type "string".
     }
 
     let initialized = false;
+    let isMobile = false;
+    const checkBreakpoint = () => {
+        const breakpoint = get(theme, `data.vis.${chart.type}.mobileBreakpoint`, 450);
+        isMobile = target.clientWidth <= breakpoint;
+    };
 
     async function run() {
         if (typeof dw === 'undefined') return;
@@ -428,6 +459,9 @@ Please make sure you called __(key) with a key of type "string".
     }
 
     onMount(async () => {
+        // check mobile breakpoint upon initialization
+        checkBreakpoint();
+
         run();
 
         if (isIframe) {
@@ -497,6 +531,7 @@ Please make sure you called __(key) with a key of type "string".
     id="chart"
     bind:this={target}
     class:content-below-chart={contentBelowChart}
+    class:is-mobile={isMobile}
     aria-hidden={!!ariaDescription}
     class="dw-chart-body" />
 
