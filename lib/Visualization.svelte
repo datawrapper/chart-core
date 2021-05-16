@@ -462,7 +462,7 @@ Please make sure you called __(key) with a key of type "string".
         // check mobile breakpoint upon initialization
         checkBreakpoint();
 
-        run();
+        await run();
 
         if (isIframe) {
             // set some classes - still needed?
@@ -492,14 +492,12 @@ Please make sure you called __(key) with a key of type "string".
             });
 
             // provide external APIs
-            if (isIframe) {
-                window.__dw = window.__dw || {};
-                window.__dw.params = { data };
-                window.__dw.vis = vis;
-                window.__dw.render = () => {
-                    dwChart.render(isIframe, isPreview);
-                };
-            }
+            window.__dw = window.__dw || {};
+            window.__dw.params = { data };
+            window.__dw.vis = vis;
+            window.__dw.render = () => {
+                dwChart.render(isIframe, isPreview);
+            };
         }
     });
 
