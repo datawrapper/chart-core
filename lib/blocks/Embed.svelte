@@ -49,6 +49,7 @@
         top: 10px;
         position: absolute;
         fill: #4f4f4f;
+        cursor: pointer;
     }
     .embed-code .close:hover,
     .embed-code .close:focus {
@@ -67,7 +68,7 @@
     }
     .embed-code button:hover,
     .embed-code button:active {
-        background-color: #ededed;
+        background-color: #e6e6e6;
     }
 
     .embed-code button svg {
