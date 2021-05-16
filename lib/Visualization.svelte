@@ -360,7 +360,7 @@ Please make sure you called __(key) with a key of type "string".
         }
         key = key.trim();
 
-        let translation = locales[key] || key;
+        let translation = translations[key] || key;
 
         if (args.length) {
             translation = translation.replace(/\$(\d)/g, (m, i) => {
