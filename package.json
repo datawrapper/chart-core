@@ -36,7 +36,7 @@
         "fontfaceobserver": "2.1.0",
         "svelte-extras": "^2.0.2",
         "svelte2": "npm:svelte@^2.16.1",
-        "underscore": "^1.12.1"
+        "underscore": "^1.13.1"
     },
     "devDependencies": {
         "@babel/core": "7.9.0",
