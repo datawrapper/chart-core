@@ -8,6 +8,7 @@
     import Byline from './blocks/Byline.svelte';
     import Notes from './blocks/Notes.svelte';
     import GetTheData from './blocks/GetTheData.svelte';
+    import EditInDatawrapper from './blocks/EditInDatawrapper.svelte';
     import Embed from './blocks/Embed.svelte';
     import Logo from './blocks/Logo.svelte';
     import Rectangle from './blocks/Rectangle.svelte';
@@ -16,6 +17,7 @@
     import svgRule from './blocks/svgRule.svelte';
 
     import get from '@datawrapper/shared/get';
+    import set from '@datawrapper/shared/set';
     import purifyHtml from '@datawrapper/shared/purifyHtml';
     import { clean } from './shared';
     import { loadScript, loadStylesheet } from '@datawrapper/shared/fetch';
@@ -35,6 +37,13 @@
     $: chart = data.chartJSON;
     $: publishData = data.publishData;
     $: locale = data.visJSON.locale;
+
+    $: {
+        if (!get(chart, 'metadata.publish.blocks')) {
+            // no footer settings found in metadata, apply theme defaults
+            set(chart, 'metadata.publish.blocks', get(theme.data, 'metadata.publish.blocks'));
+        }
+    }
 
     $: ariaDescription = purifyHtml(
         get(chart, 'metadata.describe.aria-description', ''),
@@ -85,23 +94,38 @@
         {
             id: 'get-the-data',
             region: 'footerLeft',
-            test: ({ theme, isStyleStatic }) =>
-                get(theme, 'data.options.footer.getTheData.enabled') && !isStyleStatic,
+            test: ({ chart, isStyleStatic }) =>
+                get(chart, 'metadata.publish.blocks.get-the-data') &&
+                !isStyleStatic &&
+                chart.type !== 'locator-map',
             priority: 30,
             component: GetTheData
         },
         {
+            id: 'edit',
+            region: 'footerLeft',
+            test: ({ chart, isStyleStatic }) =>
+                get(chart, 'forkable') &&
+                get(chart, 'metadata.publish.blocks.edit-in-datawrapper', false) &&
+                !isStyleStatic,
+            priority: 31,
+            component: EditInDatawrapper
+        },
+        {
             id: 'embed',
             region: 'footerLeft',
-            test: ({ theme, isStyleStatic }) =>
-                get(theme, 'data.options.footer.embed.enabled') && !isStyleStatic,
+            test: ({ chart, isStyleStatic }) =>
+                get(chart, 'metadata.publish.blocks.embed') && !isStyleStatic,
             priority: 40,
             component: Embed
         },
         {
             id: 'logo',
             region: 'footerRight',
-            test: ({ theme }) => get(theme, 'data.options.footer.logo.enabled'),
+            test: ({ chart, theme }) =>
+                get(chart, 'metadata.publish.blocks.logo') &&
+                (!!get(theme, 'data.options.footer.logo.url') ||
+                    !!get(theme, 'data.options.footer.logo.text')),
             priority: 10,
             component: Logo
         },
@@ -179,6 +203,7 @@
             block.props = {
                 ...(block.data || {}),
                 ...blockProps,
+                config: { frontendDomain },
                 id: block.id
             };
             if (block.component.test) {
@@ -198,17 +223,42 @@
         // build all the region
         regions = {
             header: getBlocks(allBlocks, 'header', { chart, data, theme, isStyleStatic }),
-            aboveFooter: getBlocks(allBlocks, 'aboveFooter', { chart, data, theme, isStyleStatic }),
-            footerLeft: getBlocks(allBlocks, 'footerLeft', { chart, data, theme, isStyleStatic }),
+            aboveFooter: getBlocks(allBlocks, 'aboveFooter', {
+                chart,
+                data,
+                theme,
+                isStyleStatic
+            }),
+            footerLeft: getBlocks(allBlocks, 'footerLeft', {
+                chart,
+                data,
+                theme,
+                isStyleStatic
+            }),
             footerCenter: getBlocks(allBlocks, 'footerCenter', {
                 chart,
                 data,
                 theme,
                 isStyleStatic
             }),
-            footerRight: getBlocks(allBlocks, 'footerRight', { chart, data, theme, isStyleStatic }),
-            belowFooter: getBlocks(allBlocks, 'belowFooter', { chart, data, theme, isStyleStatic }),
-            afterBody: getBlocks(allBlocks, 'afterBody', { chart, data, theme, isStyleStatic }),
+            footerRight: getBlocks(allBlocks, 'footerRight', {
+                chart,
+                data,
+                theme,
+                isStyleStatic
+            }),
+            belowFooter: getBlocks(allBlocks, 'belowFooter', {
+                chart,
+                data,
+                theme,
+                isStyleStatic
+            }),
+            afterBody: getBlocks(allBlocks, 'afterBody', {
+                chart,
+                data,
+                theme,
+                isStyleStatic
+            }),
             menu: getBlocks(allBlocks, 'menu', { chart, data, theme, isStyleStatic })
         };
     }
@@ -222,6 +272,7 @@
     export let isStylePlain = false;
     // static style means user can't interact (e.g. in a png version)
     export let isStyleStatic = false;
+    export let frontendDomain = 'app.datawrapper.de';
 
     function getCaption(id) {
         if (id === 'd3-maps-choropleth' || id === 'd3-maps-symbols' || id === 'locator-map')
@@ -258,7 +309,7 @@ Please make sure you called __(key) with a key of type "string".
     let target;
     let isMobile = false;
     const checkBreakpoint = () => {
-        const breakpoint = get(theme, 'data.vis.${chart.type}.mobileBreakpoint', 450);
+        const breakpoint = get(theme, `data.vis.${chart.type}.mobileBreakpoint`, 450);
         isMobile = target.clientWidth <= breakpoint;
     };
 
