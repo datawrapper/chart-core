@@ -8,6 +8,7 @@
     import Byline from './blocks/Byline.svelte';
     import Notes from './blocks/Notes.svelte';
     import GetTheData from './blocks/GetTheData.svelte';
+    import EditInDatawrapper from './blocks/EditInDatawrapper.svelte';
     import Embed from './blocks/Embed.svelte';
     import Logo from './blocks/Logo.svelte';
     import Rectangle from './blocks/Rectangle.svelte';
@@ -101,6 +102,16 @@
             component: GetTheData
         },
         {
+            id: 'edit',
+            region: 'footerLeft',
+            test: ({ chart, isStyleStatic }) =>
+                get(chart, 'forkable') &&
+                get(chart, 'metadata.publish.blocks.edit-in-datawrapper', false) &&
+                !isStyleStatic,
+            priority: 31,
+            component: EditInDatawrapper
+        },
+        {
             id: 'embed',
             region: 'footerLeft',
             test: ({ chart, isStyleStatic }) =>
@@ -192,6 +203,7 @@
             block.props = {
                 ...(block.data || {}),
                 ...blockProps,
+                config: { frontendDomain },
                 id: block.id
             };
             if (block.component.test) {
@@ -211,17 +223,42 @@
         // build all the region
         regions = {
             header: getBlocks(allBlocks, 'header', { chart, data, theme, isStyleStatic }),
-            aboveFooter: getBlocks(allBlocks, 'aboveFooter', { chart, data, theme, isStyleStatic }),
-            footerLeft: getBlocks(allBlocks, 'footerLeft', { chart, data, theme, isStyleStatic }),
+            aboveFooter: getBlocks(allBlocks, 'aboveFooter', {
+                chart,
+                data,
+                theme,
+                isStyleStatic
+            }),
+            footerLeft: getBlocks(allBlocks, 'footerLeft', {
+                chart,
+                data,
+                theme,
+                isStyleStatic
+            }),
             footerCenter: getBlocks(allBlocks, 'footerCenter', {
                 chart,
                 data,
                 theme,
                 isStyleStatic
             }),
-            footerRight: getBlocks(allBlocks, 'footerRight', { chart, data, theme, isStyleStatic }),
-            belowFooter: getBlocks(allBlocks, 'belowFooter', { chart, data, theme, isStyleStatic }),
-            afterBody: getBlocks(allBlocks, 'afterBody', { chart, data, theme, isStyleStatic }),
+            footerRight: getBlocks(allBlocks, 'footerRight', {
+                chart,
+                data,
+                theme,
+                isStyleStatic
+            }),
+            belowFooter: getBlocks(allBlocks, 'belowFooter', {
+                chart,
+                data,
+                theme,
+                isStyleStatic
+            }),
+            afterBody: getBlocks(allBlocks, 'afterBody', {
+                chart,
+                data,
+                theme,
+                isStyleStatic
+            }),
             menu: getBlocks(allBlocks, 'menu', { chart, data, theme, isStyleStatic })
         };
     }
@@ -235,6 +272,7 @@
     export let isStylePlain = false;
     // static style means user can't interact (e.g. in a png version)
     export let isStyleStatic = false;
+    export let frontendDomain = 'app.datawrapper.de';
 
     function getCaption(id) {
         if (id === 'd3-maps-choropleth' || id === 'd3-maps-symbols' || id === 'locator-map')
