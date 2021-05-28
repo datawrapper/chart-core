@@ -18,7 +18,7 @@
 
     import get from '@datawrapper/shared/get';
     import set from '@datawrapper/shared/set';
-    import purifyHtml from '@datawrapper/shared/purifyHtml';
+    import purifyHtml from '@datawrapper/shared/purifyHtml.js';
     import { clean } from './shared';
     import { loadScript, loadStylesheet } from '@datawrapper/shared/fetch';
     import render from './render.js';
