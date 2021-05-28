@@ -68,6 +68,9 @@
     "ava": {
         "require": [
             "esm"
+        ],
+        "nodeArguments": [
+            "--experimental-specifier-resolution=node"
         ]
     },
     "husky": {
