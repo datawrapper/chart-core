@@ -3,6 +3,7 @@
     "version": "8.33.3",
     "description": "Svelte component to render charts. Used by Sapper App and Node API.",
     "main": "index.js",
+    "type": "module",
     "files": [
         "dist",
         "lib"
