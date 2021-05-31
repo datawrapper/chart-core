@@ -7,11 +7,11 @@
     $: theme = props.theme;
 
     // internal props
-    $: logo = get(theme, 'data.options.footer.logo');
+    $: logo = get(theme, 'data.options.blocks.logo.data');
 </script>
 
-{#if logo.link}
-    <a href={logo.link} target="_blank" rel="noopener noreferrer">
+{#if logo.url}
+    <a href={logo.url} target="_blank" rel="noopener noreferrer">
         <LogoInner {logo} {purifyHtml} {theme} />
     </a>
 {:else}
