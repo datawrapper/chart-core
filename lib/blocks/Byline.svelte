@@ -26,11 +26,6 @@
         ' ' +
         purifyHtml(chart.basedOnByline) +
         (needBrackets ? ')' : '');
-
-    function capitalize(str) {
-        if (typeof str !== 'string') return '';
-        return `${str.charAt(0).toUpperCase()}${str.slice(1)}`;
-    }
 </script>
 
 <span class="byline-caption">{__(bylineCaption)}</span>
