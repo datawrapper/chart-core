@@ -99,6 +99,10 @@
         "plugins": [
             "svelte3"
         ],
+        "env": {
+            "browser": true,
+            "es6": true
+        },
         "overrides": [
             {
                 "files": [

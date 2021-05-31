@@ -1,4 +1,5 @@
 <script>
+    /* globals dw, __dw */
     import { onMount, afterUpdate, tick } from 'svelte';
     import BlocksRegion from './BlocksRegion.svelte';
     import Menu from './Menu.svelte';
