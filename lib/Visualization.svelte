@@ -17,11 +17,11 @@
     import HorizontalRule from './blocks/HorizontalRule.svelte';
     import svgRule from './blocks/svgRule.svelte';
 
-    import get from '@datawrapper/shared/get';
-    import set from '@datawrapper/shared/set';
+    import get from '@datawrapper/shared/get.js';
+    import set from '@datawrapper/shared/set.js';
     import purifyHtml from '@datawrapper/shared/purifyHtml.js';
     import { clean } from './shared';
-    import { loadScript, loadStylesheet } from '@datawrapper/shared/fetch';
+    import { loadScript, loadStylesheet } from '@datawrapper/shared/fetch.js';
     import render from './render.js';
     import { getMaxChartHeight } from './dw/utils';
 
