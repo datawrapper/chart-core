@@ -351,7 +351,7 @@ Please make sure you called __(key) with a key of type "string".
         if (publishData.blocks.length) {
             await Promise.all(
                 publishData.blocks.map(d => {
-                    return new Promise((resolve, reject) => {
+                    return new Promise(resolve => {
                         const p = [loadScript(d.source.js)];
                         if (d.source.css) p.push(loadStylesheet(d.source.css));
                         Promise.all(p)
