@@ -11,7 +11,7 @@
 ## Structure
 
 ```
-├── main.js
+├── main.mjs
 │     - Entry point for rollup to bundle `Visualization.svelte`
 │     - (used by datawrapper/api)
 │
