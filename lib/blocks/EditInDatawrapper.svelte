@@ -1,7 +1,7 @@
 <script>
     // external props
     export let props;
-    const { get, __, purifyHtml } = props;
+    const { get, __ } = props;
     $: ({ chart, theme, config } = props);
 
     // internal props

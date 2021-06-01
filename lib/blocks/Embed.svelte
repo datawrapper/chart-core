@@ -5,7 +5,7 @@
     $: ({ chart, theme } = props);
 
     // internal props
-    $: embed = get(theme, 'data.options.footer.embed', { enabled: false });
+    $: embed = get(theme, 'data.options.blocks.embed.data', {});
     $: embedCode = get(
         chart,
         'metadata.publish.embed-codes.embed-method-responsive',
@@ -21,7 +21,7 @@
 
     let inputRef;
 
-    function copy(e) {
+    function copy() {
         inputRef.focus();
         inputRef.select();
         document.execCommand('copy');

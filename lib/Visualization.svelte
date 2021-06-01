@@ -1,5 +1,6 @@
 <script>
-    import { onMount, afterUpdate, tick } from 'svelte';
+    /* globals dw */
+    import { onMount, afterUpdate } from 'svelte';
     import BlocksRegion from './BlocksRegion.svelte';
     import Menu from './Menu.svelte';
     import Headline from './blocks/Headline.svelte';
@@ -16,16 +17,16 @@
     import HorizontalRule from './blocks/HorizontalRule.svelte';
     import svgRule from './blocks/svgRule.svelte';
 
-    import { domReady } from './dw/utils';
-    import get from '@datawrapper/shared/get';
-    import set from '@datawrapper/shared/set';
-    import purifyHtml from '@datawrapper/shared/purifyHtml';
-    import PostEvent from '@datawrapper/shared/postEvent';
-    import observeFonts from '@datawrapper/shared/observeFonts';
-    import { clean } from './shared';
-    import { loadScript, loadStylesheet } from '@datawrapper/shared/fetch';
+    import { domReady } from './dw/utils/index.mjs';
+    import PostEvent from '@datawrapper/shared/postEvent.js';
+    import observeFonts from '@datawrapper/shared/observeFonts.js';
     import createEmotion from '@emotion/css/create-instance';
     import deepmerge from 'deepmerge';
+    import get from '@datawrapper/shared/get.js';
+    import set from '@datawrapper/shared/set.js';
+    import { loadScript, loadStylesheet } from '@datawrapper/shared/fetch.js';
+    import purifyHtml from '@datawrapper/shared/purifyHtml.js';
+    import { clean } from './shared.mjs';
 
     export let data = '';
     export let chart;
@@ -137,8 +138,8 @@
             region: 'footerRight',
             test: ({ chart, theme }) =>
                 get(chart, 'metadata.publish.blocks.logo') &&
-                (!!get(theme, 'data.options.footer.logo.url') ||
-                    !!get(theme, 'data.options.footer.logo.text')),
+                (!!get(theme, 'data.options.blocks.logo.data.imgSrc') ||
+                    !!get(theme, 'data.options.blocks.logo.data.text')),
             priority: 10,
             component: Logo
         },
@@ -206,14 +207,14 @@
     }
 
     async function loadBlocks(blocks) {
-        if (blocks.length) {
-            function url(src) {
-                return origin && src.indexOf('http') !== 0 ? `${origin}/${src}` : src;
-            }
+        function url(src) {
+            return origin && src.indexOf('http') !== 0 ? `${origin}/${src}` : src;
+        }
 
+        if (blocks.length) {
             await Promise.all(
                 blocks.map(d => {
-                    return new Promise((resolve, reject) => {
+                    return new Promise(resolve => {
                         const p = [loadScript(url(d.source.js))];
 
                         if (d.source.css) {
@@ -372,7 +373,6 @@ Please make sure you called __(key) with a key of type "string".
         return translation;
     }
 
-    let initialized = false;
     let isMobile = false;
     const checkBreakpoint = () => {
         const breakpoint = get(theme, `data.vis.${chart.type}.mobileBreakpoint`, 450);
@@ -381,7 +381,6 @@ Please make sure you called __(key) with a key of type "string".
 
     async function run() {
         if (typeof dw === 'undefined') return;
-        if (initialized) return;
 
         // register theme
         dw.theme.register(theme.id, theme.data);
@@ -409,7 +408,8 @@ Please make sure you called __(key) with a key of type "string".
         for (var name in assets) {
             if (assets[name].shared) {
                 assetPromises.push(
-                    new Promise(async (resolve, reject) => {
+                    // eslint-disable-next-line
+                    new Promise(async resolve => {
                         const res = await fetch(assets[name].url);
                         const text = await res.text();
                         dwChart.asset(name, text);
@@ -485,8 +485,8 @@ Please make sure you called __(key) with a key of type "string".
             let currentHeight = document.body.offsetHeight;
             afterUpdate(() => {
                 const newHeight = document.body.offsetHeight;
-                if (currentHeight !== newHeight && typeof render === 'function') {
-                    render();
+                if (currentHeight !== newHeight && typeof dwChart.render === 'function') {
+                    dwChart.render(isIframe, isPreview);
                     currentHeight = newHeight;
                 }
             });

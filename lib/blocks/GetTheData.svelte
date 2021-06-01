@@ -1,13 +1,10 @@
 <script>
-    import { onMount } from 'svelte';
     // external props
     export let props;
     const { get, __, purifyHtml } = props;
     $: ({ chart, dwChart, data, theme } = props);
 
     // internal props
-    $: getTheData = get(theme, 'data.options.footer.getTheData', { enabled: false });
-
     let dataLink;
     let hidden = false;
     let href = 'data';
@@ -40,16 +37,17 @@
     }
 
     $: externalData = get(dwChart, 'externalData');
+    $: caption = get(theme, 'data.options.blocks.get-the-data.data.caption');
 </script>
 
-{#if getTheData.enabled && !hidden}
+{#if !hidden}
     <a
         this="dataLink"
         class="dw-data-link"
-        aria-label="{__(getTheData.caption)}: {purifyHtml(chart.title, '')}"
+        aria-label="{__(caption)}: {purifyHtml(chart.title, '')}"
         {download}
         target={externalData ? '_blank' : '_self'}
-        href={externalData || 'data'}>
-        {__(getTheData.caption)}
+        href={externalData || href}>
+        {__(caption)}
     </a>
 {/if}
