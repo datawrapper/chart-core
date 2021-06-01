@@ -21,7 +21,7 @@
 
     let inputRef;
 
-    function copy(e) {
+    function copy() {
         inputRef.focus();
         inputRef.select();
         document.execCommand('copy');
