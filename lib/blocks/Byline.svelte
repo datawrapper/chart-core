@@ -7,16 +7,16 @@
     $: caption = props.caption;
 
     // internal props
-    $: bylineCaption =
-        caption === 'map'
-            ? get(theme, 'data.options.footer.mapCaption', 'Map:')
-            : caption === 'table'
-            ? get(theme, 'data.options.footer.tableCaption', 'Table:')
-            : get(theme, 'data.options.footer.chartCaption', 'Chart:');
+    $: fallBackCaption = caption === 'map' ? 'Map:' : caption === 'table' ? 'Table:' : 'Chart:';
+    $: bylineCaption = get(
+        theme,
+        `data.options.blocks.byline.data.${caption}Caption`,
+        fallBackCaption
+    );
 
     $: byline = get(chart, 'metadata.describe.byline', false);
 
-    $: forkCaption = get(theme, 'data.options.footer.forkCaption', 'footer / based-on');
+    $: forkCaption = get(theme, 'data.options.blocks.byline.data.forkCaption', 'footer / based-on');
 
     $: needBrackets = chart.basedOnByline && byline;
 

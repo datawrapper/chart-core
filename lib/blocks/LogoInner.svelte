@@ -4,8 +4,8 @@
     export let theme;
 </script>
 
-{#if logo.url}
-    <img height={logo.height} src={logo.url} alt={theme.title} />
+{#if logo.imgSrc}
+    <img height={logo.height} src={logo.imgSrc} alt={theme.title} />
 {/if}
 {#if logo.text}
     <span class="logo-text">

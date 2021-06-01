@@ -5,14 +5,14 @@
     $: ({ chart, theme } = props);
 
     // internal props
-    $: getTheData = get(theme, 'data.options.footer.getTheData', { enabled: false });
+    $: caption = get(theme, 'data.options.blocks.get-the-data.data.caption');
     $: externalData = get(chart, 'externalData');
 </script>
 
 <a
     class="dw-data-link"
-    aria-label="{__(getTheData.caption)}: {purifyHtml(chart.title, '')}"
+    aria-label="{__(caption)}: {purifyHtml(chart.title, '')}"
     target={externalData ? '_blank' : '_self'}
     href={externalData || 'data'}>
-    {__(getTheData.caption)}
+    {__(caption)}
 </a>

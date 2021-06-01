@@ -125,8 +125,8 @@
             region: 'footerRight',
             test: ({ chart, theme }) =>
                 get(chart, 'metadata.publish.blocks.logo') &&
-                (!!get(theme, 'data.options.footer.logo.url') ||
-                    !!get(theme, 'data.options.footer.logo.text')),
+                (!!get(theme, 'data.options.blocks.logo.data.imgSrc') ||
+                    !!get(theme, 'data.options.blocks.logo.data.text')),
             priority: 10,
             component: Logo
         },
