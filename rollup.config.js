@@ -30,7 +30,7 @@ function onwarn(warning, warn) {
 module.exports = [
     {
         /* Client side Svelte Chart Component */
-        input: path.resolve(__dirname, 'main.js'),
+        input: path.resolve(__dirname, 'main.mjs'),
         plugins: [
             svelte({ hydratable: true }),
             resolve(),
