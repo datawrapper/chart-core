@@ -21,7 +21,7 @@
     import set from '@datawrapper/shared/set.js';
     import { loadScript, loadStylesheet } from '@datawrapper/shared/fetch.js';
     import purifyHtml from '@datawrapper/shared/purifyHtml.js';
-    import { clean } from './shared/index.mjs';
+    import { clean } from './shared.mjs';
     import render from './render.mjs';
     import { getMaxChartHeight } from './dw/utils/index.mjs';
 
