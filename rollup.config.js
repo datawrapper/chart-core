@@ -1,3 +1,5 @@
+/* eslint-env node */
+
 import path from 'path';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
@@ -105,7 +107,7 @@ module.exports = [
         }
     },
     {
-        input: path.resolve(__dirname, 'lib/dw/index.js'),
+        input: path.resolve(__dirname, 'lib/dw/index.mjs'),
         plugins: [
             resolve(),
             commonjs(),
@@ -128,7 +130,7 @@ module.exports = [
         }
     },
     {
-        input: path.resolve(__dirname, 'lib/dw/index.js'),
+        input: path.resolve(__dirname, 'lib/dw/index.mjs'),
         plugins: [
             resolve({
                 modulesOnly: true
