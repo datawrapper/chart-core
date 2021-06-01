@@ -12,10 +12,10 @@
         "lib"
     ],
     "scripts": {
-        "format": "prettier 'lib/**/*.{js,html,svelte}' --write",
+        "format": "prettier 'lib/**/*.{js,mjs,html,svelte}' --write",
         "build": "rollup -c rollup.config.js",
         "dev": "rollup -cw rollup.config.js",
-        "lint": "prettier --check 'lib/**/*.{js,html,svelte}' && eslint 'lib/**/*.{js,svelte}'",
+        "lint": "prettier --check 'lib/**/*.{js,html,mjs,svelte}' && eslint 'lib/**/*.{js,mjs,svelte}'",
         "prepublishOnly": "npm run build",
         "prepare": "npm run build",
         "test": "ava",
