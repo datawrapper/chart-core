@@ -19,11 +19,11 @@
 
     import get from '@datawrapper/shared/get.js';
     import set from '@datawrapper/shared/set.js';
-    import purifyHtml from '@datawrapper/shared/purifyHtml.js';
-    import { clean } from './shared';
     import { loadScript, loadStylesheet } from '@datawrapper/shared/fetch.js';
-    import render from './render.js';
-    import { getMaxChartHeight } from './dw/utils';
+    import purifyHtml from '@datawrapper/shared/purifyHtml.js';
+    import { clean } from './shared.mjs';
+    import render from './render.mjs';
+    import { getMaxChartHeight } from './dw/utils/index.mjs';
 
     export let data = {};
     export let theme = {};

@@ -1,5 +1,5 @@
 <script>
-    import { clean } from './shared';
+    import { clean } from './shared.mjs';
 
     export let block;
 </script>
