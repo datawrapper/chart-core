@@ -17,7 +17,7 @@
     import HorizontalRule from './blocks/HorizontalRule.svelte';
     import svgRule from './blocks/svgRule.svelte';
 
-    import { domReady } from './dw/utils/index.mjs';
+    import { domReady, width } from './dw/utils/index.mjs';
     import PostEvent from '@datawrapper/shared/postEvent.js';
     import observeFonts from '@datawrapper/shared/observeFonts.js';
     import createEmotion from '@emotion/css/create-instance';
@@ -389,7 +389,8 @@ Please make sure you called __(key) with a key of type "string".
         Object.keys(locales).forEach(vendor => {
             if (locales[vendor] === 'null') {
                 locales[vendor] = null;
-            } else if (locales[vendor].base) {
+            }
+            if (locales[vendor] && locales[vendor].base) {
                 // eslint-disable-next-line
                 const localeBase = eval(locales[vendor].base);
                 locales[vendor] = deepmerge(localeBase, locales[vendor].custom);
@@ -445,16 +446,48 @@ Please make sure you called __(key) with a key of type "string".
         }
 
         // render chart
-        dwChart.render(isIframe, isPreview);
+        dwChart.render(isIframe);
 
         // await necessary reload triggers
         observeFonts(fonts, theme.data.typography)
-            .then(() => dwChart.render(isIframe, isPreview))
-            .catch(() => dwChart.render(isIframe, isPreview));
+            .then(() => dwChart.render(isIframe))
+            .catch(() => dwChart.render(isIframe));
 
         // iPhone/iPad fix
         if (/iP(hone|od|ad)/.test(navigator.platform)) {
-            window.onload = dwChart.render(isIframe, isPreview);
+            window.onload = dwChart.render(isIframe);
+        }
+
+        isIframe && initResizeHandler(target);
+
+        function initResizeHandler(container) {
+            let reloadTimer;
+            function renderLater() {
+                clearTimeout(reloadTimer);
+                reloadTimer = setTimeout(function() {
+                    dwChart.render(isIframe);
+                }, 100);
+            }
+
+            let currentWidth = width(container);
+
+            const resize = () => {
+                dwChart.vis().fire('resize');
+                renderLater();
+            };
+
+            const resizeFixed = () => {
+                const w = width(container);
+                if (currentWidth !== w) {
+                    currentWidth = w;
+                    resize();
+                }
+            };
+
+            const fixedHeight = dwChart.getHeightMode() === 'fixed';
+            const resizeHandler = fixedHeight ? resizeFixed : resize;
+
+            window.addEventListener('resize', resizeHandler);
         }
     }
 
@@ -486,7 +519,7 @@ Please make sure you called __(key) with a key of type "string".
             afterUpdate(() => {
                 const newHeight = document.body.offsetHeight;
                 if (currentHeight !== newHeight && typeof dwChart.render === 'function') {
-                    dwChart.render(isIframe, isPreview);
+                    dwChart.render(isIframe);
                     currentHeight = newHeight;
                 }
             });
@@ -496,7 +529,7 @@ Please make sure you called __(key) with a key of type "string".
             window.__dw.params = { data };
             window.__dw.vis = vis;
             window.__dw.render = () => {
-                dwChart.render(isIframe, isPreview);
+                dwChart.render(isIframe);
             };
         }
     });
