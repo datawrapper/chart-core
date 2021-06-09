@@ -4,7 +4,6 @@
     const { get, __, purifyHtml } = props;
     $: ({ chart, dwChart, data, theme } = props);
 
-    // internal props
     let dataLink;
     let hidden = false;
     let href = 'data';
@@ -37,7 +36,7 @@
     }
 
     $: externalData = get(dwChart, 'externalData');
-    $: caption = get(theme, 'data.options.blocks.get-the-data.data.caption');
+    $: caption = get(theme, 'data.options.blocks.get-the-data.data.caption', __('Get the data'));
 </script>
 
 {#if !hidden}

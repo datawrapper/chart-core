@@ -106,7 +106,9 @@
     }
 </style>
 
-<a href="#embed" class="chart-action-embed" on:click={handleClick}>{__(embed.caption)}</a>
+<a href="#embed" class="chart-action-embed" on:click={handleClick}>
+    {embed.caption || __('Embed')}
+</a>
 {#if !modalIsHidden}
     <div class="embed-code">
         <div class="close" on:click={handleClick}>
