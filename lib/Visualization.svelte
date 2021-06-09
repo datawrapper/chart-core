@@ -42,6 +42,7 @@
     export let fonts = {};
     export let styleHolder;
     export let origin;
+    export let externalDataUrl;
 
     // plain style means no header and footer
     export let isStylePlain = false;
@@ -396,6 +397,29 @@ Please make sure you called __(key) with a key of type "string".
                 locales[vendor] = deepmerge(localeBase, locales[vendor].custom);
             }
         });
+
+        const externalJSON =
+            get(chart, 'metadata.data.use-datawrapper-cdn') &&
+            get(chart, 'metadata.data.external-metadata', '').length
+                ? `//${externalDataUrl}/${chart.id}.metadata.json`
+                : get(chart, 'metadata.data.external-metadata');
+
+        if (
+            !isPreview &&
+            externalJSON &&
+            get(chart, 'metadata.data.upload-method') === 'external-data'
+        ) {
+            const res = await window.fetch(externalJSON);
+            const obj = await res.json();
+
+            if (obj.title) {
+                chart.title = obj.title;
+                delete obj.title;
+            }
+
+            Object.assign(chart.metadata, obj);
+            chart = chart;
+        }
 
         // initialize dw.chart object
         dwChart = dw

@@ -16,6 +16,7 @@
     export let isPreview;
     export let assets;
     export let fonts = {};
+    export let externalDataUrl;
 
     // plain style means no header and footer
     export let isStylePlain = false;
@@ -63,5 +64,6 @@
     {isPreview}
     {assets}
     {fonts}
+    {externalDataUrl}
     {isStylePlain}
     {isStyleStatic} />
