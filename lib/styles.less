@@ -352,6 +352,11 @@ body {
 
     #footer,
     .dw-chart-footer {
+
+        .footer-right {
+            text-align:right;
+        }
+
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -360,7 +365,7 @@ body {
         margin: @style_footer_margin;
 
         & > div > .footer-block {
-            display: inline-block;
+            display: inline;
 
             &.hidden {
                 display: none;
@@ -381,7 +386,7 @@ body {
             font-style: initial;
 
             &:before {
-                content: '\00a0•';
+                content: '•';
                 content: @options_footer_separator;
                 display: inline-block;
             }
