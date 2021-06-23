@@ -1,6 +1,7 @@
 /* eslint-env node */
 
 import path from 'path';
+import alias from '@rollup/plugin-alias';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import replace from '@rollup/plugin-replace';
@@ -132,6 +133,14 @@ module.exports = [
     {
         input: path.resolve(__dirname, 'lib/dw/index.mjs'),
         plugins: [
+            alias({
+                entries: [
+                    {
+                        find: '@emotion/css/create-instance/dist/emotion-css-create-instance.cjs.js',
+                        replacement: '@emotion/css/create-instance'
+                    }
+                ]
+            }),
             resolve({
                 modulesOnly: true
             }),
