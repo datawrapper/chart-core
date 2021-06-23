@@ -31,7 +31,7 @@
     },
     "homepage": "https://github.com/datawrapper/chart-core#readme",
     "dependencies": {
-        "@datawrapper/expr-eval": "^2.0.3",
+        "@datawrapper/expr-eval": "^2.0.4",
         "@datawrapper/polyfills": "2.1.1",
         "@datawrapper/shared": "^0.34.2",
         "@emotion/css": "^11.1.3",
