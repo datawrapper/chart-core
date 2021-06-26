@@ -2,8 +2,10 @@
 body {
     margin: 0;
     padding: 0;
-
     background: @style_body_background;
+    &.vis-height-fit {
+        overflow: hidden;
+    }
 }
 
 .chart {
@@ -360,7 +362,7 @@ body {
         margin: @style_footer_margin;
 
         & > div > .footer-block {
-            display: inline-block;
+            display: inline;
 
             &.hidden {
                 display: none;
@@ -376,12 +378,16 @@ body {
             }
         }
 
+        .footer-right {
+            text-align:right;
+        }
+
         .separator {
             display: inline-block;
             font-style: initial;
 
             &:before {
-                content: '\00a0•';
+                content: '•';
                 content: @options_footer_separator;
                 display: inline-block;
             }

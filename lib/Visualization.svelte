@@ -20,7 +20,7 @@
     import { domReady, width } from './dw/utils/index.mjs';
     import PostEvent from '@datawrapper/shared/postEvent.js';
     import observeFonts from '@datawrapper/shared/observeFonts.js';
-    import createEmotion from '@emotion/css/create-instance';
+    import createEmotion from '@emotion/css/create-instance/dist/emotion-css-create-instance.cjs.js';
     import deepmerge from 'deepmerge';
     import get from '@datawrapper/shared/get.js';
     import set from '@datawrapper/shared/set.js';
