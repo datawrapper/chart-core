@@ -463,7 +463,7 @@ Please make sure you called __(key) with a key of type "string".
 
         // initialize emotion instance
         if (!dwChart.emotion) {
-            dwChart.emotion = createEmotion({
+            dwChart.emotion = createEmotion.default({
                 key: `datawrapper-${chart.id}`,
                 container: isIframe ? document.head : styleHolder
             });
@@ -486,20 +486,16 @@ Please make sure you called __(key) with a key of type "string".
 
         function initResizeHandler(container) {
             let reloadTimer;
-            function renderLater() {
+
+            function resize() {
                 clearTimeout(reloadTimer);
                 reloadTimer = setTimeout(function() {
+                    dwChart.vis().fire('resize');
                     dwChart.render(isIframe);
-                }, 100);
+                }, 200);
             }
 
             let currentWidth = width(container);
-
-            const resize = () => {
-                dwChart.vis().fire('resize');
-                renderLater();
-            };
-
             const resizeFixed = () => {
                 const w = width(container);
                 if (currentWidth !== w) {
