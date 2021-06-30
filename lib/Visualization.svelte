@@ -546,11 +546,12 @@ Please make sure you called __(key) with a key of type "string".
 
             // provide external APIs
             window.__dw = window.__dw || {};
-            window.__dw.params = { data };
+            window.__dw.params = { data, visJSON: visualization };
             window.__dw.vis = vis;
             window.__dw.render = () => {
                 dwChart.render(isIframe);
             };
+            window.fontsJSON = theme.fonts;
         }
     });
 
