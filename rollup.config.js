@@ -30,10 +30,14 @@ function onwarn(warning, warn) {
 
 module.exports = [
     {
-        /* Client side Svelte Chart Component */
+        /* Client side Svelte Visualization Component */
         input: path.resolve(__dirname, 'main.mjs'),
         plugins: [
             svelte({ hydratable: true }),
+            // for @emotion/css
+            replace({
+                'process.env.NODE_ENV': JSON.stringify('production')
+            }),
             resolve(),
             commonjs(),
             production &&
@@ -52,10 +56,14 @@ module.exports = [
         }
     },
     {
-        /* Server side rendered Svelte Chart Component */
+        /* Server side rendered Svelte Visualization Component */
         input: path.resolve(__dirname, 'lib/Visualization.svelte'),
         plugins: [
             svelte({ generate: 'ssr', hydratable: true }),
+            // for @emotion/css
+            replace({
+                'process.env.NODE_ENV': JSON.stringify('production')
+            }),
             resolve(),
             commonjs(),
             babel({
@@ -136,7 +144,8 @@ module.exports = [
             alias({
                 entries: [
                     {
-                        find: '@emotion/css/create-instance/dist/emotion-css-create-instance.cjs.js',
+                        find:
+                            '@emotion/css/create-instance/dist/emotion-css-create-instance.cjs.js',
                         replacement: '@emotion/css/create-instance'
                     }
                 ]
@@ -146,7 +155,8 @@ module.exports = [
             }),
             commonjs(),
             replace({
-                __chartCoreVersion__: require('./package.json').version
+                __chartCoreVersion__: require('./package.json').version,
+                'process.env.NODE_ENV': JSON.stringify('production')
             })
         ],
         onwarn,

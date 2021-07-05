@@ -1,6 +1,6 @@
 <script>
-    /* globals dw, __dw */
-    import { onMount, afterUpdate, tick } from 'svelte';
+    /* globals dw */
+    import { onMount, afterUpdate } from 'svelte';
     import BlocksRegion from './BlocksRegion.svelte';
     import Menu from './Menu.svelte';
     import Headline from './blocks/Headline.svelte';
@@ -17,27 +17,41 @@
     import HorizontalRule from './blocks/HorizontalRule.svelte';
     import svgRule from './blocks/svgRule.svelte';
 
+    import { domReady, width } from './dw/utils/index.mjs';
+    import PostEvent from '@datawrapper/shared/postEvent.js';
+    import observeFonts from '@datawrapper/shared/observeFonts.js';
+    import createEmotion from '@emotion/css/create-instance/dist/emotion-css-create-instance.cjs.js';
+    import deepmerge from 'deepmerge';
     import get from '@datawrapper/shared/get.js';
     import set from '@datawrapper/shared/set.js';
     import { loadScript, loadStylesheet } from '@datawrapper/shared/fetch.js';
     import purifyHtml from '@datawrapper/shared/purifyHtml.js';
     import { clean } from './shared.mjs';
-    import render from './render.mjs';
-    import { getMaxChartHeight } from './dw/utils/index.mjs';
 
-    export let data = {};
+    export let data = '';
+    export let chart;
+    export let visualization = {};
     export let theme = {};
+    export let locales = {};
+    export let translations;
+    export let blocks = {};
+    export let chartAfterBodyHTML = '';
+    export let isIframe;
+    export let isPreview;
+    export let assets;
+    export let fonts = {};
+    export let styleHolder;
+    export let origin;
+    export let externalDataUrl;
 
-    if (typeof window !== 'undefined') {
-        window.__dwUpdate = ({ chart }) => {
-            Object.assign(data.chartJSON, chart);
-            data = data; // to force re-rendering
-        };
-    }
+    // plain style means no header and footer
+    export let isStylePlain = false;
+    // static style means user can't interact (e.g. in a png version)
+    export let isStyleStatic = false;
+    export let frontendDomain = 'app.datawrapper.de';
 
-    $: chart = data.chartJSON;
-    $: publishData = data.publishData;
-    $: locale = data.visJSON.locale;
+    // .dw-chart-body
+    let target, dwChart, vis;
 
     $: {
         if (!get(chart, 'metadata.publish.blocks')) {
@@ -181,6 +195,8 @@
         theme,
         data,
         chart,
+        dwChart,
+        vis,
         caption
     };
 
@@ -189,6 +205,63 @@
             (a.priority !== undefined ? a.priority : 999) -
             (b.priority !== undefined ? b.priority : 999)
         );
+    }
+
+    async function loadBlocks(blocks) {
+        function url(src) {
+            return origin && src.indexOf('http') !== 0 ? `${origin}/${src}` : src;
+        }
+
+        if (blocks.length) {
+            await Promise.all(
+                blocks.map(d => {
+                    return new Promise(resolve => {
+                        const p = [loadScript(url(d.source.js))];
+
+                        if (d.source.css) {
+                            p.push(
+                                loadStylesheet({
+                                    src: url(d.source.css),
+                                    parentElement: styleHolder
+                                })
+                            );
+                        }
+
+                        Promise.all(p)
+                            .then(resolve)
+                            .catch(err => {
+                                // log error
+                                const url = err.target
+                                    ? err.target.getAttribute('src') ||
+                                      err.target.getAttribute('href')
+                                    : null;
+                                if (url) console.warn('could not load ', url);
+                                else console.error('Unknown error', err);
+                                // but resolve anyway
+                                resolve();
+                            });
+                    });
+                })
+            );
+
+            // all scripts are loaded
+            blocks.forEach(d => {
+                d.blocks.forEach(block => {
+                    if (!dw.block.has(block.component)) {
+                        return console.warn(
+                            `component ${block.component} from chart block ${block.id} not found`
+                        );
+                    }
+                    pluginBlocks.push({
+                        ...block,
+                        component: dw.block(block.component)
+                    });
+                });
+            });
+
+            // trigger svelte update after modifying array
+            pluginBlocks = pluginBlocks;
+        }
     }
 
     function getBlocks(allBlocks, region, props) {
@@ -269,12 +342,6 @@
         menu = get(theme, 'data.options.menu', {});
     }
 
-    // plain style means no header and footer
-    export let isStylePlain = false;
-    // static style means user can't interact (e.g. in a png version)
-    export let isStyleStatic = false;
-    export let frontendDomain = 'app.datawrapper.de';
-
     function getCaption(id) {
         if (id === 'd3-maps-choropleth' || id === 'd3-maps-symbols' || id === 'locator-map')
             return 'map';
@@ -282,7 +349,7 @@
         return 'chart';
     }
 
-    const caption = getCaption(data.visJSON.id);
+    const caption = getCaption(visualization.id);
 
     function __(key, ...args) {
         if (typeof key !== 'string') {
@@ -295,7 +362,7 @@ Please make sure you called __(key) with a key of type "string".
         }
         key = key.trim();
 
-        let translation = locale[key] || key;
+        let translation = translations[key] || key;
 
         if (args.length) {
             translation = translation.replace(/\$(\d)/g, (m, i) => {
@@ -307,118 +374,196 @@ Please make sure you called __(key) with a key of type "string".
         return translation;
     }
 
-    let target;
     let isMobile = false;
     const checkBreakpoint = () => {
         const breakpoint = get(theme, `data.vis.${chart.type}.mobileBreakpoint`, 450);
         isMobile = target.clientWidth <= breakpoint;
     };
 
-    onMount(async () => {
-        document.body.classList.toggle('plain', isStylePlain);
-        document.body.classList.toggle('static', isStyleStatic);
-        // the body class "png-export" kept for backwards compatibility
-        document.body.classList.toggle('png-export', isStyleStatic);
+    async function run() {
+        if (typeof dw === 'undefined') return;
 
-        if (isStyleStatic) {
-            document.body.style['pointer-events'] = 'none';
-        }
-
+        // register theme
         dw.theme.register(theme.id, theme.data);
 
-        const { basemap, minimap, highlight } = publishData;
-        window.__dwParams = {};
-        if (basemap) {
-            basemap.content = JSON.parse(basemap.content);
-
-            window.__dwParams.d3maps_basemap = {
-                [basemap.__id]: basemap
-            };
-        }
-
-        if (minimap || highlight) {
-            window.__dwParams.locatorMap = {
-                minimapGeom: minimap,
-                highlightGeom: highlight
-            };
-        }
-
-        // check mobile breakpoint upon initialization
-        checkBreakpoint();
-
-        render(data);
-
-        // load & execute plugins
-        if (publishData.blocks.length) {
-            await Promise.all(
-                publishData.blocks.map(d => {
-                    return new Promise(resolve => {
-                        const p = [loadScript(d.source.js)];
-                        if (d.source.css) p.push(loadStylesheet(d.source.css));
-                        Promise.all(p)
-                            .then(resolve)
-                            .catch(err => {
-                                // log error
-                                const url = err.target
-                                    ? err.target.getAttribute('src') ||
-                                      err.target.getAttribute('href')
-                                    : null;
-                                if (url) console.warn('could not load ', url);
-                                else console.error('Unknown error', err);
-                                // but resolve anyway
-                                resolve();
-                            });
-                    });
-                })
-            );
-            // all plugins are loaded
-            publishData.blocks.forEach(d => {
-                d.blocks.forEach(block => {
-                    if (!dw.block.has(block.component)) {
-                        return console.warn(
-                            `component ${block.component} from chart block ${block.id} not found`
-                        );
-                    }
-                    pluginBlocks.push({
-                        ...block,
-                        component: dw.block(block.component)
-                    });
-                });
-            });
-            // trigger svelte update after modifying array
-            pluginBlocks = pluginBlocks;
-
-            // re-render chart after loading blocks
-            await tick();
-            render(data);
-        }
-    });
-
-    async function checkHeightAndRender() {
-        if (window && window.__dw && window.__dw.vis) {
-            const currentHeight = __dw.vis.size()[1];
-            await tick();
-            /* check after tick to get the new values after browser had time for layout and paint */
-            const newHeight = getMaxChartHeight(document.querySelector('.dw-chart-body'));
-            if (currentHeight !== newHeight) {
-                __dw.render();
+        // register locales
+        Object.keys(locales).forEach(vendor => {
+            if (locales[vendor] === 'null') {
+                locales[vendor] = null;
             }
+            if (locales[vendor] && locales[vendor].base) {
+                // eslint-disable-next-line
+                const localeBase = eval(locales[vendor].base);
+                locales[vendor] = deepmerge(localeBase, locales[vendor].custom);
+            }
+        });
+
+        const externalJSON =
+            get(chart, 'metadata.data.use-datawrapper-cdn') &&
+            get(chart, 'metadata.data.external-metadata', '').length
+                ? `//${externalDataUrl}/${chart.id}.metadata.json`
+                : get(chart, 'metadata.data.external-metadata');
+
+        if (
+            !isPreview &&
+            externalJSON &&
+            get(chart, 'metadata.data.upload-method') === 'external-data'
+        ) {
+            const res = await window.fetch(externalJSON);
+            const obj = await res.json();
+
+            if (obj.title) {
+                chart.title = obj.title;
+                delete obj.title;
+            }
+
+            Object.assign(chart.metadata, obj);
+            chart = chart;
+        }
+
+        // initialize dw.chart object
+        dwChart = dw
+            .chart(chart)
+            .locale((chart.language || 'en-US').substr(0, 2))
+            .translations(translations)
+            .theme(dw.theme(chart.theme));
+
+        // register chart assets
+        const assetPromises = [];
+        for (var name in assets) {
+            if (assets[name].shared) {
+                assetPromises.push(
+                    // eslint-disable-next-line
+                    new Promise(async resolve => {
+                        const res = await fetch(assets[name].url);
+                        const text = await res.text();
+                        dwChart.asset(name, text);
+                        resolve();
+                    })
+                );
+            } else {
+                dwChart.asset(name, assets[name].value);
+            }
+        }
+        await Promise.all(assetPromises);
+
+        // initialize dw.vis object
+        vis = dw.visualization(visualization.id, target);
+        vis.meta = visualization;
+        vis.lang = chart.language || 'en-US';
+
+        // load chart data and assets
+        await dwChart.load(data || '', isPreview ? undefined : chart.externalData);
+        dwChart.locales = locales;
+        dwChart.vis(vis);
+
+        // load & register blocks (but don't await them, because they
+        // are not needed for initial chart rendering
+        loadBlocks(blocks);
+
+        // initialize emotion instance
+        if (!dwChart.emotion) {
+            dwChart.emotion = createEmotion.default({
+                key: `datawrapper-${chart.id}`,
+                container: isIframe ? document.head : styleHolder
+            });
+        }
+
+        // render chart
+        dwChart.render(isIframe);
+
+        // await necessary reload triggers
+        observeFonts(fonts, theme.data.typography)
+            .then(() => dwChart.render(isIframe))
+            .catch(() => dwChart.render(isIframe));
+
+        // iPhone/iPad fix
+        if (/iP(hone|od|ad)/.test(navigator.platform)) {
+            window.onload = dwChart.render(isIframe);
+        }
+
+        isIframe && initResizeHandler(target);
+
+        function initResizeHandler(container) {
+            let reloadTimer;
+
+            function resize() {
+                clearTimeout(reloadTimer);
+                reloadTimer = setTimeout(function() {
+                    dwChart.vis().fire('resize');
+                    dwChart.render(isIframe);
+                }, 200);
+            }
+
+            let currentWidth = width(container);
+            const resizeFixed = () => {
+                const w = width(container);
+                if (currentWidth !== w) {
+                    currentWidth = w;
+                    resize();
+                }
+            };
+
+            const fixedHeight = dwChart.getHeightMode() === 'fixed';
+            const resizeHandler = fixedHeight ? resizeFixed : resize;
+
+            window.addEventListener('resize', resizeHandler);
         }
     }
 
-    afterUpdate(checkHeightAndRender);
+    onMount(async () => {
+        // check mobile breakpoint upon initialization
+        checkBreakpoint();
+
+        await run();
+
+        if (isIframe) {
+            // set some classes - still needed?
+            document.body.classList.toggle('plain', isStylePlain);
+            document.body.classList.toggle('static', isStyleStatic);
+            document.body.classList.toggle('png-export', isStyleStatic);
+            if (isStyleStatic) {
+                document.body.style['pointer-events'] = 'none';
+            }
+
+            // fire events on hashchange
+            domReady(() => {
+                const postEvent = PostEvent(chart.id);
+                window.addEventListener('hashchange', () => {
+                    postEvent('hash.change', { hash: window.location.hash });
+                });
+            });
+
+            // watch for height changes - still needed?
+            let currentHeight = document.body.offsetHeight;
+            afterUpdate(() => {
+                const newHeight = document.body.offsetHeight;
+                if (currentHeight !== newHeight && typeof dwChart.render === 'function') {
+                    dwChart.render(isIframe);
+                    currentHeight = newHeight;
+                }
+            });
+
+            // provide external APIs
+            window.__dw = window.__dw || {};
+            window.__dw.params = { data, visJSON: visualization };
+            window.__dw.vis = vis;
+            window.__dw.render = () => {
+                dwChart.render(isIframe);
+            };
+            window.fontsJSON = theme.fonts;
+        }
+    });
+
+    let contentBelowChart;
+    $: contentBelowChart =
+        regions.aboveFooter.length ||
+        regions.footerLeft.length ||
+        regions.footerCenter.length ||
+        regions.footerRight.length ||
+        regions.belowFooter.length ||
+        regions.afterBody.length;
 </script>
-
-<svelte:head>
-    <title>{purifyHtml(chart.title, '')}</title>
-    <meta name="description" content={get(chart, 'metadata.describe.intro')} />
-    {@html `<${'style'}>${customCSS}</style>`}
-    {#if publishData.chartAfterHeadHTML}
-        {@html publishData.chartAfterHeadHTML}
-    {/if}
-</svelte:head>
-
-<svelte:window on:resize={checkBreakpoint} />
 
 {#if !isStylePlain}
     <BlocksRegion name="dw-chart-header" blocks={regions.header} id="header" />
@@ -437,6 +582,7 @@ Please make sure you called __(key) with a key of type "string".
 <div
     id="chart"
     bind:this={target}
+    class:content-below-chart={contentBelowChart}
     class:is-mobile={isMobile}
     aria-hidden={!!ariaDescription}
     class="dw-chart-body" />
@@ -484,6 +630,6 @@ Please make sure you called __(key) with a key of type "string".
     {/each}
 </div>
 
-{#if publishData.chartAfterBodyHTML}
-    {@html publishData.chartAfterBodyHTML}
+{#if chartAfterBodyHTML}
+    {@html chartAfterBodyHTML}
 {/if}
