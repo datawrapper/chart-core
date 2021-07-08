@@ -67,6 +67,8 @@ dist/Visualization_SSR.js
 dist/dw-2.0.min.js
 dist/locale
 dist/dw-2.0.cjs.js
+dist/web-component.js
+dist/web-component.css
 token.json
 
 # Source maps
