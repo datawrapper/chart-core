@@ -39,7 +39,6 @@
     export let isIframe;
     export let isPreview;
     export let assets;
-    export let fonts = {};
     export let styleHolder;
     export let origin;
     export let externalDataUrl;
@@ -473,7 +472,7 @@ Please make sure you called __(key) with a key of type "string".
         dwChart.render(isIframe);
 
         // await necessary reload triggers
-        observeFonts(fonts, theme.data.typography)
+        observeFonts(theme.fonts, theme.data.typography)
             .then(() => dwChart.render(isIframe))
             .catch(() => dwChart.render(isIframe));
 
