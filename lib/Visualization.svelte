@@ -376,7 +376,7 @@ Please make sure you called __(key) with a key of type "string".
     let isMobile = false;
     const checkBreakpoint = () => {
         const breakpoint = get(theme, `data.vis.${chart.type}.mobileBreakpoint`, 450);
-        isMobile = target.clientWidth <= breakpoint;
+        isMobile = target.parentElement.clientWidth <= breakpoint;
     };
 
     async function run() {
