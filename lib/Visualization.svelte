@@ -42,6 +42,7 @@
     export let styleHolder;
     export let origin;
     export let externalDataUrl;
+    export let outerContainer;
 
     // plain style means no header and footer
     export let isStylePlain = false;
@@ -376,7 +377,7 @@ Please make sure you called __(key) with a key of type "string".
     let isMobile = false;
     const checkBreakpoint = () => {
         const breakpoint = get(theme, `data.vis.${chart.type}.mobileBreakpoint`, 450);
-        isMobile = target.parentElement.clientWidth <= breakpoint;
+        isMobile = outerContainer.clientWidth <= breakpoint;
     };
 
     async function run() {
@@ -469,16 +470,16 @@ Please make sure you called __(key) with a key of type "string".
         }
 
         // render chart
-        dwChart.render(isIframe);
+        dwChart.render(isIframe, outerContainer);
 
         // await necessary reload triggers
         observeFonts(theme.fonts, theme.data.typography)
-            .then(() => dwChart.render(isIframe))
-            .catch(() => dwChart.render(isIframe));
+            .then(() => dwChart.render(isIframe, outerContainer))
+            .catch(() => dwChart.render(isIframe, outerContainer));
 
         // iPhone/iPad fix
         if (/iP(hone|od|ad)/.test(navigator.platform)) {
-            window.onload = dwChart.render(isIframe);
+            window.onload = dwChart.render(isIframe, outerContainer);
         }
 
         isIframe && initResizeHandler(target);
@@ -490,7 +491,7 @@ Please make sure you called __(key) with a key of type "string".
                 clearTimeout(reloadTimer);
                 reloadTimer = setTimeout(function() {
                     dwChart.vis().fire('resize');
-                    dwChart.render(isIframe);
+                    dwChart.render(isIframe, outerContainer);
                 }, 200);
             }
 
@@ -538,7 +539,7 @@ Please make sure you called __(key) with a key of type "string".
             afterUpdate(() => {
                 const newHeight = document.body.offsetHeight;
                 if (currentHeight !== newHeight && typeof dwChart.render === 'function') {
-                    dwChart.render(isIframe);
+                    dwChart.render(isIframe, outerContainer);
                     currentHeight = newHeight;
                 }
             });
@@ -548,7 +549,7 @@ Please make sure you called __(key) with a key of type "string".
             window.__dw.params = { data, visJSON: visualization };
             window.__dw.vis = vis;
             window.__dw.render = () => {
-                dwChart.render(isIframe);
+                dwChart.render(isIframe, outerContainer);
             };
             window.fontsJSON = theme.fonts;
         }
