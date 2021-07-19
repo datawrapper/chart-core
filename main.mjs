@@ -1,4 +1,5 @@
 import VisualizationIframe from './lib/VisualizationIframe.svelte';
+
 function render() {
     const target = document.getElementById('__svelte-dw');
     /* eslint-disable no-new */
