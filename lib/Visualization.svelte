@@ -374,12 +374,6 @@ Please make sure you called __(key) with a key of type "string".
         return translation;
     }
 
-    let isMobile = false;
-    const checkBreakpoint = () => {
-        const breakpoint = get(theme, `data.vis.${chart.type}.mobileBreakpoint`, 450);
-        isMobile = outerContainer.clientWidth <= breakpoint;
-    };
-
     async function run() {
         if (typeof dw === 'undefined') return;
 
@@ -512,9 +506,6 @@ Please make sure you called __(key) with a key of type "string".
     }
 
     onMount(async () => {
-        // check mobile breakpoint upon initialization
-        checkBreakpoint();
-
         await run();
 
         if (isIframe) {
@@ -583,7 +574,6 @@ Please make sure you called __(key) with a key of type "string".
     id="chart"
     bind:this={target}
     class:content-below-chart={contentBelowChart}
-    class:is-mobile={isMobile}
     aria-hidden={!!ariaDescription}
     class="dw-chart-body" />
 
