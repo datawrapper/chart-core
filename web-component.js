@@ -15,12 +15,15 @@ if (typeof window.__dw === 'undefined') {
         },
         dependencies: {},
         render: async function(data) {
-            const elementId = `datawrapper-chart-${data.chart.id}`;
-            document.write(`<div id="${elementId}"></div>`);
+            const elementId = `datawrapper-vis-${data.chart.id}`;
+            // get the source script element
+            const script = document.currentScript;
 
-            // slightly hacky way to determine the script origin
-            const scripts = document.getElementsByTagName('script');
-            data.origin = scripts[scripts.length - 1]
+            const container = document.createElement('div');
+            container.setAttribute('id', elementId);
+            script.parentNode.insertBefore(container, script);
+
+            data.origin = script
                 .getAttribute('src')
                 .split('/')
                 .slice(0, -1)
