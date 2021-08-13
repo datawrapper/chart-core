@@ -451,9 +451,8 @@ Please make sure you called __(key) with a key of type "string".
         dwChart.locales = locales;
         dwChart.vis(vis);
 
-        // load & register blocks (but don't await them, because they
-        // are not needed for initial chart rendering
-        loadBlocks(blocks);
+        // load & register blocks
+        await loadBlocks(blocks);
 
         // initialize emotion instance
         if (!dwChart.emotion) {
