@@ -24,6 +24,9 @@
     // static style means user can't interact (e.g. in a png version)
     export let isStyleStatic = false;
 
+    // can be on|off|auto (on/off will overwrite chart setting)
+    export let forceLogo = 'auto';
+
     $: customCSS = purifyHtml(get(chart, 'metadata.publish.custom-css', ''), '');
 
     window.__dwUpdate = newAttrs => {
@@ -66,4 +69,5 @@
     {externalDataUrl}
     {isStylePlain}
     {isStyleStatic}
+    {forceLogo}
     {outerContainer} />
