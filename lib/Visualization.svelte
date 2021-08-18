@@ -48,6 +48,8 @@
     export let isStylePlain = false;
     // static style means user can't interact (e.g. in a png version)
     export let isStyleStatic = false;
+
+    export let logoSetting = 'auto';
     export let frontendDomain = 'app.datawrapper.de';
 
     // .dw-chart-body
@@ -137,10 +139,16 @@
         {
             id: 'logo',
             region: 'footerRight',
-            test: ({ chart, theme }) =>
-                get(chart, 'metadata.publish.blocks.logo') &&
-                (!!get(theme, 'data.options.blocks.logo.data.imgSrc') ||
-                    !!get(theme, 'data.options.blocks.logo.data.text')),
+            test: ({ chart, theme }) => {
+                const logoData = get(theme, 'data.options.blocks.logo.data', {});
+                // theme has no logo
+                if (!logoData.imgSrc && !logoData.text) return false;
+                return logoSetting === 'forceOn'
+                    ? true
+                    : logoSetting === 'forceOff'
+                    ? false
+                    : get(chart, 'metadata.publish.blocks.logo');
+            },
             priority: 10,
             component: Logo
         },
