@@ -24,7 +24,7 @@
     // static style means user can't interact (e.g. in a png version)
     export let isStyleStatic = false;
 
-    export let logoSetting = 'auto';
+    export let forceLogoSetting;
 
     $: customCSS = purifyHtml(get(chart, 'metadata.publish.custom-css', ''), '');
 
@@ -68,5 +68,5 @@
     {externalDataUrl}
     {isStylePlain}
     {isStyleStatic}
-    {logoSetting}
+    {forceLogoSetting}
     {outerContainer} />
