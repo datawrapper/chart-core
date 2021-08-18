@@ -49,7 +49,9 @@
     // static style means user can't interact (e.g. in a png version)
     export let isStyleStatic = false;
 
-    export let forceLogoSetting;
+    // can be on|off|auto (on/off will overwrite chart setting)
+    export let forceLogo = 'auto';
+
     export let frontendDomain = 'app.datawrapper.de';
 
     // .dw-chart-body
@@ -143,12 +145,9 @@
                 const logoData = get(theme, 'data.options.blocks.logo.data', {});
                 // theme has no logo
                 if (!logoData.imgSrc && !logoData.text) return false;
-
-                return forceLogoSetting === true
-                    ? true
-                    : forceLogoSetting === false
-                    ? false
-                    : get(chart, 'metadata.publish.blocks.logo');
+                if (forceLogo === 'on') return true;
+                if (forceLogo === 'off') return false;
+                return get(chart, 'metadata.publish.blocks.logo');
             },
             priority: 10,
             component: Logo
