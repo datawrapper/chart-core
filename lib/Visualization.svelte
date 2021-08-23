@@ -427,21 +427,24 @@ Please make sure you called __(key) with a key of type "string".
         // register chart assets
         const assetPromises = [];
         for (var name in assets) {
-            if (name === datasetName && !isPreview && chart.externalData) continue;
+            const isDataset = name === datasetName;
+            const useLiveData = !isPreview && chart.externalData;
 
-            if (assets[name].url) {
-                const assetName = name;
-                assetPromises.push(
-                    // eslint-disable-next-line
-                    new Promise(async resolve => {
-                        const res = await fetch(assets[assetName].url);
-                        const text = await res.text();
-                        dwChart.asset(assetName, text);
-                        resolve();
-                    })
-                );
-            } else {
-                dwChart.asset(name, assets[name].value);
+            if (!isDataset || !useLiveData) {
+                if (assets[name].url) {
+                    const assetName = name;
+                    assetPromises.push(
+                        // eslint-disable-next-line
+                        new Promise(async resolve => {
+                            const res = await fetch(assets[assetName].url);
+                            const text = await res.text();
+                            dwChart.asset(assetName, text);
+                            resolve();
+                        })
+                    );
+                } else {
+                    dwChart.asset(name, assets[name].value);
+                }
             }
         }
         await Promise.all(assetPromises);
