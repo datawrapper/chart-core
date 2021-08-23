@@ -54,7 +54,9 @@
     export let frontendDomain = 'app.datawrapper.de';
 
     // .dw-chart-body
-    let target, dwChart, vis, data;
+    let target, dwChart, vis;
+
+    const datasetName = `dataset.${get(chart.metadata, 'data.json') ? 'json' : 'csv'}`;
 
     $: {
         if (!get(chart, 'metadata.publish.blocks')) {
@@ -200,7 +202,6 @@
         purifyHtml: clean,
         get,
         theme,
-        data,
         chart,
         dwChart,
         vis,
@@ -303,44 +304,38 @@
     $: {
         // build all the region
         regions = {
-            header: getBlocks(allBlocks, 'header', { chart, data, theme, isStyleStatic }),
+            header: getBlocks(allBlocks, 'header', { chart, theme, isStyleStatic }),
             aboveFooter: getBlocks(allBlocks, 'aboveFooter', {
                 chart,
-                data,
                 theme,
                 isStyleStatic
             }),
             footerLeft: getBlocks(allBlocks, 'footerLeft', {
                 chart,
-                data,
                 theme,
                 isStyleStatic
             }),
             footerCenter: getBlocks(allBlocks, 'footerCenter', {
                 chart,
-                data,
                 theme,
                 isStyleStatic
             }),
             footerRight: getBlocks(allBlocks, 'footerRight', {
                 chart,
-                data,
                 theme,
                 isStyleStatic
             }),
             belowFooter: getBlocks(allBlocks, 'belowFooter', {
                 chart,
-                data,
                 theme,
                 isStyleStatic
             }),
             afterBody: getBlocks(allBlocks, 'afterBody', {
                 chart,
-                data,
                 theme,
                 isStyleStatic
             }),
-            menu: getBlocks(allBlocks, 'menu', { chart, data, theme, isStyleStatic })
+            menu: getBlocks(allBlocks, 'menu', { chart, theme, isStyleStatic })
         };
     }
 
@@ -432,6 +427,8 @@ Please make sure you called __(key) with a key of type "string".
         // register chart assets
         const assetPromises = [];
         for (var name in assets) {
+            if (name === datasetName && !isPreview && chart.externalData) continue;
+
             if (assets[name].url) {
                 const assetName = name;
                 assetPromises.push(
@@ -449,15 +446,16 @@ Please make sure you called __(key) with a key of type "string".
         }
         await Promise.all(assetPromises);
 
-        data = dwChart.asset(`dataset.${get(chart.metadata, 'data.json') ? 'json' : 'csv'}`);
-
         // initialize dw.vis object
         vis = dw.visualization(visualization.id, target);
         vis.meta = visualization;
         vis.lang = chart.language || 'en-US';
 
         // load chart data and assets
-        await dwChart.load(data || '', isPreview ? undefined : chart.externalData);
+        await dwChart.load(
+            dwChart.asset(datasetName) || '',
+            isPreview ? undefined : chart.externalData
+        );
         dwChart.locales = locales;
         dwChart.vis(vis);
 
@@ -546,7 +544,10 @@ Please make sure you called __(key) with a key of type "string".
 
             // provide external APIs
             window.__dw = window.__dw || {};
-            window.__dw.params = { data, visJSON: visualization };
+            window.__dw.params = {
+                data: dwChart.asset(datasetName),
+                visJSON: visualization
+            };
             window.__dw.vis = vis;
             window.__dw.render = () => {
                 dwChart.render(isIframe, outerContainer);
