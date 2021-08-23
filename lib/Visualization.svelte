@@ -28,7 +28,6 @@
     import purifyHtml from '@datawrapper/shared/purifyHtml.js';
     import { clean } from './shared.mjs';
 
-    export let data = '';
     export let chart;
     export let visualization = {};
     export let theme = {};
@@ -55,7 +54,7 @@
     export let frontendDomain = 'app.datawrapper.de';
 
     // .dw-chart-body
-    let target, dwChart, vis;
+    let target, dwChart, vis, data;
 
     $: {
         if (!get(chart, 'metadata.publish.blocks')) {
@@ -433,13 +432,14 @@ Please make sure you called __(key) with a key of type "string".
         // register chart assets
         const assetPromises = [];
         for (var name in assets) {
-            if (assets[name].shared) {
+            if (assets[name].url) {
+                const assetName = name;
                 assetPromises.push(
                     // eslint-disable-next-line
                     new Promise(async resolve => {
-                        const res = await fetch(assets[name].url);
+                        const res = await fetch(assets[assetName].url);
                         const text = await res.text();
-                        dwChart.asset(name, text);
+                        dwChart.asset(assetName, text);
                         resolve();
                     })
                 );
@@ -448,6 +448,8 @@ Please make sure you called __(key) with a key of type "string".
             }
         }
         await Promise.all(assetPromises);
+
+        data = dwChart.asset(`dataset.${get(chart.metadata, 'data.json') ? 'json' : 'csv'}`);
 
         // initialize dw.vis object
         vis = dw.visualization(visualization.id, target);
