@@ -449,7 +449,7 @@ Please make sure you called __(key) with a key of type "string".
         }
         await Promise.all(assetPromises);
 
-        data = dwChart.asset(`${chart.id}.${get(chart.metadata, 'data.json') ? 'json' : 'csv'}`);
+        data = dwChart.asset(`dataset.${get(chart.metadata, 'data.json') ? 'json' : 'csv'}`);
 
         // initialize dw.vis object
         vis = dw.visualization(visualization.id, target);
