@@ -4,6 +4,7 @@
     import purifyHtml from '@datawrapper/shared/purifyHtml';
     import { onMount } from 'svelte';
 
+    export let data = '';
     export let chart = {};
     export let visualization = {};
     export let theme = {};
@@ -54,6 +55,7 @@
 </svelte:head>
 
 <Visualization
+    {data}
     {chart}
     {visualization}
     {theme}
