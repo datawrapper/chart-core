@@ -9,6 +9,18 @@
     let href = 'data';
     let download = '';
 
+    $: externalData = get(dwChart, 'externalData');
+    $: caption = get(theme, 'data.options.blocks.get-the-data.data.caption', __('Get the data'));
+    $: filename = get(
+        theme,
+        'data.options.blocks.get-the-data.data.filename',
+        'data-%chart_id%.csv'
+    )
+        .replace(/%custom_(.*?)%/g, (match, key) => {
+            return get(chart, `metadata.custom.${key}`, '');
+        })
+        .replace(/%chart_id%/g, chart.id);
+
     $: {
         // update data link to point to edited dataset
 
@@ -21,12 +33,12 @@
                 if (window.navigator.msSaveOrOpenBlob) {
                     const blobObject = new Blob([csv]);
                     dataLink.addEventListener('click', event => {
-                        window.navigator.msSaveOrOpenBlob(blobObject, 'data-' + chart.id + '.csv');
+                        window.navigator.msSaveOrOpenBlob(blobObject, filename);
                         event.preventDefault();
                         return false;
                     });
                 } else {
-                    download = 'data-' + chart.id + '.csv';
+                    download = filename;
                     href =
                         'data:application/octet-stream;charset=utf-8,' +
                         encodeURIComponent('\uFEFF' + csv);
@@ -34,9 +46,6 @@
             }
         }
     }
-
-    $: externalData = get(dwChart, 'externalData');
-    $: caption = get(theme, 'data.options.blocks.get-the-data.data.caption', __('Get the data'));
 </script>
 
 {#if !hidden}
