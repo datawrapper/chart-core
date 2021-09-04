@@ -3,6 +3,10 @@ body {
     margin: 0;
     padding: 0;
     background: @style_body_background;
+    border-top: @style_body_border_top;
+    border-bottom: @style_body_border_bottom;
+    border-left: @style_body_border_left;
+    border-bottom: @style_body_border_right;
     &.vis-height-fit {
         overflow: hidden;
     }
@@ -313,6 +317,11 @@ body {
         margin: 0px 0px 5px 0px;
         margin: @style_aboveFooter_margin;
 
+        border-top: @style_aboveFooter_border_top;
+        border-bottom: @style_aboveFooter_border_bottom;
+        border-left: @style_aboveFooter_border_left;
+        border-right: @style_aboveFooter_border_right;
+
         position: relative;
     }
 
@@ -348,6 +357,10 @@ body {
         text-align: @style_belowFooter_textAlign;
         padding: @style_belowFooter_padding;
         margin: @style_belowFooter_margin;
+        border-top: @style_belowFooter_border_top;
+        border-bottom: @style_belowFooter_border_bottom;
+        border-left: @style_belowFooter_border_left;
+        border-right: @style_belowFooter_border_right;
 
         position: relative;
     }
