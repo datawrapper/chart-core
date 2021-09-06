@@ -1,6 +1,6 @@
 import { getBrowser, availablePolyfills } from '@datawrapper/polyfills';
 const { browser, version } = getBrowser();
-const { polyfillUri } = window.__DW_SVELTE_PROPS__.data;
+const { polyfillUri } = window.__DW_SVELTE_PROPS__;
 
 if (browser && availablePolyfills[browser] && version >= availablePolyfills[browser][0]) {
     if (version <= availablePolyfills[browser][1]) {

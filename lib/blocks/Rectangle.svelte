@@ -1,7 +1,7 @@
 <script>
     // external props
     export let props;
-    const { get, purifyHtml } = props;
+    const { get } = props;
     $: theme = props.theme;
 
     // internal props
