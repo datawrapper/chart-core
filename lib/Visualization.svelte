@@ -527,6 +527,18 @@ Please make sure you called __(key) with a key of type "string".
                 document.body.style['pointer-events'] = 'none';
             }
 
+            const urlParams = new URLSearchParams(window.location.search);
+            const scheme = urlParams.get('scheme');
+            if (scheme) {
+                const schemeData = get(theme.data, `colors.schemes.${scheme}`);
+                if (schemeData) {
+                    document.body.classList.add(`scheme-${scheme}`);
+                    Object.keys(schemeData).forEach(key => {
+                        set(theme.data, key, schemeData[key]);
+                    });
+                }
+            }
+
             // fire events on hashchange
             domReady(() => {
                 const postEvent = PostEvent(chart.id);
